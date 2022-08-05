@@ -1,0 +1,103 @@
+Regular expressions for the tokenizer:
+<Type> : int+char+float
+<String> : "(a+b+c+d+e+...+z+A+B+C+E+...+Z+0+1+...+9+$+_+\+/+ +<+>&+*+++-+#+[+]+=+?+^+,+.)*"
+<Char> : '(a+b+c+d+e+...+z+A+B+C+E+...+Z+0+1+...+9+$+_+\+/+ +<+>&+*+++-+#+[+]+=+?+^+,+.)'
+<Number> : (0+1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)*
+<while> : while
+<break> : break
+<if> : if
+<else> : else
+
+
+Grammar for SimpleStupid language:
+
+<ParamList> := <Type> <Variable> | <Type> <Variable>, <ParamList>
+
+<ExprList> := <Expr> | <Expr>, <ExprList>
+
+<Call> := <Variable>(<ExprList>)
+
+<BoolExpr> :=  <Number> == <BoolExpr> |
+		<Call> == <BoolExpr> |
+		<Variable> == <BoolExpr> |
+		<Variable>[<Number>] == <BoolExpr> |
+		<Char> == <BoolExpr> |
+		<BoolExpr> != <BoolExpr> |
+		<BoolExpr> < <BoolExpr> |
+		<BoolExpr> > <BoolExpr> |
+		<BoolExpr> <= <BoolExpr> |
+		<BoolExpr> >= <BoolExpr> |
+		!<BoolExpr> |
+		(<BoolExpr>) |
+		<Number> |
+		<Call> |
+		<Variable> |
+		<Variable>[<Number>] |
+		<Char>
+
+<MulExpr> := <MulExpr> * <MulExpr> |
+		<MulExpr> / <MulExpr> |
+		(<MulExpr>) |
+		<BoolExpr> |
+		<Number> |
+		<Call> |
+		<Variable> |
+		<Variable>[<Number>] |
+		<Char>
+
+<Arithmetic> := <Arithmetic>+<Arithmetic> |
+		<Arithmetic>-<Arithmetic> |
+		(<Arithmetic>) |
+		<MulExpr> |
+		<Number> |
+		<Call> |
+		<Variable> |
+		<Variable>[<Number>]
+
+<Literal> := a | b | ... | z | A | B | ... | Z | _ | <Digit>
+		a<Literal> | b<Literal> | ... | z<Literal> | A<Literal> | B<Literal> | ... | 
+		Z<Literal> | _<Literal> |
+		<Digit><Literal>
+
+<Variable> := a | b | ... | z | A | B | ... | Z | _ |
+		a<Literal> | b<Literal> | ... | z<Literal> | A<Literal> | B<Literal> | ... | Z<Literal> | _<Literal>
+
+<Char> := [Tutti i caratteri ASCII visibili]
+
+<String> := <Char> |
+		<Char><String> |
+		<Digit><String>
+
+<Digit> := 0 | 1 | ... | 9
+
+<Number> := <Digit> |
+		<Digit><Number>
+
+<Expr> := <Number> | 
+		"<String>" |
+		'<Char>' |
+		<Call> |
+		<Variable> |
+		<Variable>[<Number>] |
+		<Arithmetic>
+
+<StatementList> := <Statement> | 
+		<Statement><StatementList>
+
+<Statement> := <Expr>; | 
+		<Variable> = <Expr>; |
+		{<StatementList>} |
+		<Type> <Variable>; |
+		<Type> <Variable> = <Expr>; |
+		<Type>[] <Variable>; |
+		<Type>[<Number>] <Variable>; |
+		<Type>[<Number>] <Variable> = {<ExprList>}; |
+		<Type> <Variable>(){<Statement>} |
+		<Type> <Variable>(<ParamList>){<Statement>} |
+		<if>(<BoolExpr>)<Statement> |
+		<if>(<BoolExpr>)<Statement><else> <Statement> |
+		<while>(<BoolExpr>)<Statement>
+		<break>;
+
+<Program> := <StatementList> |
+		null
