@@ -1,4 +1,4 @@
-#include <lexler.h>
+#include <lexer.h>
 
 #define REGBUFFER_LEN (sizeof(regex_buffer) / sizeof(regex_buffer[0]))
 
