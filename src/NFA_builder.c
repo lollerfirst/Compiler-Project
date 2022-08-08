@@ -125,11 +125,21 @@ static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
 }
 
 static NFA_t NFA_union(NFA_t nfa1, NFA_t nfa2){
-    /* ... */
+    
 }
 
 static NFA_t NFA_star(NFA_t nfa){
-    /* ... */
+    //COPY THE INITIAL STATE TRANSITIONS INTO EVERY FINAL STATE
+    int i;
+    for (i=1; i<nfa.states_len; ++i){
+        if (nfa.states[i].final){
+            int j;
+            for (j=0; j<nfa.states[0].len; ++j)
+                NFA_state_addsymbol(&nfa.states[i], nfa.states[0].charset[j], nfa.states[0].mapped_state[j]);
+        }
+    }
+
+    return nfa;
 }
 
 static void NFA_deinit(NFA_t nfa){
