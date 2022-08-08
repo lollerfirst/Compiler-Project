@@ -1,6 +1,7 @@
 {
     "makefile.extensionOutputFolder": "./.vscode",
     "files.associations": {
-        "memory.h": "c"
+        "memory.h": "c",
+        "assert.h": "c"
     }
 }

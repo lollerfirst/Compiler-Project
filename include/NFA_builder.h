@@ -25,12 +25,12 @@ typedef struct _state{
 */
 typedef struct _nfa{
     int states_len;
-    int current_states_len;
     state_t* states;
     int* current_states;
 } NFA_t;
 
 // Builds the NFA corresponding to the passed parse-tree.
 NFA_t NFA_build(const node_t* _parse_tree);
+void NFA_deinit(NFA_t* nfa);
 // Checks if the NFA accepts a particular string
-bool NFA_accepts(const char* string);
+bool NFA_accepts(NFA_t nfa, const char* string);

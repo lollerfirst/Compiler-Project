@@ -6,7 +6,6 @@ static NFA_t NFA_simple(char);
 static NFA_t NFA_concat(NFA_t, NFA_t);
 static NFA_t NFA_union(NFA_t, NFA_t);
 static NFA_t NFA_star(NFA_t);
-static void NFA_deinit(NFA_t);
 static NFA_t NFA_init(int);
 static int NFA_state_init(state_t*, bool);
 static void NFA_state_deinit(state_t*);
@@ -61,6 +60,12 @@ NFA_t NFA_build(const node_t* parse_tree){
     return nfa;
 }
 
+bool NFA_accepts(NFA_t nfa, const char* string){
+    if (nfa.current_states = malloc(sizeof(int) * nfa.states_len) == NULL)
+        return false;
+    
+}
+
 static NFA_t NFA_init(int n_states){
     NFA_t nfa = {0};
     if ( nfa.states = malloc(sizeof(state_t)*n_states) )
@@ -113,11 +118,12 @@ static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
     for (i=0; i<nfa1.states_len; ++i)
         if ( nfa.states[i].final ){
             for (j=0; j<nfa2.states[0].len; ++j)
-                NFA_state_addsymbol(&nfa.states[i], nfa2.states[0].charset[j], nfa2.states[0].mapped_state[j]);
+                NFA_state_addsymbol(&nfa.states[i], nfa2.states[0].charset[j], nfa2.states[0].mapped_state[j] + nfa1.states_len - 1);
             
             nfa.states[i].final = false;
         };
 
+    // CLEANING UP
     NFA_state_deinit(&nfa2.states[0]);
     NFA_deinit(nfa1);
     NFA_deinit(nfa2);
@@ -125,7 +131,38 @@ static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
 }
 
 static NFA_t NFA_union(NFA_t nfa1, NFA_t nfa2){
-    
+    NFA_t nfa = NFA_init(nfa1.states_len + nfa2.states_len - 1);
+
+    // MOVE NFA1 AS IS
+    int i;
+    for (i=0; i<nfa1.states_len; ++i){
+        nfa.states[i] = nfa1.states[i];
+    }
+
+    // MOVE NFA2 LESS INITIAL STATE AND CHANGING STATES' NUMBERS
+    int j;
+    int i = nfa.states_len - 1;
+    for (j=nfa2.states_len - 1; j>0; --j){
+        nfa.states[i] = nfa2.states[j];
+        
+        int l;
+        for (l=0; l<nfa.states[i].len; ++l)
+            nfa.states[i].mapped_state[l] += nfa1.states_len - 1;
+        
+        
+        --i;
+    }
+
+    // INITIAL STATE OF NF1 IS INITIAL STATE OF NF2: COPY DFA2 INITIAL STATE TRANSITIONS INTO THE NEW INITIAL STATE
+    for (i=0; i<nfa2.states[0].len; ++i)
+        NFA_state_addsymbol(&nfa.states[0], nfa2.states[0].charset[i], nfa2.states[0].mapped_state[i] + nfa1.states_len - 1);
+
+    // CLEANING UP
+    NFA_state_deinit(&nfa2.states[0]);
+    NFA_deinit(nfa1);
+    NFA_deinit(nfa2);
+
+    return nfa;
 }
 
 static NFA_t NFA_star(NFA_t nfa){
