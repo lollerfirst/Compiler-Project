@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Aug  7 21:44:29 2022
+# Make data base, printed on Mon Aug  8 06:57:14 2022
 
 # Variables
 
@@ -95,7 +95,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 165139
+VSCODE_PID = 168915
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -201,7 +201,7 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1536
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 165099
+GIO_LAUNCHED_DESKTOP_FILE_PID = 168874
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder vector
 # environment
@@ -415,6 +415,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 44 / hit rate = 38%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/44=0%
-# Finished Make data base on Sun Aug  7 21:44:29 2022
+# Finished Make data base on Mon Aug  8 06:57:14 2022
 
  

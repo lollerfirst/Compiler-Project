@@ -1,10 +1,17 @@
 #include <NFA_builder.h>
+#include <assert.h>
+#include <stdlib.h>
 
 static NFA_t NFA_simple(char);
 static NFA_t NFA_concat(NFA_t, NFA_t);
 static NFA_t NFA_union(NFA_t, NFA_t);
 static NFA_t NFA_star(NFA_t);
-static void NFA_destroy(NFA_t);
+static void NFA_deinit(NFA_t);
+static NFA_t NFA_init(int);
+static int NFA_state_init(state_t*, bool);
+static void NFA_state_deinit(state_t*);
+static int NFA_state_addsymbol(state_t*, char, int);
+static int NFA_state_extend(state_t*);
 
 NFA_t NFA_build(const node_t* parse_tree){
     NFA_t nfa = {0};
@@ -41,6 +48,9 @@ NFA_t NFA_build(const node_t* parse_tree){
             break;
 
         case STAR:
+            #ifdef _DEBUG
+            assert(parse_tree->l_child != NULL);
+            #endif
             nfa = NFA_build(parse_tree->l_child);
             nfa = NFA_star(nfa);
         
@@ -69,15 +79,114 @@ static NFA_t NFA_simple(char c){
         return nfa;
     }
     
-    nfa.states[0].charset[0] = c;
-    nfa.states[0].mapped_state[0] = 1;
+    NFA_state_init(&nfa.states[0], false);
+    NFA_state_init(&nfa.states[1], true);
+
+    NFA_state_addsymbol(&nfa.states[0], c, 1);
+}
+
+static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
+    NFA_t nfa = NFA_init(nfa1.states_len + nfa2.states_len - 1);
+
+    // MOVE NFA1 AS IS
+    int i;
+    for (i=0; i<nfa1.states_len; ++i){
+        nfa.states[i] = nfa1.states[i];
+    }
+
+    // MOVE NFA2 LESS INITIAL STATE AND CHANGING STATES' NUMBERS
+    int j;
+    int i = nfa.states_len - 1;
+    for (j=nfa2.states_len - 1; j>0; --j){
+        nfa.states[i] = nfa2.states[j];
+        
+        int l;
+        for (l=0; l<nfa.states[i].len; ++l)
+            nfa.states[i].mapped_state[l] += nfa1.states_len - 1;
+        
+        
+        --i;
+    }
+
+    // CONNECT FINAL STATES OF NFA1 TO NFA2
+    for (i=0; i<nfa1.states_len; ++i)
+        if ( nfa.states[i].final ){
+            for (j=0; j<nfa2.states[0].len; ++j)
+                NFA_state_addsymbol(&nfa.states[i], nfa2.states[0].charset[j], nfa2.states[0].mapped_state[j]);
+            
+            nfa.states[i].final = false;
+        };
+
+    NFA_state_deinit(&nfa2.states[0]);
+    NFA_deinit(nfa1);
+    NFA_deinit(nfa2);
+    return nfa;
+}
+
+static NFA_t NFA_union(NFA_t nfa1, NFA_t nfa2){
+    /* ... */
+}
+
+static NFA_t NFA_star(NFA_t nfa){
+    /* ... */
+}
+
+static void NFA_deinit(NFA_t nfa){
+    if (nfa.states != NULL)
+        free(nfa.states);
+    if (nfa.current_states != NULL)
+        free(nfa.current_states);
+}
+
+static int NFA_state_init(state_t* state, bool final){
+    state->len = 0;
+    state->capacity = 0;
+    state->final = false;
     
-    nfa.states[1].charset = NULL;
-    nfa.states[1].mapped_state = NULL;
+    if ((state->charset = malloc(sizeof(char) * 5)) == NULL)
+        return -1;
+    if ((state->mapped_state = malloc(sizeof(int) * 5)) == NULL)
+        return -1;
+    
+    state->capacity = 5;
+    state->final = final;
+    return 0;
+}
 
-    nfa.states[0].len = 1;
-    nfa.states[0].final = false;
+static int NFA_state_extend(state_t* state){
+    size_t new_capacity = state->capacity * 2;
 
-    nfa.states[1].len = 0;
-    nfa.states[1].final = true;
+    if ((state->charset = reallocarray(state->charset, new_capacity, sizeof(char))) == NULL)
+        return -1;
+    if ((state->mapped_state = reallocarray(state->mapped_state, new_capacity, sizeof(int))) == NULL)
+        return -1;
+
+    state->capacity = new_capacity;
+    return 0;
+}
+
+static int NFA_state_addsymbol(state_t* state, char c, int ns){
+    if (state->len >= state->capacity)
+        if (NFA_state_extend(state) != 0)
+            return -1;
+    
+    state->charset[state->len] = c;
+    state->mapped_state[state->len] = ns;
+    ++state->len;
+
+    return 0;
+}
+
+static void NFA_state_deinit(state_t* state){
+    if (state->charset != NULL)
+        free(state->charset);
+    if (state->mapped_state != NULL)
+        free(state->mapped_state);
+
+    state->charset = NULL;
+    state->mapped_state = NULL;
+
+    state->capacity = 0;
+    state->len = 0;
+    state->final = false;
 }

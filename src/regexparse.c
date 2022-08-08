@@ -123,7 +123,9 @@ node_t* parser_rec(int* i, node_t** stack_buf, int* stack_idx){
 		++n_iter;
 	}
 	
-	if ((*stack_idx) > 0) return stack_buf[--(*stack_idx)];
+	if ((*stack_idx) > 0) 
+		return stack_buf[--(*stack_idx)];
+		
 	return NULL;
 }
 

@@ -13,7 +13,8 @@ In the event of a single character leading to multiple states,
 the character should be repeated in the charset.   
 */
 typedef struct _state{
-    int len;
+    size_t len;
+    size_t capacity;
     char* charset;
     int* mapped_state;
     bool final;
