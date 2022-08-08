@@ -33,6 +33,7 @@ NFA_t NFA_build(const node_t* parse_tree){
             nfa = NFA_build(parse_tree->l_child);
             nfa1 = NFA_build(parse_tree->r_child);
             nfa = NFA_union(nfa, nfa1);
+            break;
 
         case UNION:
             NFA_t nfa1;
