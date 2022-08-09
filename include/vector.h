@@ -22,7 +22,7 @@
 /* Store and element at the specified vector __index. (vector_storen for a more efficient call)*/
 #define vector_store(__vec, __src, __index) vector_storen(__vec, __src, __index, 1)
 /* Is the vector initialized? */
-#define vector_is_init(__vec) (((__vec)->__vector_init == _INIT_VALUE))
+#define vector_is_init(__vec) (((__vec)->__vector_init == __INIT_VALUE))
 /* Number of elements in the Vector */
 #define vector_size(__vec) ((__vec)->__vector_index)
 /* Initialize the vector with a pre-existing array __arr*/

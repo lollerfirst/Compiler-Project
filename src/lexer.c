@@ -63,7 +63,7 @@ token_t* tokenize(char* buffer){
 		bool acc;
 		
 		for(j=0; j<REGBUFFER_LEN; ++j)
-			if((acc = accepts(dfa_buf[j], buffer+base_i)))
+			if((acc = NFA_accepts(&nfa_buf[j], buffer+base_i)))
 				break;
 		
 		buffer[i] = ch;
@@ -101,7 +101,7 @@ token_t* tokenize(char* buffer){
 	int j;
 	
 	for(j=0; j<REGBUFFER_LEN; ++j)
-		if(accepts(dfa_buf[j], buffer+base_i))
+		if(NFA_accepts(&nfa_buf[j], buffer+base_i))
 			break;
 	
 	token_list[n_token].tk = calloc((i-base_i+1), sizeof(char));
