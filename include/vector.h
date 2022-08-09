@@ -21,7 +21,7 @@
 /* Store and element at the specified vector __index. (vector_storen for a more efficient call)*/
 #define vector_store(__vec, __src, __index) vector_storen(__vec, __src, __index, 1)
 /* Is the vector initialized? */
-#define vector_is_init(__vec) (__vec->__vector_init)
+#define vector_is_init(__vec) ((__vec)->__vector_init)
 /* Initialize the vector with a pre-existing array __arr*/
 #define vector_init_arr(__vec, __arr, __element_count, __type_size) ({   \
     int8_t __i = vector_init(__vec, __element_count, __type_size);       \

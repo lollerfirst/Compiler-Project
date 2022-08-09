@@ -5,8 +5,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
+ 
 
-# Make data base, printed on Tue Aug  9 09:11:42 2022
+# Make data base, printed on Tue Aug  9 13:57:56 2022
 
 # Variables
 
@@ -83,6 +84,7 @@ SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
 WAYLAND_DISPLAY = wayland-0
 # environment
+ 
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
@@ -95,7 +97,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 8953
+VSCODE_PID = 11958
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -201,7 +203,7 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 8911
+GIO_LAUNCHED_DESKTOP_FILE_PID = 11915
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder vector
 # environment
@@ -278,7 +280,6 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # Implicit Rules
 
 # No implicit rules.
- 
 
 # Files
 
@@ -362,6 +363,7 @@ all:
 # < := 
 # automatic
 # + := 
+ 
 # automatic
 # % := 
 # automatic
@@ -370,6 +372,7 @@ all:
 # ? := 
 # automatic
 # | := 
+ 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/11=9%
 #  recipe to execute (from 'Makefile', line 10):
@@ -415,6 +418,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 44 / hit rate = 38%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/44=0%
-# Finished Make data base on Tue Aug  9 09:11:42 2022
+# Finished Make data base on Tue Aug  9 13:57:56 2022
 
  

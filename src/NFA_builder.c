@@ -12,7 +12,7 @@ static int NFA_state_init(state_t*, bool);
 static void NFA_state_deinit(state_t*);
 static int NFA_state_addsymbol(state_t*, char, int);
 static int NFA_state_extend(state_t*);
-static void NFA_delta(NFA_t, char);
+static void NFA_delta(NFA_t*, char);
 
 /*** EXPORTED ***/
 
@@ -82,9 +82,12 @@ bool NFA_accepts(NFA_t* nfa, const char* string){
 }
 
 
-void NFA_destroy(NFA_t nfa){
-
-    /* ... */
+void NFA_destroy(NFA_t* nfa){
+    int i;
+    for (i=0; i<nfa->states_len; ++i)
+        NFA_state_deinit(&nfa->states[i]);
+    
+    NFA_deinit(*nfa);
 }
 
 /*** INTERNAL ***/
@@ -221,6 +224,8 @@ static NFA_t NFA_star(NFA_t nfa){
 static void NFA_deinit(NFA_t nfa){
     if (nfa.states != NULL)
         free(nfa.states);
+    if (vector_is_init(&nfa.current_states))
+        vector_free(&nfa.current_states);
 }
 
 static int NFA_state_init(state_t* state, bool final){
