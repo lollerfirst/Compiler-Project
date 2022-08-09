@@ -13,8 +13,8 @@ In the event of a single character leading to multiple states,
 the character should be repeated in the charset.   
 */
 typedef struct _state{
-    size_t len;
-    size_t capacity;
+    ssize_t len;
+    ssize_t capacity;
     char* charset;
     int* mapped_state;
     bool final;
@@ -24,13 +24,13 @@ typedef struct _state{
     type definition of the NFA
 */
 typedef struct _nfa{
-    int states_len;
+    ssize_t states_len;
     state_t* states;
     int* current_states;
 } NFA_t;
 
 // Builds the NFA corresponding to the passed parse-tree.
 NFA_t NFA_build(const node_t* _parse_tree);
-void NFA_deinit(NFA_t* nfa);
+void NFA_destroy(NFA_t nfa);
 // Checks if the NFA accepts a particular string
 bool NFA_accepts(NFA_t nfa, const char* string);

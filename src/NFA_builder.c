@@ -7,10 +7,14 @@ static NFA_t NFA_concat(NFA_t, NFA_t);
 static NFA_t NFA_union(NFA_t, NFA_t);
 static NFA_t NFA_star(NFA_t);
 static NFA_t NFA_init(int);
+static void NFA_deinit(NFA_t);
 static int NFA_state_init(state_t*, bool);
 static void NFA_state_deinit(state_t*);
 static int NFA_state_addsymbol(state_t*, char, int);
 static int NFA_state_extend(state_t*);
+static void NFA_delta(NFA_t, char);
+
+/*** EXPORTED ***/
 
 NFA_t NFA_build(const node_t* parse_tree){
     NFA_t nfa = {0};
@@ -61,8 +65,41 @@ NFA_t NFA_build(const node_t* parse_tree){
 }
 
 bool NFA_accepts(NFA_t nfa, const char* string){
+    int i;
+
     if (nfa.current_states = malloc(sizeof(int) * nfa.states_len) == NULL)
         return false;
+    
+    memset(nfa.current_states, -1, sizeof(int)*nfa.states_len);
+
+    // INITIAL STATE
+    nfa.current_states[0] = 0;    
+    
+    for (i=0; string[i] != '\0'; ++i)
+        NFA_delta(nfa, string[i]);
+
+    for (i=0; i<nfa.states_len; ++i){
+        if (nfa.current_states[i] == -1)
+            return false;
+
+        if (nfa.states[nfa.current_states[i]].final)
+            return true;    
+    }
+    
+    return false;
+}
+
+
+void NFA_destroy(NFA_t nfa){
+
+    /* ... */
+}
+
+/*** INTERNAL ***/
+
+static void NFA_delta(NFA_t nfa, char c){
+    int next_current_states[nfa.states_len];
+    memset(next_current_states, -1, sizeof(int)*nfa.states_len);
     
 }
 

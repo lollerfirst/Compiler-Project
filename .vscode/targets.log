@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug  8 06:57:14 2022
+# Make data base, printed on Tue Aug  9 09:11:42 2022
 
 # Variables
 
@@ -57,7 +57,7 @@ VSCODE_CODE_CACHE_PATH = /home/lollerfirst/.config/Code/CachedData/da76f93349a72
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.7Z3OP1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.1GAOQ1
 # default
 .LOADED := 
 # default
@@ -95,7 +95,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 168915
+VSCODE_PID = 8953
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -103,7 +103,7 @@ XDG_SESSION_TYPE = wayland
 # environment
 BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
 # environment
-SESSION_MANAGER = local/lollerfirst-server:@/tmp/.ICE-unix/1684,unix/lollerfirst-server:/tmp/.ICE-unix/1684
+SESSION_MANAGER = local/lollerfirst-server:@/tmp/.ICE-unix/1755,unix/lollerfirst-server:/tmp/.ICE-unix/1755
 # automatic
 *F = $(notdir $*)
 # environment
@@ -149,7 +149,7 @@ SNAP_USER_COMMON = /home/lollerfirst/snap/code/common
 # environment
 SNAP = /snap/code/103
 # environment
-INVOCATION_ID = 137428fc82ef48bbbe0564dd0adb080a
+INVOCATION_ID = 398f333983464e8593d802297ae3d92d
 # environment
 SNAP_REVISION = 103
 # environment
@@ -199,9 +199,9 @@ SNAP_DATA = /var/snap/code/103
 # environment
 SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
-MANAGERPID = 1536
+MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 168874
+GIO_LAUNCHED_DESKTOP_FILE_PID = 8911
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder vector
 # environment
@@ -213,7 +213,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GDK_PIXBUF_MODULE_FILE = /home/lollerfirst/snap/code/common/.cache/gdk-pixbuf-loaders.cache
 # environment
-JOURNAL_STREAM = 8:28650
+JOURNAL_STREAM = 8:28763
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -415,6 +415,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 44 / hit rate = 38%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/44=0%
-# Finished Make data base on Mon Aug  8 06:57:14 2022
+# Finished Make data base on Tue Aug  9 09:11:42 2022
 
  
