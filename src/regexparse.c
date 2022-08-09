@@ -6,7 +6,20 @@ static const char* regexpr;
 static node_t* parser_rec(int*, node_t**, int*);
 static char graph_rec(node_t* node, FILE* f);
 
-node_t* parse(const char* str){
+
+void tree_deinit(node_t* node){
+
+	if (node->l_child != NULL)
+		tree_deinit(node->l_child);
+
+	if (node->r_child != NULL)
+		tree_deinit(node->r_child);
+	
+	free(node);
+	return;
+}
+
+node_t* tree_parse(const char* str){
 	regexpr = str;
 	int i = 0;
 	node_t* stack_buf[2048];
@@ -15,7 +28,7 @@ node_t* parse(const char* str){
 	
 }
 
-node_t* parser_rec(int* i, node_t** stack_buf, int* stack_idx){
+static node_t* parser_rec(int* i, node_t** stack_buf, int* stack_idx){
 	
 	int n_iter = 0;
 	char ch = regexpr[*i];
@@ -129,7 +142,7 @@ node_t* parser_rec(int* i, node_t** stack_buf, int* stack_idx){
 	return NULL;
 }
 
-int graph(node_t* node){
+int tree_graph(node_t* node){
 	FILE* f;
 	if ( (f = fopen("graph.gv", "w")) == NULL)
 		return -1;
@@ -144,7 +157,7 @@ int graph(node_t* node){
 	fclose(f);
 }
 
-char graph_rec(node_t* node, FILE* f){
+static char graph_rec(node_t* node, FILE* f){
 	if (node == NULL) return -1;
 	
 	char ch;

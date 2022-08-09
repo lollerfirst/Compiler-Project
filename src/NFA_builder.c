@@ -76,8 +76,13 @@ bool NFA_accepts(NFA_t* nfa, const char* string){
     for (i=0; string[i] != '\0'; ++i)
         NFA_delta(nfa, string[i]);
 
-    
-    
+    for (i=0; i < vector_size(&nfa->current_states); ++i){
+        int idx = *(int*) vector_at(&nfa->current_states, i);
+        
+        if (nfa->states[idx].final)
+            return true;
+    }
+
     return false;
 }
 

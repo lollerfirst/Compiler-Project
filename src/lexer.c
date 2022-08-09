@@ -21,14 +21,17 @@ static const char* regex_buffer[] = {
 };
 
 
-static node_t* dfa_buf[REGBUFFER_LEN];
+static NFA_t nfa_buf[REGBUFFER_LEN];
 
 void tokenizer_init(){
 	int i;
-	for (i=0; i<REGBUFFER_LEN; ++i)
-		dfa_buf[i] = parse(regex_buffer[i]);
+	node_t* node;
 	
-	//graph(dfa_buf[12]);
+	for (i=0; i<REGBUFFER_LEN; ++i){
+		node = tree_parse(regex_buffer[i]);
+		nfa_buf[i] = NFA_build(node);
+		tree_deinit(node);
+	}
 
 }
 

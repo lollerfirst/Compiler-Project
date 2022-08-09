@@ -21,8 +21,8 @@ typedef struct __node{
 	struct __node* r_child;
 } node_t;
 
-node_t* parse(const char*);
-bool accepts(node_t*, const char*);
-int graph(node_t*);
+node_t* tree_parse(const char*);
+void tree_deinit(node_t*);
+int tree_graph(node_t*);
 
 #endif

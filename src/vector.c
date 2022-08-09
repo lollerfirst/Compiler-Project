@@ -10,7 +10,6 @@
 #define __VECTOR_MAX_SIZE 1073741824  // 1 GB max size
 #define __VECTOR_POPHEAD_DELAY 48
 #define __SWAP_GAMMA 0.75F
-#define __INIT_VALUE 46
 
 #define unlikely(x) __builtin_expect(x, 0)
 #define likely(x) __builtin_expect(x, 1)

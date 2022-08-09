@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <NFA_builder.h>
 
 typedef enum {
 	DELIM,
