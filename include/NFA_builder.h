@@ -2,6 +2,7 @@
 
 #include <regexparse.h>
 #include <stdbool.h>
+#include <vector.h>
 
 #define ASCII_LEN 128
 
@@ -26,11 +27,11 @@ typedef struct _state{
 typedef struct _nfa{
     ssize_t states_len;
     state_t* states;
-    int* current_states;
+    Vector current_states;
 } NFA_t;
 
 // Builds the NFA corresponding to the passed parse-tree.
 NFA_t NFA_build(const node_t* _parse_tree);
 void NFA_destroy(NFA_t nfa);
 // Checks if the NFA accepts a particular string
-bool NFA_accepts(NFA_t nfa, const char* string);
+bool NFA_accepts(NFA_t* nfa, const char* string);
