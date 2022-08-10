@@ -1,17 +1,38 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <semaphore.h>
+#define _GNU_SOURCE
+
 #include <stdint.h>
 #include <sys/types.h>
+#include <sys/mman.h>
+#include <memory.h>
 #include <stdbool.h>
+#include <semaphore.h>
 #include <stdarg.h>
 #include <narg.h>
-#include <stdarg.h>
 
-/* Vector max size */
-#define __VECTOR_MAX_SIZE 1073741824
 #define __INIT_VALUE 46
+
+#define __VECTOR_MAX_SIZE 1073741824  // 1 GB max size
+#define __VECTOR_POPHEAD_DELAY 48
+#define __SWAP_GAMMA 0.75F
+
+#define unlikely(x) __builtin_expect(x, 0)
+#define likely(x) __builtin_expect(x, 1)
+
+#define check_init(__vec) (__vec->__vector_init)
+
+#define vector_memcheck(__vec) {\
+    if(unlikely(__vec->__vector_swap_indices[0] != __vec->__vector_swap_indices[1] && __vec->__vector_swap_indices[1] > 0)){\
+    uintptr_t swap_addr1 = (uintptr_t) __vec->__vector_ptr + (((uint32_t)__vec->__vector_swap_indices[0]-1) * __PAGE_SIZE);\
+    uintptr_t swap_addr2 = (uintptr_t) __vec->__vector_ptr + (((uint32_t)__vec->__vector_swap_indices[1]-1) * __PAGE_SIZE);\
+    posix_madvise((void*)swap_addr1, __PAGE_SIZE, MADV_SEQUENTIAL);\
+    posix_madvise((void*)swap_addr2, __PAGE_SIZE, MADV_DONTNEED);\
+    }\
+}
+
+typedef unsigned __int128 uint128_t;
 
 /* Pop an element from the back of the vector into __dest. (vector_popn for a more efficient call)*/
 #define vector_popb(__vec, __dest) vector_popn(__vec, __dest, 1)
@@ -63,7 +84,7 @@ extern int vector_pushn(Vector*__restrict __vec, const void* __restrict __src, c
 /* Push an element to the front of the vector from __src */
 extern int vector_pushf(Vector*__restrict __vec, const void*__restrict __src);
 /* Pop __element_count elements from the back of the vector into __dest */
-extern int vector_popn(Vector*__restrict __vec, void*__restrict __dest, const size_t __element_count);
+extern int vector_popn(Vector*__restrict __vec, void*__restrict __dest, const ssize_t __element_count);
 /* Pop an element from the front of the vector into __dest */
 extern int vector_popf(Vector*__restrict __vec, void*__restrict __dest);
 /* Returns the address of an element at the specified zero addressed index */
@@ -85,4 +106,5 @@ inline int __init_list(Vector* __vec, const uint32_t __narg, ...){
     return 0;
 } 
 
+#undef _GNU_SOURCE
 #endif

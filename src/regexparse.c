@@ -155,6 +155,7 @@ int tree_graph(node_t* node){
 	fputs("}", f);
 	
 	fclose(f);
+	return 0;
 }
 
 static char graph_rec(node_t* node, FILE* f){

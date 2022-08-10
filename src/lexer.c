@@ -27,7 +27,7 @@ void tokenizer_init(){
 	int i;
 	node_t* node;
 	
-	for (i=0; i<REGBUFFER_LEN; ++i){
+	for (i=0; i<(int)REGBUFFER_LEN; ++i){
 		node = tree_parse(regex_buffer[i]);
 		nfa_buf[i] = NFA_build(node);
 		tree_deinit(node);
@@ -45,7 +45,7 @@ token_t* tokenize(char* buffer){
 	
 	int i = 1;
 	int base_i = 0;
-	int n_token = 0;
+	size_t n_token = 0;
 	toktype_t tt = NOTOK;
 	bool prev_acc = false;
 	
@@ -62,7 +62,7 @@ token_t* tokenize(char* buffer){
 		int j;
 		bool acc;
 		
-		for(j=0; j<REGBUFFER_LEN; ++j)
+		for(j=0; j<(int)REGBUFFER_LEN; ++j)
 			if((acc = NFA_accepts(&nfa_buf[j], buffer+base_i)))
 				break;
 		
@@ -100,7 +100,7 @@ token_t* tokenize(char* buffer){
 		
 	int j;
 	
-	for(j=0; j<REGBUFFER_LEN; ++j)
+	for(j=0; j<(int)REGBUFFER_LEN; ++j)
 		if(NFA_accepts(&nfa_buf[j], buffer+base_i))
 			break;
 	

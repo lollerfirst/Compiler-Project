@@ -18,6 +18,7 @@ static void NFA_delta(NFA_t*, char);
 
 NFA_t NFA_build(const node_t* parse_tree){
     NFA_t nfa = {0};
+    NFA_t nfa1;
     
     switch(parse_tree->op){
 
@@ -26,7 +27,6 @@ NFA_t NFA_build(const node_t* parse_tree){
             break;
 
         case CONCAT:
-            NFA_t nfa1;
 
             //check on the integrity of the parse tree
             #ifdef _DEBUG
@@ -35,11 +35,10 @@ NFA_t NFA_build(const node_t* parse_tree){
 
             nfa = NFA_build(parse_tree->l_child);
             nfa1 = NFA_build(parse_tree->r_child);
-            nfa = NFA_union(nfa, nfa1);
+            nfa = NFA_concat(nfa, nfa1);
             break;
 
         case UNION:
-            NFA_t nfa1;
             
             //check on the integrity of the parse tree
             #ifdef _DEBUG
@@ -76,7 +75,7 @@ bool NFA_accepts(NFA_t* nfa, const char* string){
     for (i=0; string[i] != '\0'; ++i)
         NFA_delta(nfa, string[i]);
 
-    for (i=0; i < vector_size(&nfa->current_states); ++i){
+    for (i=0; i < (int)vector_size(&nfa->current_states); ++i){
         int idx = *(int*) vector_at(&nfa->current_states, i);
         
         if (nfa->states[idx].final)
@@ -115,7 +114,7 @@ static void NFA_delta(NFA_t* nfa, char c){
 
 static NFA_t NFA_init(int n_states){
     NFA_t nfa = {0};
-    if ( nfa.states = malloc(sizeof(state_t)*n_states) )
+    if ( (nfa.states = malloc(sizeof(state_t)*n_states)) )
         return nfa;
     
     nfa.states_len = n_states;
@@ -136,6 +135,7 @@ static NFA_t NFA_simple(char c){
     NFA_state_init(&nfa.states[1], true);
 
     NFA_state_addsymbol(&nfa.states[0], c, 1);
+    return nfa;
 }
 
 static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
@@ -149,7 +149,7 @@ static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
 
     // MOVE NFA2 LESS INITIAL STATE AND CHANGING STATES' NUMBERS
     int j;
-    int i = nfa.states_len - 1;
+    i = nfa.states_len - 1;
     for (j=nfa2.states_len - 1; j>0; --j){
         nfa.states[i] = nfa2.states[j];
         
@@ -188,7 +188,7 @@ static NFA_t NFA_union(NFA_t nfa1, NFA_t nfa2){
 
     // MOVE NFA2 LESS INITIAL STATE AND CHANGING STATES' NUMBERS
     int j;
-    int i = nfa.states_len - 1;
+    i = nfa.states_len - 1;
     for (j=nfa2.states_len - 1; j>0; --j){
         nfa.states[i] = nfa2.states[j];
         
