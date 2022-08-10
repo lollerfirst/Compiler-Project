@@ -1,6 +1,10 @@
 #include <NFA_builder.h>
-#include <assert.h>
 #include <stdlib.h>
+
+#ifdef _DEBUG
+#include <assert.h>
+#include <stdio.h>
+#endif
 
 static NFA_t NFA_simple(char);
 static NFA_t NFA_concat(NFA_t, NFA_t);
@@ -13,12 +17,13 @@ static void NFA_state_deinit(state_t*);
 static int NFA_state_addsymbol(state_t*, char, int);
 static int NFA_state_extend(state_t*);
 static void NFA_delta(NFA_t*, char);
+static void NFA_print(NFA_t);
 
 /*** EXPORTED ***/
 
 NFA_t NFA_build(const node_t* parse_tree){
     NFA_t nfa = {0};
-    NFA_t nfa1;
+    NFA_t nfa1 = {0};
     
     switch(parse_tree->op){
 
@@ -30,7 +35,7 @@ NFA_t NFA_build(const node_t* parse_tree){
 
             //check on the integrity of the parse tree
             #ifdef _DEBUG
-            assert(parse_tree->l_child != NULL && parse_tree->r_child);
+            assert(parse_tree->l_child != NULL && parse_tree->r_child != NULL);
             #endif
 
             nfa = NFA_build(parse_tree->l_child);
@@ -42,7 +47,7 @@ NFA_t NFA_build(const node_t* parse_tree){
             
             //check on the integrity of the parse tree
             #ifdef _DEBUG
-            assert(parse_tree->l_child != NULL && parse_tree->r_child);
+            assert(parse_tree->l_child != NULL && parse_tree->r_child != NULL);
             #endif
 
             nfa = NFA_build(parse_tree->l_child);
@@ -59,6 +64,10 @@ NFA_t NFA_build(const node_t* parse_tree){
         
         default: break;
     }
+
+    #ifdef _DEBUG
+    NFA_print(nfa);
+    #endif
 
     return nfa;
 }
@@ -96,6 +105,16 @@ void NFA_destroy(NFA_t* nfa){
 
 /*** INTERNAL ***/
 
+static void NFA_print(NFA_t nfa){
+    puts("NFA:");
+    fprintf(stderr, "\tstates_len: %ld\n", nfa.states_len);
+    puts("\tstates:");
+    int i;
+    for (i=0; i<nfa.states_len; ++i){
+        fprintf(stderr, "\t\t%d> len: %ld, capacity: %ld\n", i, nfa.states[i].len, nfa.states[i].capacity);
+    }
+}
+
 static void NFA_delta(NFA_t* nfa, char c){
     int i;
     Vector next_current_states;
@@ -114,7 +133,7 @@ static void NFA_delta(NFA_t* nfa, char c){
 
 static NFA_t NFA_init(int n_states){
     NFA_t nfa = {0};
-    if ( (nfa.states = malloc(sizeof(state_t)*n_states)) )
+    if ( (nfa.states = malloc(sizeof(state_t)*n_states)) == NULL)
         return nfa;
     
     nfa.states_len = n_states;
