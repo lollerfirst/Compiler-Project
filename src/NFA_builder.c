@@ -91,6 +91,7 @@ bool NFA_accepts(NFA_t* nfa, const char* string){
             return true;
     }
 
+    vector_free(&nfa->current_states);
     return false;
 }
 
@@ -117,18 +118,25 @@ static void NFA_print(NFA_t nfa){
 
 static void NFA_delta(NFA_t* nfa, char c){
     int i;
-    Vector next_current_states;
-    vector_init(&next_current_states, nfa->states_len, sizeof(int));
+    Vector next_states;
+    vector_init(&next_states, nfa->states_len, sizeof(int));
 
     while (vector_popb(&nfa->current_states, &i) == 0){
         int j;
+        bool transition = false;             // At least one transition, otherwise same state will be reinserted
+        
         for (j=0; j<nfa->states[i].len; ++j)
-            if (nfa->states[i].charset[j] == c)
-                vector_pushb(&next_current_states, &nfa->states[i].mapped_state[j]);
+            if (nfa->states[i].charset[j] == c){
+                vector_pushb(&next_states, &nfa->states[i].mapped_state[j]);
+                transition = true;
+            }
+
+        if (!transition)
+            vector_pushb(&next_states, &i);
     }
 
     vector_free(&nfa->current_states);
-    nfa->current_states = next_current_states;
+    nfa->current_states = next_states;
 }
 
 static NFA_t NFA_init(int n_states){
