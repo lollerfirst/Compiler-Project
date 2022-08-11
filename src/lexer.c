@@ -29,8 +29,14 @@ void tokenizer_init(){
 	
 	for (i=0; i<(int)REGBUFFER_LEN; ++i){
 		node = tree_parse(regex_buffer[i]);
+
+		#ifdef _DEBUG
+		assert(node != NULL);
+		#endif
+
 		nfa_buf[i] = NFA_build(node);
 		tree_deinit(node);
+		
 	}
 
 }

@@ -28,18 +28,6 @@ int main(int argc, char** argv){
 	tokenizer_init();
 	token_t* token_list = tokenize(buffer);
 	print_tokens(token_list);
-	
-	/*
-	node_t* dfa2 = parse(regex_buffer[NAME]);
-	graph(dfa2);
-	
-	char token[] = "var2";
-	
-	if (accepts(dfa2, token))
-		printf("%s é un token riconosciuto\n", token);
-	else
-		printf("%s non é un token riconosciuto\n", token);
-	*/
 		
 	return 0;
 	

@@ -1,0 +1,51 @@
+digraph G{
+94702854235552 [label="*", style="filled", fillcolor="red", shape="oval"]
+94702854234816 [label="+", style="filled", fillcolor="red", shape="oval"]
+94702854234784 [label="a", style="filled", fillcolor="white", shape="oval"]
+94702854234816 -> 94702854234784
+94702854234880 [label="+", style="filled", fillcolor="red", shape="oval"]
+94702854234848 [label="b", style="filled", fillcolor="white", shape="oval"]
+94702854234880 -> 94702854234848
+94702854234944 [label="+", style="filled", fillcolor="red", shape="oval"]
+94702854234912 [label="c", style="filled", fillcolor="white", shape="oval"]
+94702854234944 -> 94702854234912
+94702854235424 [label="+", style="filled", fillcolor="red", shape="oval"]
+94702854235360 [label="~", style="filled", fillcolor="red", shape="oval"]
+94702854235296 [label="~", style="filled", fillcolor="red", shape="oval"]
+94702854235232 [label="~", style="filled", fillcolor="red", shape="oval"]
+94702854235136 [label="~", style="filled", fillcolor="red", shape="oval"]
+94702854235072 [label="~", style="filled", fillcolor="red", shape="oval"]
+94702854235008 [label="~", style="filled", fillcolor="red", shape="oval"]
+94702854234976 [label="a", style="filled", fillcolor="white", shape="oval"]
+94702854235008 -> 94702854234976
+94702854235040 [label="b", style="filled", fillcolor="white", shape="oval"]
+94702854235008 -> 94702854235040
+94702854235072 -> 94702854235008
+94702854235104 [label="d", style="filled", fillcolor="white", shape="oval"]
+94702854235072 -> 94702854235104
+94702854235136 -> 94702854235072
+94702854235200 [label="*", style="filled", fillcolor="red", shape="oval"]
+94702854235168 [label="d", style="filled", fillcolor="white", shape="oval"]
+94702854235200 -> 94702854235168
+94702854235136 -> 94702854235200
+94702854235232 -> 94702854235136
+94702854235264 [label="e", style="filled", fillcolor="white", shape="oval"]
+94702854235232 -> 94702854235264
+94702854235296 -> 94702854235232
+94702854235328 [label="f", style="filled", fillcolor="white", shape="oval"]
+94702854235296 -> 94702854235328
+94702854235360 -> 94702854235296
+94702854235392 [label="g", style="filled", fillcolor="white", shape="oval"]
+94702854235360 -> 94702854235392
+94702854235424 -> 94702854235360
+94702854235488 [label="+", style="filled", fillcolor="red", shape="oval"]
+94702854235456 [label="h", style="filled", fillcolor="white", shape="oval"]
+94702854235488 -> 94702854235456
+94702854235520 [label="i", style="filled", fillcolor="white", shape="oval"]
+94702854235488 -> 94702854235520
+94702854235424 -> 94702854235488
+94702854234944 -> 94702854235424
+94702854234880 -> 94702854234944
+94702854234816 -> 94702854234880
+94702854235552 -> 94702854234816
+}

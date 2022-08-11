@@ -65,10 +65,6 @@ NFA_t NFA_build(const node_t* parse_tree){
         default: break;
     }
 
-    #ifdef _DEBUG
-    NFA_print(nfa);
-    #endif
-
     return nfa;
 }
 
@@ -104,17 +100,30 @@ void NFA_destroy(NFA_t* nfa){
     NFA_deinit(*nfa);
 }
 
+int NFA_graph(NFA_t nfa){
+	FILE* f;
+	if ( (f = fopen("nfa_graph.gv", "w")) == NULL)
+		return -1;
+	
+	fputs("digraph G{", f);
+	int i;
+    for (i=0; i<nfa.states_len; ++i){
+        const char* bgcolor = (nfa.states[i].final) ? "red" : "white";
+        fprintf(f, "%d [label=\"%d\", style=\"filled\", fillcolor=\"%s\", shape=\"oval\"]\n", i, i, bgcolor);
+        
+        int j;
+        for (j=0; j<nfa.states[i].len; ++j){
+            fprintf(f, "%d -> %d [label=\"%c\"]\n", i, nfa.states[i].mapped_state[j], nfa.states[i].charset[j]);
+        }
+    }
+	fputs("}", f);
+	
+	fclose(f);
+    return 0;
+}
+
 /*** INTERNAL ***/
 
-static void NFA_print(NFA_t nfa){
-    puts("NFA:");
-    fprintf(stderr, "\tstates_len: %ld\n", nfa.states_len);
-    puts("\tstates:");
-    int i;
-    for (i=0; i<nfa.states_len; ++i){
-        fprintf(stderr, "\t\t%d> len: %ld, capacity: %ld\n", i, nfa.states[i].len, nfa.states[i].capacity);
-    }
-}
 
 static void NFA_delta(NFA_t* nfa, char c){
     int i;

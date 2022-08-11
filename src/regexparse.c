@@ -144,7 +144,7 @@ static node_t* parser_rec(int* i, node_t** stack_buf, int* stack_idx){
 
 int tree_graph(node_t* node){
 	FILE* f;
-	if ( (f = fopen("graph.gv", "w")) == NULL)
+	if ( (f = fopen("tree_graph.gv", "w")) == NULL)
 		return -1;
 	
 	fputs("digraph G{\n", f);

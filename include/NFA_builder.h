@@ -36,3 +36,5 @@ NFA_t NFA_build(const node_t* _parse_tree);
 void NFA_destroy(NFA_t* nfa);
 // Checks if the NFA accepts a particular string
 bool NFA_accepts(NFA_t* nfa, const char* string);
+// Prints the NFA in graphviz format to stdout
+int NFA_graph(NFA_t nfa);
