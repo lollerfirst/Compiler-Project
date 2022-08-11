@@ -142,13 +142,6 @@ static NFA_t NFA_init(int n_states){
 
 static NFA_t NFA_simple(char c){
     NFA_t nfa = NFA_init(2);
-
-    if ( (nfa.states[0].charset = malloc(sizeof(char))) == NULL &&
-         (nfa.states[0].mapped_state = malloc(sizeof(int))) == NULL ){
-        
-        NFA_deinit(nfa);
-        return nfa;
-    }
     
     NFA_state_init(&nfa.states[0], false);
     NFA_state_init(&nfa.states[1], true);
