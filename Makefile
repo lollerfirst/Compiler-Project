@@ -2,8 +2,8 @@ CC=gcc
 SOURCE=./src
 BIN=./build
 INCLUDE=./include
-OBJECT_FILES=$(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o $(BIN)/vector.o
-TARGETS=regexparse lexer nfa_builder vector
+OBJECT_FILES=$(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o
+TARGETS=regexparse lexer nfa_builder
 ifeq ($(OPT),debug)
 DEBUG=-g -D'_DEBUG'
 else
@@ -24,9 +24,6 @@ regexparse: $(SOURCE)/regexparse.c
 
 nfa_builder: $(SOURCE)/NFA_builder.c
 	$(CC) $(SOURCE)/NFA_builder.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/nfabuilder.o
- 
-vector: $(SOURCE)/vector.c
-	$(CC) $(SOURCE)/vector.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/vector.o
 
 all:
 	make main

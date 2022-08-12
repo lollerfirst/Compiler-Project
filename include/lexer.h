@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _DEBUG
+#include <assert.h>
+#endif
 #include <NFA_builder.h>
 
 typedef enum {

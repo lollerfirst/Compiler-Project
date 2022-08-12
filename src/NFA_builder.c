@@ -17,7 +17,6 @@ static void NFA_state_deinit(state_t*);
 static int NFA_state_addsymbol(state_t*, char, int);
 static int NFA_state_extend(state_t*);
 static void NFA_delta(NFA_t*, char);
-static void NFA_print(NFA_t);
 
 /*** EXPORTED ***/
 
@@ -70,24 +69,24 @@ NFA_t NFA_build(const node_t* parse_tree){
 
 bool NFA_accepts(NFA_t* nfa, const char* string){
     int i;
-
-    vector_init(&nfa->current_states, nfa->states_len, sizeof(int));
+    nfa->current_states = malloc(sizeof(int) * nfa->states_len);
+    nfa->current_states_capacity = nfa->states_len;
 
     // INITIAL STATE
-    int tmp = 0;
-    vector_pushb(&nfa->current_states, &tmp);
+    nfa->current_states[0] = 0;
+    nfa->current_states_len = 1;
     
     for (i=0; string[i] != '\0'; ++i)
         NFA_delta(nfa, string[i]);
 
-    for (i=0; i < (int)vector_size(&nfa->current_states); ++i){
-        int idx = *(int*) vector_at(&nfa->current_states, i);
-        
+    for (i=0; i < nfa->current_states_len; ++i){
+
+        int idx = nfa->current_states[i];
         if (nfa->states[idx].final)
             return true;
     }
 
-    vector_free(&nfa->current_states);
+    free(nfa->current_states);
     return false;
 }
 
@@ -100,20 +99,20 @@ void NFA_destroy(NFA_t* nfa){
     NFA_deinit(*nfa);
 }
 
-int NFA_graph(NFA_t nfa){
+int NFA_graph(const NFA_t* nfa){
 	FILE* f;
 	if ( (f = fopen("nfa_graph.gv", "w")) == NULL)
 		return -1;
 	
 	fputs("digraph G{", f);
 	int i;
-    for (i=0; i<nfa.states_len; ++i){
-        const char* bgcolor = (nfa.states[i].final) ? "red" : "white";
+    for (i=0; i<nfa->states_len; ++i){
+        const char* bgcolor = (nfa->states[i].final) ? "red" : "white";
         fprintf(f, "%d [label=\"%d\", style=\"filled\", fillcolor=\"%s\", shape=\"oval\"]\n", i, i, bgcolor);
         
         int j;
-        for (j=0; j<nfa.states[i].len; ++j){
-            fprintf(f, "%d -> %d [label=\"%c\"]\n", i, nfa.states[i].mapped_state[j], nfa.states[i].charset[j]);
+        for (j=0; j<nfa->states[i].len; ++j){
+            fprintf(f, "%d -> %d [label=\"%c\"]\n", i, nfa->states[i].mapped_state[j], nfa->states[i].charset[j]);
         }
     }
 	fputs("}", f);
@@ -126,26 +125,33 @@ int NFA_graph(NFA_t nfa){
 
 
 static void NFA_delta(NFA_t* nfa, char c){
+    int* next_states = malloc(sizeof(int) * nfa->current_states_len);
+    ssize_t next_states_len = 0;
+    ssize_t next_states_capacity = nfa->current_states_len;
+
     int i;
-    Vector next_states;
-    vector_init(&next_states, nfa->states_len, sizeof(int));
+    for (i=0; i<nfa->current_states_len; ++i){
+        const int k = nfa->current_states[i];
 
-    while (vector_popb(&nfa->current_states, &i) == 0){
-        int j;
-        bool transition = false;             // At least one transition, otherwise same state will be reinserted
-        
-        for (j=0; j<nfa->states[i].len; ++j)
-            if (nfa->states[i].charset[j] == c){
-                vector_pushb(&next_states, &nfa->states[i].mapped_state[j]);
-                transition = true;
+        int j;        
+        for (j=0; j<nfa->states[k].len; ++j)
+
+            if (nfa->states[k].charset[j] == c){
+                
+                if (next_states_len >= next_states_capacity){
+                    next_states = reallocarray(next_states, next_states_capacity * 2, sizeof(int));
+                    next_states_capacity *= 2;
+                }
+
+                next_states[next_states_len++] = nfa->states[k].mapped_state[j];
             }
-
-        if (!transition)
-            vector_pushb(&next_states, &i);
     }
 
-    vector_free(&nfa->current_states);
+    free(nfa->current_states);
     nfa->current_states = next_states;
+    nfa->current_states_len = next_states_len;
+    nfa->current_states_capacity = next_states_capacity;
+
 }
 
 static NFA_t NFA_init(int n_states){
@@ -258,8 +264,6 @@ static NFA_t NFA_star(NFA_t nfa){
 static void NFA_deinit(NFA_t nfa){
     if (nfa.states != NULL)
         free(nfa.states);
-    if (vector_is_init(&nfa.current_states))
-        vector_free(&nfa.current_states);
 }
 
 static int NFA_state_init(state_t* state, bool final){
