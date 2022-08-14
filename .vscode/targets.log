@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Aug 12 09:21:15 2022
+# Make data base, printed on Sat Aug 13 12:56:29 2022
 
 # Variables
 
@@ -69,7 +69,7 @@ CURDIR := /home/lollerfirst/dev/Compiler-Project
 # environment
 J2REDIR = /usr/lib/jvm/java-17-oracle
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # automatic
@@ -95,7 +95,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 84526
+VSCODE_PID = 100594
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -203,7 +203,7 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 84482
+GIO_LAUNCHED_DESKTOP_FILE_PID = 100550
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder
 # environment
@@ -406,6 +406,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 42 / hit rate = 35%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/42=0%
-# Finished Make data base on Fri Aug 12 09:21:16 2022
+# Finished Make data base on Sat Aug 13 12:56:29 2022
 
  

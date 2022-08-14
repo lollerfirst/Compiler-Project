@@ -2,10 +2,10 @@
 	
 static const char* regexpr;
 
-
+/* HELPERS */
 static node_t* parser_rec(int*, node_t**, int*);
 static char graph_rec(node_t* node, FILE* f);
-
+/* ******* */
 
 void tree_deinit(node_t* node){
 
