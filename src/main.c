@@ -26,7 +26,8 @@ int main(int argc, char** argv){
 	// *************************
 	
 	tokenizer_init();
-	toklist_t token_list = tokenize(buffer);
+	toklist_t token_list = {0};
+	tokenize(&token_list, buffer);
 	print_tokens(&token_list);
 		
 	return 0;
