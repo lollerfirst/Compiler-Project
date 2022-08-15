@@ -1,7 +1,7 @@
 Tokens: (\\ is the escape)
 <delimiter>: "\n+\t+ "
 <assign-op>: "="
-<alegraic-op>: "\\++-+\\*+/"
+<algebraic-op>: "\\++-+\\*+/"
 <boolean-op>: "==+<+>+!=+<=+>="
 <left-roundb>: "\\("
 <right-roundb>: "\\)"
@@ -9,7 +9,9 @@ Tokens: (\\ is the escape)
 <right-squareb>: "]"
 <left-curlyb>: "{"
 <right-curlyb>: "}"
-<end-statement>: ";"
+<statement>: ";"
+<argstop>: ","
+<logical-not>: "!"
 <if>: "if"
 <while>: "while"
 <break>: "break"
@@ -24,31 +26,46 @@ Tokens: (\\ is the escape)
 
 <char>: "'(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)'"
 
-Grammar for SimpleStupid language:
+Grammar for SimpleStupid language: (# is the epsilon)
 
-<ParamList> := <Type> <Variable> | <Type> <Variable>, <ParamList>
+<DelimiterList> := <delimiter> | 
+			<delimiter><DelimiterList>
 
-<ExprList> := <Expr> | <Expr>, <ExprList>
+<ArgSeparator> := <argstop> |
+			<DelimiterList><argstop> | 
+			<argstop><DelimiterList> | 
+			<DelimiterList><argstop><DelimiterList>
+<Variable> := <name>
 
-<Call> := <Variable>(<ExprList>)
-
-<BoolExpr> :=  <Number> == <BoolExpr> |
-		<Call> == <BoolExpr> |
-		<Variable> == <BoolExpr> |
-		<Variable>[<Number>] == <BoolExpr> |
-		<Char> == <BoolExpr> |
-		<BoolExpr> != <BoolExpr> |
-		<BoolExpr> < <BoolExpr> |
-		<BoolExpr> > <BoolExpr> |
-		<BoolExpr> <= <BoolExpr> |
-		<BoolExpr> >= <BoolExpr> |
-		!<BoolExpr> |
-		(<BoolExpr>) |
-		<Number> |
+<Expr> := <Number> | 
+		"<String>" |
+		'<Char>' |
 		<Call> |
 		<Variable> |
-		<Variable>[<Number>] |
-		<Char>
+		<left-roundb><Expr><right-roundb> |
+		<DelimiterList><Expr> |
+		<Expr><DelimiterList> |
+		<DelimiterList><Expr><DelimiterList>
+
+<ParamList> := <Type><DelimiterList><Variable> |
+			<Type><DelimiterList><Variable><ArgSeparator><ParamList>
+
+<ExprList> := <Expr> |
+		<Expr><ArgSeparator><ExprList> |
+		<DelimiterList><Expr><ArgSeparator><ExprList>
+
+<Call> := <Variable><left-roundb><ExprList><right-roundb> |
+		<Variable><DelimiterList><left-roundb><ExprList><right-roundb>
+
+<BoolOP> := <boolean-op> |
+		<DelimiterList><boolean-op> |
+		<boolean-op><DelimiterList> |
+		<DelimiterList><boolean-op><DelimiterList>
+
+<BoolExpr> :=  <Expr><BoolOP><BoolExpr>
+		<logical-not><BoolExpr> |
+		<left-roundb><BoolExpr><right-roundb> |
+		<Expr>
 
 <MulExpr> := <MulExpr> * <MulExpr> |
 		<MulExpr> / <MulExpr> |
@@ -69,32 +86,7 @@ Grammar for SimpleStupid language:
 		<Variable> |
 		<Variable>[<Number>]
 
-<Literal> := a | b | ... | z | A | B | ... | Z | _ | <Digit>
-		a<Literal> | b<Literal> | ... | z<Literal> | A<Literal> | B<Literal> | ... | 
-		Z<Literal> | _<Literal> |
-		<Digit><Literal>
 
-<Variable> := a | b | ... | z | A | B | ... | Z | _ |
-		a<Literal> | b<Literal> | ... | z<Literal> | A<Literal> | B<Literal> | ... | Z<Literal> | _<Literal>
-
-<Char> := [Tutti i caratteri ASCII visibili]
-
-<String> := <Char> |
-		<Char><String> |
-		<Digit><String>
-
-<Digit> := 0 | 1 | ... | 9
-
-<Number> := <Digit> |
-		<Digit><Number>
-
-<Expr> := <Number> | 
-		"<String>" |
-		'<Char>' |
-		<Call> |
-		<Variable> |
-		<Variable>[<Number>] |
-		<Arithmetic>
 
 <StatementList> := <Statement> | 
 		<Statement><StatementList>
