@@ -7,8 +7,8 @@ static const char* regex_buffer[] = {
 				"=",
 				"\\++-+\\*+/",
 				"==+<+>+!=+<=+>=",
-				"(",
-				")",
+				"\\(",
+				"\\)",
 				"[",
 				"]",
 				"{",
@@ -29,6 +29,7 @@ static const char* regex_buffer[] = {
 
 
 static NFA_t nfa_buf[REGBUFFER_LEN];
+static const char* typetokstr(toktype_t);
 
 int tokenizer_init(){
 	int i;
@@ -45,6 +46,7 @@ int tokenizer_init(){
 		tree_deinit(node);
 	}
 
+	return 0;
 }
 
 int tokenize(toklist_t* token_list, char* buffer){
@@ -59,14 +61,14 @@ int tokenize(toklist_t* token_list, char* buffer){
 	if ((token_list->list = malloc(token_list->capacity * sizeof(token_t)) ) == NULL)
 		return -1;
 	
-	size_t i;
+	size_t i = 1;
 	size_t prev_i = 0;
 	size_t base_i = 0;
 	
 	toktype_t tt = NOTOK;
 	
 	 
-	for (i=1; i <= buf_len; ++i){
+	while (i <= buf_len){
 		
 		char temp_ch = buffer[i];
 		buffer[i] = '\0';
@@ -78,11 +80,14 @@ int tokenize(toklist_t* token_list, char* buffer){
 		}
 		
 		size_t j;
-		bool acc;
+		int acc;
 		
 		for (j=0; j<REGBUFFER_LEN; ++j)
 			if ((acc = NFA_accepts(&nfa_buf[j], buffer+base_i)))
 				break;
+		
+		if (acc == -1)
+			return -1;
 		
 		buffer[i] = temp_ch;
 
@@ -95,7 +100,8 @@ int tokenize(toklist_t* token_list, char* buffer){
 				return -1;
 			
 			// allocating new token
-			token_list->list[token_list->len].tk = malloc((i-base_i) * sizeof(char));
+			if ((token_list->list[token_list->len].tk = calloc(sizeof(char), i-base_i)) == NULL)
+				return -1;
 			token_list->list[token_list->len].tt = tt;
 			strncpy(token_list->list[token_list->len].tk, buffer+base_i, i-base_i-1);
 			++token_list->len;
@@ -122,5 +128,60 @@ void print_tokens(const toklist_t* token_list){
 			printf("<%s> : '\\t'\n", typetokstr(token_list->list[i].tt));
 		else
 			printf("<%s> : '%s'\n", typetokstr(token_list->list[i].tt), token_list->list[i].tk);
+	}
+}
+
+void tokenizer_deinit(){
+	size_t i;
+	for (i=0; i<REGBUFFER_LEN; ++i)
+		NFA_destroy(&nfa_buf[i]);
+}
+
+static const char* typetokstr(toktype_t tktype){
+	switch (tktype){
+		case DELIM:
+			return "delimiter";
+		case ASSIGN_OP:
+			return "assign-op";
+		case ALGEBRAIC_OP:
+			return "algebraic-op";
+		case BOOLEAN_OP:
+			return "boolean-op";
+		case L_ROUNDB:
+			return "left-roundbracket";
+		case R_ROUNDB:
+			return "right-roundbracket";
+		case L_SQUAREB:
+			return "left-squarebracket";
+		case R_SQUAREB:
+			return "right-squarebracket";
+		case L_CURLYB:
+			return "left-curlybracket";
+		case R_CURLYB:
+			return "right-curlybracket";
+		case END_STMT:
+			return "end-statement";
+		case IF:
+			return "if";
+		case WHILE:
+			return "while";
+		case BREAK:
+			return "break";
+		case ELSE:
+			return "else";
+		case RETURN:
+			return "return";
+		case TYPE:
+			return "type";
+		case NUMBER:
+			return "number";
+		case NAME:
+			return "name";
+		case STRING:
+			return "string";
+		case CHAR:
+			return "char";
+		default:
+			return "no-tok";
 	}
 }

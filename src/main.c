@@ -25,11 +25,16 @@ int main(int argc, char** argv){
 	}
 	// *************************
 	
-	tokenizer_init();
+	if (tokenizer_init() != 0)
+		return -1;
+
 	toklist_t token_list = {0};
-	tokenize(&token_list, buffer);
+	if (tokenize(&token_list, buffer))
+		return -1;
+
 	print_tokens(&token_list);
-		
+
+	tokenizer_deinit();	
 	return 0;
 	
 }

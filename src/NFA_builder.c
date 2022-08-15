@@ -16,7 +16,7 @@ static int NFA_state_init(state_t*, bool);
 static void NFA_state_deinit(state_t*);
 static int NFA_state_addsymbol(state_t*, char, int);
 static int NFA_state_extend(state_t*);
-static void NFA_delta(NFA_t*, char);
+static int NFA_delta(NFA_t*, char);
 
 /*** EXPORTED ***/
 
@@ -67,9 +67,10 @@ NFA_t NFA_build(const node_t* parse_tree){
     return nfa;
 }
 
-bool NFA_accepts(NFA_t* nfa, const char* string){
+int NFA_accepts(NFA_t* nfa, const char* string){
     int i;
-    nfa->current_states = malloc(sizeof(int) * nfa->states_len);
+    if ((nfa->current_states = malloc(sizeof(int) * nfa->states_len)) == NULL)
+        return -1;
     nfa->current_states_capacity = nfa->states_len;
 
     // INITIAL STATE
@@ -77,17 +78,18 @@ bool NFA_accepts(NFA_t* nfa, const char* string){
     nfa->current_states_len = 1;
     
     for (i=0; string[i] != '\0'; ++i)
-        NFA_delta(nfa, string[i]);
+        if (NFA_delta(nfa, string[i]) != 0)
+            return -1;
 
     for (i=0; i < nfa->current_states_len; ++i){
 
         int idx = nfa->current_states[i];
         if (nfa->states[idx].final)
-            return true;
+            return 1;
     }
 
     free(nfa->current_states);
-    return false;
+    return 0;
 }
 
 
@@ -97,6 +99,7 @@ void NFA_destroy(NFA_t* nfa){
         NFA_state_deinit(&nfa->states[i]);
     
     NFA_deinit(*nfa);
+    memset(nfa, 0, sizeof(NFA_t));
 }
 
 int NFA_graph(const NFA_t* nfa){
@@ -124,8 +127,10 @@ int NFA_graph(const NFA_t* nfa){
 /*** INTERNAL ***/
 
 
-static void NFA_delta(NFA_t* nfa, char c){
-    int* next_states = malloc(sizeof(int) * nfa->current_states_len);
+static int NFA_delta(NFA_t* nfa, char c){
+    int* next_states;
+    if ((next_states = malloc(sizeof(int) * nfa->current_states_len)) == NULL)
+        return -1;
     ssize_t next_states_len = 0;
     ssize_t next_states_capacity = nfa->current_states_len;
 
@@ -139,7 +144,8 @@ static void NFA_delta(NFA_t* nfa, char c){
             if (nfa->states[k].charset[j] == c){
                 
                 if (next_states_len >= next_states_capacity){
-                    next_states = reallocarray(next_states, next_states_capacity * 2, sizeof(int));
+                    if ((next_states = reallocarray(next_states, next_states_capacity * 2, sizeof(int))) == NULL)
+                        return -1;
                     next_states_capacity *= 2;
                 }
 
@@ -151,6 +157,8 @@ static void NFA_delta(NFA_t* nfa, char c){
     nfa->current_states = next_states;
     nfa->current_states_len = next_states_len;
     nfa->current_states_capacity = next_states_capacity;
+
+    return 0;
 
 }
 
@@ -197,13 +205,14 @@ static NFA_t NFA_concat(NFA_t nfa1, NFA_t nfa2){
     }
 
     // CONNECT FINAL STATES OF NFA1 TO NFA2
-    for (i=0; i<nfa1.states_len; ++i)
+    for (i=0; i<nfa1.states_len; ++i){
         if ( nfa.states[i].final ){
             for (j=0; j<nfa2.states[0].len; ++j)
                 NFA_state_addsymbol(&nfa.states[i], nfa2.states[0].charset[j], nfa2.states[0].mapped_state[j] + nfa1.states_len - 1);
             
-            nfa.states[i].final = false;
-        };
+            nfa.states[i].final = nfa2.states[0].final; //state is final only if the initial state of nfa2 was
+        }
+    }
 
     // CLEANING UP
     NFA_state_deinit(&nfa2.states[0]);
@@ -257,7 +266,7 @@ static NFA_t NFA_star(NFA_t nfa){
                 NFA_state_addsymbol(&nfa.states[i], nfa.states[0].charset[j], nfa.states[0].mapped_state[j]);
         }
     }
-
+    nfa.states[0].final = true; //Accept null strings
     return nfa;
 }
 
