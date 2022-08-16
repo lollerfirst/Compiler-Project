@@ -43,6 +43,8 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<Call> |
 		<Variable> |
 		<left-roundb><Expr><right-roundb> |
+		<BoolExpr> |
+		<Arithmetic> |
 		<DelimiterList><Expr> |
 		<Expr><DelimiterList> |
 		<DelimiterList><Expr><DelimiterList>
@@ -67,7 +69,7 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<left-roundb><BoolExpr><right-roundb> |
 		<Expr>
 
-<MulExpr> := <MulExpr> * <MulExpr> |
+<MulExpr> := <Expr><arithmetic-op><MulExpr> |
 		<MulExpr> / <MulExpr> |
 		(<MulExpr>) |
 		<BoolExpr> |
