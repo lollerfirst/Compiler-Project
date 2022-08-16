@@ -38,8 +38,8 @@ Grammar for SimpleStupid language: (# is the epsilon)
 <Variable> := <name>
 
 <Expr> := <Number> | 
-		"<String>" |
-		'<Char>' |
+		<string> |
+		<char> |
 		<Call> |
 		<Variable> |
 		<left-roundb><Expr><right-roundb> |
