@@ -10,7 +10,7 @@ else
 DEBUG=
 endif
 
-FLAGS=-Wall -Wextra -fsanitize=address $(DEBUG)
+FLAGS=-Wall -Wextra $(DEBUG)
 
 
 main: $(TARGETS) $(SOURCE)/main.c 
