@@ -32,7 +32,7 @@ typedef struct _nfa{
 } NFA_t;
 
 // Builds the NFA corresponding to the passed parse-tree.
-NFA_t NFA_build(const node_t* _parse_tree);
+NFA_t* NFA_build(const node_t* _parse_tree);
 // Destroys the NFA
 void NFA_destroy(NFA_t* nfa);
 // Checks if the NFA accepts a particular string

@@ -31,19 +31,19 @@ static const char* regex_buffer[] = {
 };
 
 
-static NFA_t nfa_buf[REGBUFFER_LEN];
+static NFA_t* nfa_buf[REGBUFFER_LEN];
 static const char* typetokstr(toktype_t);
 
 int tokenizer_init(){
-	int i;
+	size_t i;
 	node_t* node;
 	
-	for (i=0; i<(int)REGBUFFER_LEN; ++i){
+	for (i=0; i<REGBUFFER_LEN; ++i){
 		
 		if ((node = tree_parse(regex_buffer[i])) == NULL)
 			return -1;
 
-		if ((nfa_buf[i] = NFA_build(node)).states_len == 0)
+		if ((nfa_buf[i] = NFA_build(node)) == NULL)
 			return -1;
 		
 		tree_deinit(node);
@@ -86,7 +86,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 		int acc;
 		
 		for (j=0; j<REGBUFFER_LEN; ++j)
-			if ((acc = NFA_accepts(&nfa_buf[j], buffer+base_i)))
+			if ((acc = NFA_accepts(nfa_buf[j], buffer+base_i)))
 				break;
 		
 		if (acc == -1)
@@ -105,6 +105,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 			// allocating new token
 			if ((token_list->list[token_list->len].tk = calloc(sizeof(char), i-base_i)) == NULL)
 				return -1;
+
 			token_list->list[token_list->len].tt = tt;
 			strncpy(token_list->list[token_list->len].tk, buffer+base_i, i-base_i-1);
 			++token_list->len;
@@ -127,7 +128,7 @@ void print_tokens(const toklist_t* token_list){
 
 		if (token_list->list[i].tk[0] == '\n')
 			printf("<%s> : '\\n'\n", typetokstr(token_list->list[i].tt));
-		else if(token_list->list[i].tk[0] == '\t')
+		else if (token_list->list[i].tk[0] == '\t')
 			printf("<%s> : '\\t'\n", typetokstr(token_list->list[i].tt));
 		else
 			printf("<%s> : '%s'\n", typetokstr(token_list->list[i].tt), token_list->list[i].tk);
@@ -137,7 +138,7 @@ void print_tokens(const toklist_t* token_list){
 void tokenizer_deinit(){
 	size_t i;
 	for (i=0; i<REGBUFFER_LEN; ++i)
-		NFA_destroy(&nfa_buf[i]);
+		NFA_destroy(nfa_buf[i]);
 }
 
 static const char* typetokstr(toktype_t tktype){
