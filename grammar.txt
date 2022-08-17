@@ -10,7 +10,7 @@ Tokens: (\\ is the escape)
 <right-squareb>: "]"
 <left-curlyb>: "{"
 <right-curlyb>: "}"
-<statement>: ";"
+<end-statement>: ";"
 <argstop>: ","
 <logical-not>: "!"
 <if>: "if"
@@ -83,7 +83,21 @@ Grammar for SimpleStupid language: (# is the epsilon)
 				<DelimiterList><while> |
 				<while><DelimiterList> |
 				<DelimiterList><while><DelimiterList>
-<... ETC ...>
+
+<If> := <if> |
+				<DelimiterList><if> |
+				<if><DelimiterList> |
+				<DelimiterList><if><DelimiterList>
+
+<ArgSeparator> := <argstop> |
+				<DelimiterList><argstop> |
+				<argstop><DelimiterList> |
+				<DelimiterList><argstop><DelimiterList>
+
+<End-Statement> := <end-statement> |
+				<DelimiterList><end-statement> |
+				<end-statement><DelimiterList> |
+				<DelimiterList><end-statement><DelimiterList>
 
 /*** ************************** ***/
 
