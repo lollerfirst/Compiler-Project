@@ -1,7 +1,7 @@
 Tokens: (\\ is the escape)
 <delimiter>: "\n+\t+ "
 <assign-op>: "="
-<algebraic-op>: "\\++-"
+<arithm-op>: "\\++-"
 <mul-op>: "\\*+/"
 <boolean-op>: "==+<+>+!=+<=+>="
 <left-roundb>: "\\("
@@ -83,24 +83,23 @@ Grammar for SimpleStupid language: (# is the epsilon)
 				<DelimiterList><while> |
 				<while><DelimiterList> |
 				<DelimiterList><while><DelimiterList>
-
+<... ETC ...>
 
 /*** ************************** ***/
 
-<Expr> := <Number> | 
-		<string> |
-		<char> |
-		<Call> |
-		<Variable> |
-		<left-roundb><Expr><right-roundb> |
-		<BoolExpr> |
-		<Arithmetic> |
-		<DelimiterList><Expr> |
-		<Expr><DelimiterList> |
-		<DelimiterList><Expr><DelimiterList>
+<Array> := <Variable><Left-squareb><Number><Right-squareb>
 
-<ParamList> := <Type><DelimiterList><Variable> |
-			<Type><DelimiterList><Variable><ArgSeparator><ParamList>
+<Expr> := <Number> | 
+		<String> |
+		<Char> |
+		<Variable> |
+		<Array> |
+		<left-roundb><Expr><right-roundb>
+
+<VarList> := <Variable><ArgSeparator><Varlist> |
+			 <Array><ArgSeparator><VarList> |
+		<Variable> |
+		<Array>
 
 <ExprList> := <Expr> |
 		<Expr><ArgSeparator><ExprList> |
@@ -109,54 +108,46 @@ Grammar for SimpleStupid language: (# is the epsilon)
 <Call> := <Variable><left-roundb><ExprList><right-roundb> |
 		<Variable><DelimiterList><left-roundb><ExprList><right-roundb>
 
-<BoolOP> := <boolean-op> |
-		<DelimiterList><boolean-op> |
-		<boolean-op><DelimiterList> |
-		<DelimiterList><boolean-op><DelimiterList>
-
-<BoolExpr> :=  <Expr><BoolOP><BoolExpr>
-		<logical-not><BoolExpr> |
-		<left-roundb><BoolExpr><right-roundb> |
-		<Expr>
-
-<MulExpr> := <Expr><arithmetic-op><MulExpr> |
-		<MulExpr> / <MulExpr> |
-		(<MulExpr>) |
-		<BoolExpr> |
-		<Number> |
-		<Call> |
-		<Variable> |
-		<Variable>[<Number>] |
-		<Char>
-
-<Arithmetic> := <Arithmetic>+<Arithmetic> |
-		<Arithmetic>-<Arithmetic> |
-		(<Arithmetic>) |
+<MulExpr> := <Expr><Mul-OP><MulExpr> |
+		<Call><Mul-OP><MulExpr> |
+		<Expr> |
+		<Call>
+		
+<Arithmetic> := <Expr><Arithmetic-OP><Arithmetic> |
+		<Call><Arithmetic-OP><Arithmetic> |
 		<MulExpr> |
-		<Number> |
-		<Call> |
+		<Expr> |
+		<Call>
+
+<AssignExpr> := <Variable><Assign-OP><AssignExpr> |
+		<Variable><Assign-OP><Call> |
 		<Variable> |
-		<Variable>[<Number>]
+		<Call>
 
+<BoolExpr> := <Logical-not><BoolExpr> |
+		<Expr><BoolOP><BoolExpr> |
+		<Call><BoolOP><BoolExpr> |
+		<AssignExpr> |
+		<Arithmetic> |
+		<Expr> |
+		<Call>
 
+<AllExpr> := <AssignExpr> |
+		<Arithmetic> |
+		<BoolExpr>
+
+<Declaration> := <Type><DelimiterList><VarList>
+
+<Statement> := <Left-curlyb><StatementList><Right-curlyb> |
+		<Declaration><End-Statement> |
+		<AllExpr><End-Statement> |
+		<If><Left-roundb><BoolExpr><Right-roundb><Statement> |
+		<If><Left-roundb><BoolExpr><Right-roundb><Statement><Else><Statement> |
+		<While><Left-roundb><BoolExpr><Right-roundb><Statement> |
+		<break><End-Statement>
 
 <StatementList> := <Statement> | 
 		<Statement><StatementList>
 
-<Statement> := <Expr>; | 
-		<Variable> = <Expr>; |
-		{<StatementList>} |
-		<Type> <Variable>; |
-		<Type> <Variable> = <Expr>; |
-		<Type>[] <Variable>; |
-		<Type>[<Number>] <Variable>; |
-		<Type>[<Number>] <Variable> = {<ExprList>}; |
-		<Type> <Variable>(){<Statement>} |
-		<Type> <Variable>(<ParamList>){<Statement>} |
-		<if>(<BoolExpr>)<Statement> |
-		<if>(<BoolExpr>)<Statement><else> <Statement> |
-		<while>(<BoolExpr>)<Statement>
-		<break>;
-
 <Program> := <StatementList> |
-		null
+		#
