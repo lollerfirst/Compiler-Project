@@ -144,7 +144,7 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<If><Left-roundb><BoolExpr><Right-roundb><Statement> |
 		<If><Left-roundb><BoolExpr><Right-roundb><Statement><Else><Statement> |
 		<While><Left-roundb><BoolExpr><Right-roundb><Statement> |
-		<break><End-Statement>
+		<Break><End-Statement>
 
 <StatementList> := <Statement> | 
 		<Statement><StatementList>
