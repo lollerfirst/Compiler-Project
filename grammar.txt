@@ -1,7 +1,8 @@
 Tokens: (\\ is the escape)
 <delimiter>: "\n+\t+ "
 <assign-op>: "="
-<algebraic-op>: "\\++-+\\*+/"
+<algebraic-op>: "\\++-"
+<mul-op>: "\\*+/"
 <boolean-op>: "==+<+>+!=+<=+>="
 <left-roundb>: "\\("
 <right-roundb>: "\\)"
@@ -28,6 +29,8 @@ Tokens: (\\ is the escape)
 
 Grammar for SimpleStupid language: (# is the epsilon)
 
+/*** Wrapping the tokens into an unlimited amount of Delimiters (spaces, tabs, newlines) ***/
+
 <DelimiterList> := <delimiter> | 
 			<delimiter><DelimiterList>
 
@@ -35,7 +38,54 @@ Grammar for SimpleStupid language: (# is the epsilon)
 			<DelimiterList><argstop> | 
 			<argstop><DelimiterList> | 
 			<DelimiterList><argstop><DelimiterList>
-<Variable> := <name>
+
+<Variable> := <name> |
+				<DelimiterList><name> |
+				<name><DelimiterList> |
+				<DelimiterList><name><DelimiterList>
+
+<String> := <string> |
+				<DelimiterList><string> |
+				<string><DelimiterList> |
+				<DelimiterList><string><DelimiterList>
+
+<Char> := <char> |
+				<DelimiterList><char> |
+				<char><DelimiterList> |
+				<DelimiterList><char><DelimiterList>
+
+<Number> := <number> |
+				<DelimiterList><number> |
+				<number><DelimiterList> |
+				<DelimiterList><number><DelimiterList>
+
+<Type> := <type> |
+				<DelimiterList><type> |
+				<type><DelimiterList> |
+				<DelimiterList><type><DelimiterList>
+
+<Return> := <return> |
+				<DelimiterList><return> |
+				<return><DelimiterList> |
+				<DelimiterList><return><DelimiterList>
+
+<Else> := <else> |
+				<DelimiterList><else> |
+				<else><DelimiterList> |
+				<DelimiterList><else><DelimiterList>
+
+<Break> := <break> |
+				<DelimiterList><break> |
+				<break><DelimiterList> |
+				<DelimiterList><break><DelimiterList>
+
+<While> := <while> |
+				<DelimiterList><while> |
+				<while><DelimiterList> |
+				<DelimiterList><while><DelimiterList>
+
+
+/*** ************************** ***/
 
 <Expr> := <Number> | 
 		<string> |
