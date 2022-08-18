@@ -33,6 +33,16 @@ typedef enum __vartype{
     EXPR,
     VARLIST,
     EXPR_LIST,
+    CALL,
+    MULEXPR,
+    ARITHMEXPR,
+    ASSIGNEXPR,
+    BOOLEXPR,
+    ALLEXPR,
+    DECLARATION,
+    STATEMENT,
+    STATEMENT_LIST,
+    PROGRAM,
     END_PROD
 } vartype_t;
 

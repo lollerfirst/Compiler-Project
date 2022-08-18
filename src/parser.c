@@ -158,3 +158,46 @@ static vartype_t ExprList[] = {EXPR, END_PROD,
 
 static vartype_t Call[] = {VARIABLE, L_ROUNDB_VAR, R_ROUNDB_VAR, END_PROD,
                             VARIABLE, L_ROUNDB_VAR, EXPR_LIST, R_ROUNDB_VAR, END_PROD};
+
+static vartype_t MulExpr[] = {EXPR, MUL_OP_VAR, MULEXPR, END_PROD,
+                            CALL, MUL_OP_VAR, MULEXPR, END_PROD,
+                            EXPR, END_PROD,
+                            CALL, END_PROD};
+
+static vartype_t ArithmExpr[] = {EXPR, ARITHM_OP_VAR, ARITHMEXPR, END_PROD,
+                            CALL, ARITHM_OP_VAR, ARITHMEXPR, END_PROD,
+                            MULEXPR, END_PROD,
+                            EXPR, END_PROD,
+                            CALL, END_PROD};
+                        
+static vartype_t AssignExpr[] = {VARIABLE, ASSIGN_OP_VAR, ASSIGNEXPR, END_PROD,
+                            VARIABLE, ASSIGN_OP_VAR, CALL, END_PROD,
+                            VARIABLE, END_PROD,
+                            CALL, END_PROD};
+
+static vartype_t BoolExpr[] = {LOGIC_NOT_VAR, BOOLEXPR, END_PROD,
+                            EXPR, BOOL_OP_VAR, BOOLEXPR, END_PROD,
+                            CALL, BOOL_OP_VAR, BOOLEXPR, END_PROD,
+                            ASSIGNEXPR, END_PROD,
+                            ARITHMEXPR, END_PROD,
+                            EXPR, END_PROD,
+                            CALL, END_PROD};
+
+static vartype_t AllExpr[] = {ASSIGNEXPR, END_PROD,
+                            ARITHMEXPR, END_PROD,
+                            BOOLEXPR, END_PROD};
+
+static vartype_t Declaration[] = {TYPE, DELIM_LIST, VARLIST, END_PROD};
+
+static vartype_t Statement[] = {L_CURLYB_VAR, STATEMENT_LIST, R_CURLYB_VAR, END_PROD,
+                            DECLARATION, END_STMT_VAR, END_PROD,
+                            ALLEXPR, END_STMT_VAR, END_PROD,
+                            IF_VAR, L_ROUNDB_VAR, BOOLEXPR, R_ROUNDB_VAR, STATEMENT, END_PROD,
+                            IF_VAR, L_ROUNDB_VAR, BOOLEXPR, R_ROUNDB_VAR, STATEMENT, ELSE_VAR, STATEMENT, END_PROD,
+                            WHILE_VAR, L_ROUNDB_VAR, BOOLEXPR, R_ROUNDB_VAR, STATEMENT, END_PROD,
+                            BREAK_VAR, END_STMT_VAR, END_PROD};
+
+static vartype_t StatementList[] = {STATEMENT, STATEMENT_LIST, END_PROD,
+                            STATEMENT, END_PROD};
+
+static vartype_t Program[] = {STATEMENT_LIST, END_PROD};
