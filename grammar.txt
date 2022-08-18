@@ -34,11 +34,6 @@ Grammar for SimpleStupid language: (# is the epsilon)
 <DelimiterList> := <delimiter> | 
 			<delimiter><DelimiterList>
 
-<ArgSeparator> := <argstop> |
-			<DelimiterList><argstop> | 
-			<argstop><DelimiterList> | 
-			<DelimiterList><argstop><DelimiterList>
-
 <Variable> := <name> |
 				<DelimiterList><name> |
 				<name><DelimiterList> |
@@ -99,6 +94,61 @@ Grammar for SimpleStupid language: (# is the epsilon)
 				<end-statement><DelimiterList> |
 				<DelimiterList><end-statement><DelimiterList>
 
+<Right-curlyb> := <right-curlyb> |
+				<DelimiterList><right-curlyb> |
+				<right-curlyb><DelimiterList> |
+				<DelimiterList><right-curlyb><DelimiterList>
+
+<Left-curlyb> := <left-curlyb> |
+				<DelimiterList><left-curlyb> |
+				<left-curlyb><DelimiterList> |
+				<DelimiterList><left-curlyb><DelimiterList>
+
+<Right-squareb> := <right-squareb> |
+				<DelimiterList><right-squareb> |
+				<right-squareb><DelimiterList> |
+				<DelimiterList><right-squareb><DelimiterList>
+
+<Left-squareb> := <left-squareb> |
+				<DelimiterList><left-squareb> |
+				<left-squareb><DelimiterList> |
+				<DelimiterList><left-squareb><DelimiterList>
+
+<Right-roundb> := <right-roundb> |
+				<DelimiterList><right-roundb> |
+				<right-roundb><DelimiterList> |
+				<DelimiterList><right-roundb><DelimiterList>
+
+<Left-roundb> := <left-roundb> |
+				<DelimiterList><left-roundb> |
+				<left-roundb><DelimiterList> |
+				<DelimiterList><left-roundb><DelimiterList>
+
+<BoolOP> := <boolean-op> |
+				<DelimiterList><boolean-op> |
+				<boolean-op><DelimiterList> |
+				<DelimiterList><boolean-op><DelimiterList>
+
+<Assign-OP> := <assign-op> |
+				<DelimiterList><assign-op> |
+				<assign-op><DelimiterList> |
+				<DelimiterList><assign-op><DelimiterList>
+
+<Arithm-OP> := <arithm-op> |
+				<DelimiterList><arithm-op> |
+				<arithm-op><DelimiterList> |
+				<DelimiterList><arithm-op><DelimiterList>
+
+<Arithm-OP> := <arithm-op> |
+				<DelimiterList><arithm-op> |
+				<arithm-op><DelimiterList> |
+				<DelimiterList><arithm-op><DelimiterList>
+
+<Mul-OP> := <mul-op> |
+				<DelimiterList><mul-op> |
+				<mul-op><DelimiterList> |
+				<DelimiterList><mul-op><DelimiterList>
+
 /*** ************************** ***/
 
 <Array> := <Variable><Left-squareb><Number><Right-squareb>
@@ -127,8 +177,8 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<Expr> |
 		<Call>
 		
-<Arithmetic> := <Expr><Arithmetic-OP><Arithmetic> |
-		<Call><Arithmetic-OP><Arithmetic> |
+<Arithmetic> := <Expr><Arithm-OP><Arithmetic> |
+		<Call><Arithm-OP><Arithmetic> |
 		<MulExpr> |
 		<Expr> |
 		<Call>
@@ -160,8 +210,9 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<While><Left-roundb><BoolExpr><Right-roundb><Statement> |
 		<Break><End-Statement>
 
-<StatementList> := <Statement> | 
-		<Statement><StatementList>
+<StatementList> := <Statement><StatementList> |
+		<Statement>
+		
 
 <Program> := <StatementList> |
 		#

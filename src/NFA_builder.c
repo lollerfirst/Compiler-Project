@@ -296,9 +296,9 @@ static void NFA_deinit(NFA_t* nfa){
     if (nfa != NULL && nfa->states != NULL){
         free(nfa->states);
         nfa->states = NULL;
+        free(nfa);
     }
-
-    free(nfa);
+    
 }
 
 static int NFA_state_init(state_t* state, bool final){
