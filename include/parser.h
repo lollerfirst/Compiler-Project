@@ -26,9 +26,13 @@ typedef enum __vartype{
     RETURN_VAR,
     TYPE_VAR,
     NUMBER_VAR,
-    NAME_VAR,
+    VARIABLE,
     STRING_VAR,
     CHAR_VAR,
+    ARRAY,
+    EXPR,
+    VARLIST,
+    EXPR_LIST,
     END_PROD
 } vartype_t;
 

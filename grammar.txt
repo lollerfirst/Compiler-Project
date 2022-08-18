@@ -166,11 +166,10 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<Array>
 
 <ExprList> := <Expr> |
-		<Expr><ArgSeparator><ExprList> |
-		<DelimiterList><Expr><ArgSeparator><ExprList>
+		<Expr><ArgSeparator><ExprList>
 
-<Call> := <Variable><left-roundb><ExprList><right-roundb> |
-		<Variable><DelimiterList><left-roundb><ExprList><right-roundb>
+<Call> := <Variable><Left-roundb><Right-roundb> |
+		<Variable><Left-roundb><ExprList><Right-roundb>
 
 <MulExpr> := <Expr><Mul-OP><MulExpr> |
 		<Call><Mul-OP><MulExpr> |
