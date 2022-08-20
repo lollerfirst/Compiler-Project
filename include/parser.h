@@ -2,6 +2,7 @@
 
 #include <lexer.h>
 
+/*** Fix for productions array indexing since lexer exists ***/
 #define I(_idx) ((_idx)-NOTOK-1)
 
 typedef enum __vartype{
@@ -43,7 +44,24 @@ typedef enum __vartype{
     STATEMENT,
     STATEMENT_LIST,
     PROGRAM,
-    END_PROD
+    END_PROD,
+    END_ARR
 } vartype_t;
 
-#undef I
+union vardual_t{
+    vartype_t vartype;
+    toktype_t toktype;
+};
+
+typedef struct _ast{
+    union vardual_t vardual;
+    char* tk;
+    size_t tl_len;
+    size_t tl_capacity;
+    struct _ast* tl;
+} AST_t;
+
+
+int parser_ast(AST_t* ast, const toklist_t* token_list);
+void parser_free(AST_t* ast);
+int parser_graph(AST_t* ast, const char* filename);

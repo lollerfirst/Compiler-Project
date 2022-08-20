@@ -6,11 +6,10 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Aug 18 19:46:07 2022
+# Make data base, printed on Sat Aug 20 12:01:07 2022
 
 # Variables
 
- 
 # environment
 JAVA_HOME = /usr/lib/jvm/java-17-oracle
 # environment
@@ -96,7 +95,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 163427
+VSCODE_PID = 180565
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -204,7 +203,7 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 163385
+GIO_LAUNCHED_DESKTOP_FILE_PID = 180521
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder
 # environment
@@ -269,7 +268,6 @@ GDMSESSION = ubuntu
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
 # Load=128/1024=12%, Rehash=0, Collisions=3/167=2%
- 
 
 # Pattern-specific Variable Values
 
@@ -279,8 +277,8 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # . (device 2066, inode 10624066): 13 files, no impossibilities.
 
- 
 # 13 files, no impossibilities in 1 directories.
+ 
 
 # Implicit Rules
 
@@ -408,6 +406,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 42 / hit rate = 35%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/42=0%
-# Finished Make data base on Thu Aug 18 19:46:07 2022
+# Finished Make data base on Sat Aug 20 12:01:07 2022
 
  
