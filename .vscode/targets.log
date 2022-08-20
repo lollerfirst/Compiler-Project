@@ -1,12 +1,16 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
+ 
 # Built for x86_64-pc-linux-gnu
+ 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
+ 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ 
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug 20 12:01:07 2022
+# Make data base, printed on Sat Aug 20 18:18:59 2022
 
 # Variables
 
@@ -93,9 +97,12 @@ MAKEFILE_LIST := Makefile
 # environment
 SNAP_REEXEC = 
 # automatic
+ 
 @F = $(notdir $@)
+ 
 # environment
-VSCODE_PID = 180565
+ 
+VSCODE_PID = 185096
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -203,7 +210,7 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 180521
+GIO_LAUNCHED_DESKTOP_FILE_PID = 185051
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder
 # environment
@@ -278,7 +285,6 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # . (device 2066, inode 10624066): 13 files, no impossibilities.
 
 # 13 files, no impossibilities in 1 directories.
- 
 
 # Implicit Rules
 
@@ -374,6 +380,7 @@ main: regexparse lexer nfa_builder src/main.c
 	$(CC) $(SOURCE)/main.c $(OBJECT_FILES) -I$(INCLUDE) $(FLAGS) -o$(BIN)/main
 
 # Not a target:
+ 
 src/regexparse.c:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -406,6 +413,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 42 / hit rate = 35%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/42=0%
-# Finished Make data base on Sat Aug 20 12:01:07 2022
+# Finished Make data base on Sat Aug 20 18:18:59 2022
 
  

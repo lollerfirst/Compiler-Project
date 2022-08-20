@@ -242,6 +242,29 @@ int parser_ast(AST_t* ast, const toklist_t* token_list){
     }
 }
 
+void parser_free(AST_t* ast){
+    if(ast == NULL)
+        return;
+    
+    size_t i;
+    for (i=0; i<ast->tl_len; ++i)
+        parser_free(&ast->tl[i]);
+
+    if (ast->tk != NULL)
+        free(ast->tk);
+    
+    if (ast->tl != NULL)
+        free(ast->tl);
+}
+
+static int parser_ast_expand(AST_t* ast){
+    if ((ast->tl = reallocarray(ast->tl, ast->tl_capacity*2, sizeof(AST_t))) == NULL)
+        return -1;
+    
+    ast->tl_capacity *= 2;
+    return 0; 
+}
+
 static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index){
     
     // If leaf token
@@ -274,8 +297,9 @@ static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index
     if ((ast->tl = calloc(10, sizeof(AST_t))) == NULL)
         return -1;
 
+    ast->tk = NULL;
     ast->tl_len = 0;
-    ast->tl_capacity = 5;
+    ast->tl_capacity = 10;
     
     // Loop until the end of the productions array
     while (var.vartype != END_ARR && !match){
@@ -283,7 +307,6 @@ static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index
         // Loop until the end of the current production
         match = true;
         while (var.vartype != END_PROD && match){
-            ast->vardual.vartype = var.vartype;
 
             if (ast->tl_len >= ast->tl_capacity){
                 if (parser_ast_expand(ast) != 0){
@@ -291,6 +314,8 @@ static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index
                     return -1;
                 }
             }
+
+            ast->tl[ast->tl_len].vardual.vartype = var.vartype;
             
             if (parser_ast_rec(&ast->tl[ast->tl_len], token_list, index) == 0){
                 ++ast->tl_len;
