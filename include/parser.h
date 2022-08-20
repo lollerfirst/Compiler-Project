@@ -1,6 +1,8 @@
 #pragma once
 
 #include <lexer.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*** Fix for productions array indexing since lexer exists ***/
 #define I(_idx) ((_idx)-NOTOK-1)
@@ -65,3 +67,4 @@ typedef struct _ast{
 int parser_ast(AST_t* ast, const toklist_t* token_list);
 void parser_free(AST_t* ast);
 int parser_graph(AST_t* ast, const char* filename);
+const char* parser_vartypestr(vartype_t vartype);

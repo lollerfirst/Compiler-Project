@@ -1,16 +1,12 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
- 
 # Built for x86_64-pc-linux-gnu
- 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
- 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
- 
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug 20 18:18:59 2022
+# Make data base, printed on Sat Aug 20 20:53:46 2022
 
 # Variables
 
@@ -27,7 +23,7 @@ SSH_AGENT_LAUNCHER = gnome-keyring
 # environment
 SNAP_INSTANCE_KEY = 
 # makefile (from 'Makefile', line 5)
-OBJECT_FILES = $(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o
+OBJECT_FILES = $(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o $(BIN)/parser.o
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
@@ -97,12 +93,9 @@ MAKEFILE_LIST := Makefile
 # environment
 SNAP_REEXEC = 
 # automatic
- 
 @F = $(notdir $@)
- 
 # environment
- 
-VSCODE_PID = 185096
+VSCODE_PID = 186777
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -210,9 +203,9 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 185051
+GIO_LAUNCHED_DESKTOP_FILE_PID = 186736
 # makefile (from 'Makefile', line 6)
-TARGETS = regexparse lexer nfa_builder
+TARGETS = regexparse lexer nfa_builder parser
 # environment
 _ = /snap/code/105/usr/share/code/code
 # makefile (from 'Makefile', line 3)
@@ -274,7 +267,7 @@ GDMSESSION = ubuntu
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
-# Load=128/1024=12%, Rehash=0, Collisions=3/167=2%
+# Load=128/1024=12%, Rehash=0, Collisions=3/168=2%
 
 # Pattern-specific Variable Values
 
@@ -285,6 +278,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # . (device 2066, inode 10624066): 13 files, no impossibilities.
 
 # 13 files, no impossibilities in 1 directories.
+ 
 
 # Implicit Rules
 
@@ -292,10 +286,17 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Files
 
+parser: src/parser.c
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 29):
+	$(CC) $(SOURCE)/parser.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/parser.o
+
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-16 23:52:22.643573187
+#  Last modified 2022-08-20 20:51:45.896164424
 #  File has been updated.
 #  Successfully updated.
 
@@ -303,7 +304,7 @@ clean:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 32):
+#  recipe to execute (from 'Makefile', line 35):
 	rm $(BIN)/*
 
 # Not a target:
@@ -314,6 +315,12 @@ src/NFA_builder.c:
 
 # Not a target:
 src/lexer.c:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+src/parser.c:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -369,10 +376,10 @@ all:
 # | := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/11=9%
-#  recipe to execute (from 'Makefile', line 29):
+#  recipe to execute (from 'Makefile', line 32):
 	make main
 
-main: regexparse lexer nfa_builder src/main.c
+main: regexparse lexer nfa_builder parser src/main.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -380,7 +387,6 @@ main: regexparse lexer nfa_builder src/main.c
 	$(CC) $(SOURCE)/main.c $(OBJECT_FILES) -I$(INCLUDE) $(FLAGS) -o$(BIN)/main
 
 # Not a target:
- 
 src/regexparse.c:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -400,19 +406,19 @@ lexer: src/lexer.c
 #  File has not been updated.
 
 # files hash-table stats:
-# Load=13/1024=1%, Rehash=0, Collisions=0/35=0%
+# Load=15/1024=1%, Rehash=0, Collisions=0/40=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 27 / storage = 241 B / avg = 8 B
-# current buf: size = 8162 B / used = 241 B / count = 27 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 29 / storage = 261 B / avg = 9 B
+# current buf: size = 8162 B / used = 261 B / count = 29 / avg = 9 B
 
-# strcache performance: lookups = 42 / hit rate = 35%
+# strcache performance: lookups = 46 / hit rate = 36%
 # hash-table stats:
-# Load=27/8192=0%, Rehash=0, Collisions=0/42=0%
-# Finished Make data base on Sat Aug 20 18:18:59 2022
+# Load=29/8192=0%, Rehash=0, Collisions=0/46=0%
+# Finished Make data base on Sat Aug 20 20:53:46 2022
 
  

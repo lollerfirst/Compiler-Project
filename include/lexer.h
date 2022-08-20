@@ -57,5 +57,6 @@ void print_tokens(const toklist_t*);
 /* Initializes the tokenizer (builds NFAs with hard-coded regular expressions) */
 int tokenizer_init();
 void tokenizer_deinit();
+const char* tokenizer_typetokstr(toktype_t tktype);
 
 #endif

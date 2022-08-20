@@ -32,7 +32,6 @@ static const char* regex_buffer[] = {
 
 
 static NFA_t* nfa_buf[REGBUFFER_LEN];
-static const char* typetokstr(toktype_t);
 
 int tokenizer_init(){
 	size_t i;
@@ -127,11 +126,11 @@ void print_tokens(const toklist_t* token_list){
 	for (i=0; i<token_list->len; ++i){
 
 		if (token_list->list[i].tk[0] == '\n')
-			printf("<%s> : '\\n'\n", typetokstr(token_list->list[i].tt));
+			printf("<%s> : '\\n'\n", tokenizer_typetokstr(token_list->list[i].tt));
 		else if (token_list->list[i].tk[0] == '\t')
-			printf("<%s> : '\\t'\n", typetokstr(token_list->list[i].tt));
+			printf("<%s> : '\\t'\n", tokenizer_typetokstr(token_list->list[i].tt));
 		else
-			printf("<%s> : '%s'\n", typetokstr(token_list->list[i].tt), token_list->list[i].tk);
+			printf("<%s> : '%s'\n", tokenizer_typetokstr(token_list->list[i].tt), token_list->list[i].tk);
 	}
 }
 
@@ -141,7 +140,7 @@ void tokenizer_deinit(){
 		NFA_destroy(nfa_buf[i]);
 }
 
-static const char* typetokstr(toktype_t tktype){
+const char* tokenizer_typetokstr(toktype_t tktype){
 	switch (tktype){
 		case DELIM:
 			return "delimiter";
