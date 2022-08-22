@@ -1,4 +1,5 @@
 #include <lexer.h>
+#include <parser.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -33,8 +34,15 @@ int main(int argc, char** argv){
 		return -1;
 
 	print_tokens(&token_list);
+	
+	AST_t ast;
+	if (parser_ast(&ast, &token_list) != 0)
+		return -1;
+	if (parser_graph(&ast, "ast_graph.gv") != 0)
+		return -1;
 
-	tokenizer_deinit();	
+	tokenizer_deinit();
+	parser_free(&ast);
 	return 0;
 	
 }

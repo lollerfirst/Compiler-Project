@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug 20 20:53:46 2022
+# Make data base, printed on Mon Aug 22 14:27:19 2022
 
 # Variables
 
@@ -95,7 +95,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 186777
+VSCODE_PID = 205200
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -203,7 +203,7 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1605
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 186736
+GIO_LAUNCHED_DESKTOP_FILE_PID = 205156
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder parser
 # environment
@@ -286,6 +286,7 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Files
 
+ 
 parser: src/parser.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -419,6 +420,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 46 / hit rate = 36%
 # hash-table stats:
 # Load=29/8192=0%, Rehash=0, Collisions=0/46=0%
-# Finished Make data base on Sat Aug 20 20:53:46 2022
+# Finished Make data base on Mon Aug 22 14:27:19 2022
 
  
