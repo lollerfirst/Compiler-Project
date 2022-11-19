@@ -1,10 +1,14 @@
 #include <regexparse.h>
 
+#define node_deallocate(__PTR)\
+	(free(__PTR))
+
 /* HELPERS */
 static int parser_recursive(node_t**, const char*, int*, bool);
 static char graph_rec(node_t* node, FILE* f);
 static char eat(const char* regexpr, int* regexpr_index);
 static char peek(const char* regexpr, int regexpr_index);
+static int node_allocate(node_t**, op_t);
 /* ******* */
 
 void tree_deinit(node_t* node){
@@ -54,12 +58,12 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 					return ILLFORMED_REGEXPR;
 
 				// allocate a new concatenating node
-				if ((error_code = node_allocate(*node, CONCAT)) != 0){
+				if ((error_code = node_allocate(node, CONCAT)) != 0){
 					return error_code;
 				}
 
 				// descend onto the left node
-				if ((error_code = parser_recursive((*node)->l_child, regexpr, regexpr_index, false)) != 0){
+				if ((error_code = parser_recursive(&(*node)->l_child, regexpr, regexpr_index, false)) != 0){
 					node_deallocate(*node);
 					return error_code;
 				}
@@ -69,7 +73,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 					
 					// allocate new kleene node between parent and left child
 					node_t* intermediate;
-					if ((error_code = node_allocate(intermediate, STAR)) != 0)
+					if ((error_code = node_allocate(&intermediate, STAR)) != 0)
 						return error_code;
 
 					intermediate->l_child = (*node)->l_child;
@@ -89,7 +93,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 				}
 
 				// descend into right node
-				if ((error_code = parser_rec((*node)->r_child, regexpr, regexpr_index, false)) != 0){
+				if ((error_code = parser_rec(&(*node)->r_child, regexpr, regexpr_index, false)) != 0){
 					node_deallocate(*node);
 					return error_code;
 				}
@@ -102,12 +106,12 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 	}
 
 	// allocate a new concatenating node
-	if (node_allocate(*node, CONCAT) != 0){
+	if (node_allocate(node, CONCAT) != 0){
 		return BAD_ALLOCATION;
 	}
 
 	// allocate new left child
-	if (node_allocate((*node)->l_child, NONE) != 0){
+	if (node_allocate(&(*node)->l_child, NONE) != 0){
 		node_deallocate((*node));
 		return BAD_ALLOCATION;
 	}
@@ -120,7 +124,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 		
 		// allocate new kleene node between parent and left child
 		node_t* intermediate;
-		if ((error_code = node_allocate(intermediate, STAR)) == 0){
+		if ((error_code = node_allocate(&intermediate, STAR)) == 0){
 			return error_code;
 		}
 
@@ -141,7 +145,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 	}
 
 	// descend into right node
-	if ((error_code = parser_rec((*node)->r_child, regexpr, regexpr_index, false)) != 0){
+	if ((error_code = parser_rec(&(*node)->r_child, regexpr, regexpr_index, false)) != 0){
 		node_deallocate((*node)->l_child);
 		node_deallocate(*node);
 		return error_code;
@@ -201,4 +205,19 @@ static char graph_rec(node_t* node, FILE* f){
 		fprintf(f, "%lu -> %lu\n", (unsigned long)node, (unsigned long)node->r_child);
 	
 	return ch;
+}
+
+static int node_allocate(node_t** node, op_t op){
+	assert(node != NULL);
+	
+	node_t* n;
+	if ((n = malloc(sizeof(node_t))) == NULL)
+		return BAD_ALLOCATION;
+	
+	n->op = op;
+	n->l_child = NULL;
+	n->r_child = NULL;
+	*node = n;
+
+	return OK;
 }

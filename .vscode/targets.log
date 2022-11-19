@@ -6,10 +6,12 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Nov 19 08:14:31 2022
+# Make data base, printed on Sat Nov 19 10:47:48 2022
 
 # Variables
 
+# environment
+JAVA_HOME = /usr/lib/jvm/java-17-oracle
 # environment
 GDK_BACKEND = x11
 # environment
@@ -25,13 +27,7 @@ OBJECT_FILES = $(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o $(BIN)/par
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-LC_NAME = it_IT.UTF-8
-# environment
-LC_NUMERIC = it_IT.UTF-8
-# environment
 VSCODE_CWD = /home/lollerfirst
-# environment
-LC_ADDRESS = it_IT.UTF-8
 # default
 MAKE_COMMAND := make
 # environment
@@ -47,7 +43,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /home/lollerfirst/dev/c/Compiler-Project
+PWD = /home/lollerfirst/dev/Compiler-Project
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -61,7 +57,7 @@ VSCODE_CODE_CACHE_PATH = /home/lollerfirst/.config/Code/CachedData/6261075646f05
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.C9DSV1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.V7TKV1
 # default
 .LOADED := 
 # default
@@ -69,7 +65,9 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.C9DSV1
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /home/lollerfirst/dev/c/Compiler-Project
+CURDIR := /home/lollerfirst/dev/Compiler-Project
+# environment
+J2REDIR = /usr/lib/jvm/java-17-oracle
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
@@ -97,7 +95,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 42810
+VSCODE_PID = 60245
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -107,7 +105,7 @@ BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
 # makefile (from 'Makefile', line 13)
 FLAGS = -Wall -Wextra $(DEBUG)
 # environment
-SESSION_MANAGER = local/lollerfirst-t431s:@/tmp/.ICE-unix/2296,unix/lollerfirst-t431s:/tmp/.ICE-unix/2296
+SESSION_MANAGER = local/lollerfirst-server:@/tmp/.ICE-unix/3932,unix/lollerfirst-server:/tmp/.ICE-unix/3932
 # automatic
 *F = $(notdir $*)
 # environment
@@ -141,23 +139,19 @@ IM_CONFIG_CHECK_ENV = 1
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-SNAP_COOKIE = BkS4wkMjECp_E_OsVsRugpG_xuloqh9KxGne8MA-p3mO97vO2x07
+SNAP_COOKIE = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
-PATH = /home/lollerfirst/.local/bin:/home/lollerfirst/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+PATH = /home/lollerfirst/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/lib/jvm/java-17-oracle/bin:/usr/lib/jvm/java-17-oracle/db/bin:/usr/lib/jvm/java-17-oracle/bin:/usr/lib/jvm/java-17-oracle/db/bin
 # default
 MAKEFILES := 
-# environment
-LC_MONETARY = it_IT.UTF-8
 # automatic
 ^F = $(notdir $^)
 # environment
 SNAP_USER_COMMON = /home/lollerfirst/snap/code/common
 # environment
-LC_TIME = it_IT.UTF-8
-# environment
 SNAP = /snap/code/113
 # environment
-INVOCATION_ID = ca3d63c180694bacb7b841e7fa7a5a67
+INVOCATION_ID = 77abb681f61843d6ba866596824815d2
 # environment
 SNAP_REVISION = 113
 # environment
@@ -166,8 +160,6 @@ SNAP_REAL_HOME = /home/lollerfirst
 USERNAME = lollerfirst
 # environment
 GNOME_SETUP_DISPLAY = :1
-# environment
-LC_TELEPHONE = it_IT.UTF-8
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # automatic
@@ -193,7 +185,7 @@ SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := main
 # environment
-SYSTEMD_EXEC_PID = 2325
+SYSTEMD_EXEC_PID = 3955
 # makefile (from 'Makefile', line 2)
 SOURCE = ./src
 # environment
@@ -207,19 +199,15 @@ MAKE_VERSION := 4.3
 # environment
 SNAP_DATA = /var/snap/code/113
 # environment
-SNAP_CONTEXT = BkS4wkMjECp_E_OsVsRugpG_xuloqh9KxGne8MA-p3mO97vO2x07
+SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
-MANAGERPID = 2173
+MANAGERPID = 3831
 # environment
-LC_MEASUREMENT = it_IT.UTF-8
-# environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 42751
+GIO_LAUNCHED_DESKTOP_FILE_PID = 60208
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder parser
 # environment
 _ = /snap/code/113/usr/share/code/code
-# environment
-LC_PAPER = it_IT.UTF-8
 # makefile (from 'Makefile', line 3)
 BIN = ./build
 # environment
@@ -227,7 +215,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GDK_PIXBUF_MODULE_FILE = /home/lollerfirst/snap/code/common/.cache/gdk-pixbuf-loaders.cache
 # environment
-JOURNAL_STREAM = 8:36938
+JOURNAL_STREAM = 8:149521
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -236,6 +224,8 @@ VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 HOME = /home/lollerfirst
 # environment
 QT_IM_MODULE = ibus
+# environment
+J2SDKDIR = /usr/lib/jvm/java-17-oracle
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
@@ -271,14 +261,13 @@ SNAP_USER_DATA = /home/lollerfirst/snap/code/113
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
-GDMSESSION = ubuntu
+DERBY_HOME = /usr/lib/jvm/java-17-oracle/db
 # environment
-LC_IDENTIFICATION = it_IT.UTF-8
+GDMSESSION = ubuntu
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
-# Load=133/1024=13%, Rehash=0, Collisions=5/173=3%
- 
+# Load=128/1024=12%, Rehash=0, Collisions=3/168=2%
 
 # Pattern-specific Variable Values
 
@@ -286,9 +275,10 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 2051, inode 4079344): 13 files, no impossibilities.
+# . (device 2066, inode 10624066): 13 files, no impossibilities.
 
 # 13 files, no impossibilities in 1 directories.
+ 
 
 # Implicit Rules
 
@@ -306,7 +296,7 @@ parser: src/parser.c
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-09-06 12:16:04.516993756
+#  Last modified 2022-08-20 20:51:45.896164424
 #  File has been updated.
 #  Successfully updated.
 
@@ -429,6 +419,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 46 / hit rate = 36%
 # hash-table stats:
 # Load=29/8192=0%, Rehash=0, Collisions=0/46=0%
-# Finished Make data base on Sat Nov 19 08:14:31 2022
+# Finished Make data base on Sat Nov 19 10:47:48 2022
 
  

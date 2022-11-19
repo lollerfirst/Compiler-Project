@@ -22,7 +22,7 @@ typedef struct __node{
 	struct __node* r_child;
 } node_t;
 
-int tree_parse(node_t* node, const char* str)
+int tree_parse(node_t** node, const char* str);
 void tree_deinit(node_t*);
 int tree_graph(node_t*);
 

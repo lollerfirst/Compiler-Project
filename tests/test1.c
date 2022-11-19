@@ -1,7 +1,7 @@
-#include <NFA_builder.h>
 #include <regexparse.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 int main(int argc, char** argv){
     if (argc != 2){
@@ -11,7 +11,8 @@ int main(int argc, char** argv){
 
     const char* regexpr = argv[1];
 
-    node_t* node = tree_parse(regexpr);
+    node_t* node;
+    tree_parse(node, regexpr);
     tree_graph(node);
     NFA_t nfa = NFA_build(node);
     NFA_graph(&nfa);

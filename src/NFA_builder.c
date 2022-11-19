@@ -33,9 +33,7 @@ NFA_t* NFA_build(const node_t* parse_tree){
         case CONCAT:
 
             //check on the integrity of the parse tree
-            #ifdef _DEBUG
             assert(parse_tree->l_child != NULL && parse_tree->r_child != NULL);
-            #endif
 
             if ((nfa = NFA_build(parse_tree->l_child)) == NULL ||
                 (nfa1 = NFA_build(parse_tree->r_child)) == NULL ||

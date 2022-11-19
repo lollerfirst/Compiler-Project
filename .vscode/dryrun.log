@@ -1,10 +1,9 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/lollerfirst/dev/c/Compiler-Project'
- 
+make: Entering directory '/home/lollerfirst/dev/Compiler-Project'
 gcc ./src/regexparse.c -I./include -c -Wall -Wextra  -o./build/regexparse.o
 gcc ./src/lexer.c -I./include -c -Wall -Wextra  -o./build/lexer.o
 gcc ./src/NFA_builder.c -I./include -c -Wall -Wextra  -o./build/nfabuilder.o
 gcc ./src/parser.c -I./include -c -Wall -Wextra  -o./build/parser.o
 gcc ./src/main.c ./build/lexer.o ./build/regexparse.o ./build/nfabuilder.o ./build/parser.o -I./include -Wall -Wextra  -o./build/main
-make: Leaving directory '/home/lollerfirst/dev/c/Compiler-Project'
+make: Leaving directory '/home/lollerfirst/dev/Compiler-Project'
  
