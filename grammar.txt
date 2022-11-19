@@ -199,7 +199,8 @@ Grammar for SimpleStupid language: (# is the epsilon)
 		<Arithmetic> |
 		<BoolExpr>
 
-<Declaration> := <Type><DelimiterList><VarList>
+<Declaration> := <Type><DelimiterList><VarList> |
+		<Array><DelimiterList><VarList>
 
 <Statement> := <Left-curlyb><StatementList><Right-curlyb> |
 		<Declaration><End-Statement> |

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <compiler_errors.h>
 
 
 typedef enum __op{
@@ -21,7 +22,7 @@ typedef struct __node{
 	struct __node* r_child;
 } node_t;
 
-node_t* tree_parse(const char*);
+int tree_parse(node_t* node, const char* str)
 void tree_deinit(node_t*);
 int tree_graph(node_t*);
 

@@ -1,10 +1,10 @@
 #include <regexparse.h>
-	
-static const char* regexpr;
 
 /* HELPERS */
-static node_t* parser_rec(int*, node_t**, int*);
+static int parser_recursive(node_t**, const char*, int*, bool);
 static char graph_rec(node_t* node, FILE* f);
+static char eat(const char* regexpr, int* regexpr_index);
+static char peek(const char* regexpr, int regexpr_index);
 /* ******* */
 
 void tree_deinit(node_t* node){
@@ -19,127 +19,135 @@ void tree_deinit(node_t* node){
 	return;
 }
 
-node_t* tree_parse(const char* str){
-	regexpr = str;
-	int i = 0;
-	node_t* stack_buf[2048];
-	int stack_idx = 0;
-	return parser_rec(&i, stack_buf, &stack_idx);
-	
+
+int tree_parse(node_t** node, const char* str){
+	int i=0;
+	assert(node != NULL && str != NULL);
+	return parser_recursive(node, str, &i, false);
 }
 
-static node_t* parser_rec(int* i, node_t** stack_buf, int* stack_idx){
+static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_index, bool escape){
+
+	int error_code;
+	char c = eat(regexpr, regexpr_index);
+	char k = peek(regexpr, (*regexpr_index)+1);
+
+	if (!escape){
+		switch (c){
+
+			//fallthrough
+			case ')':
+			case '\0':
+				*node = NULL;
+				return OK;
+
+			case '+':
+			case '*':
+				*node = NULL;
+				return ILLFORMED_REGEXPR;
+
+			case '\\':
+				return parser_recursive(node, regexpr, regexpr_index, true);
 	
-	int n_iter = 0;
-	char ch = regexpr[*i];
-	node_t* node = NULL;
-	bool escape = false;
-		
-	while(ch != '\0'){
-		++(*i);
-		
-		if (escape){
-			node = malloc(sizeof(node_t));
-					
-					if (n_iter > 0){ 
-						node->op = CONCAT;
-						node->l_child = stack_buf[--(*stack_idx)];
-						node->r_child = malloc(sizeof(node_t));
-						node->r_child->c = ch;
-						node->r_child->op = NONE;
-						node->r_child->l_child = NULL;
-						node->r_child->r_child = NULL;				
-					}else{ 
-						node->c = ch;
-						node->op = NONE;
-						node->l_child = NULL;
-						node->r_child = NULL;
-						
-					}
-					
-					stack_buf[(*stack_idx)++] = node;
-					escape = false;
-		}
-		else switch(ch){
-			
-				case '(':
-					if (n_iter > 0){
-						node = malloc(sizeof(node_t));
-						node->op = CONCAT;
-						node->l_child = stack_buf[--(*stack_idx)];
-						node->r_child = parser_rec(i, stack_buf, stack_idx);
-					}
-					else
-						node = parser_rec(i, stack_buf, stack_idx);
-					
-					stack_buf[(*stack_idx)++] = node;
-					break;
-					
-				case ')':
-					return stack_buf[--(*stack_idx)];
-					
-				case '+':
-					node = malloc(sizeof(node_t));
-					node->op = UNION;
-					node->l_child = stack_buf[--(*stack_idx)];
-					node->r_child = parser_rec(i, stack_buf, stack_idx);
-					
-					stack_buf[(*stack_idx)++] = node;
-					if (regexpr[(*i)-1] == ')') 
-						--(*i);
-					break;
-					
-				case '*':  
-					node = malloc(sizeof(node_t));
-					node->op = STAR;
-					node->r_child = NULL;
-					
-					if (n_iter > 0)
-						node->l_child = stack_buf[--(*stack_idx)];
-					else
-						node->l_child = NULL;
-					
-					
-					stack_buf[(*stack_idx)++] = node;
-					break;
+			case '(':
+				if (k == '+' || k == '*')
+					return ILLFORMED_REGEXPR;
+
+				// allocate a new concatenating node
+				if ((error_code = node_allocate(*node, CONCAT)) != 0){
+					return error_code;
+				}
+
+				// descend onto the left node
+				if ((error_code = parser_recursive((*node)->l_child, regexpr, regexpr_index, false)) != 0){
+					node_deallocate(*node);
+					return error_code;
+				}
 				
-				case '\\':
-					escape = true;
-					--n_iter;
-					break;
+				// peek if there is a kleene star before descending into right node
+				if (peek(regexpr, *regexpr_index) == '*'){
 					
-				default:
-					node = malloc(sizeof(node_t));
-					
-					if (n_iter > 0){ 
-						node->op = CONCAT;
-						node->l_child = stack_buf[--(*stack_idx)];
-						node->r_child = malloc(sizeof(node_t));
-						node->r_child->c = ch;
-						node->r_child->op = NONE;
-						node->r_child->l_child = NULL;
-						node->r_child->r_child = NULL;				
-					}else{ 
-						node->c = ch;
-						node->op = NONE;
-						node->l_child = NULL;
-						node->r_child = NULL;
-						
+					// allocate new kleene node between parent and left child
+					node_t* intermediate;
+					if ((error_code = node_allocate(intermediate, STAR)) != 0)
+						return error_code;
+
+					intermediate->l_child = (*node)->l_child;
+					(*node)->l_child = intermediate;
+
+					// eat out eventual additional stars
+					while((c = peek(regexpr, *regexpr_index)) == '*'){
+						(void) eat(regexpr, regexpr_index);
 					}
-					
-					stack_buf[(*stack_idx)++] = node;
-					
+
+				} // Otherwise check if there is a '+' ahead
+				else if (peek(regexpr, *regexpr_index) == '+'){
+
+					//this becomes a union node
+					(*node)->op = UNION;
+					(void) eat(regexpr, regexpr_index);
+				}
+
+				// descend into right node
+				if ((error_code = parser_rec((*node)->r_child, regexpr, regexpr_index, false)) != 0){
+					node_deallocate(*node);
+					return error_code;
+				}
+				
+				return OK;
+			
+			default:
+				break;
 		}
-		
-		node = NULL;
-		ch = regexpr[*i];
-		++n_iter;
 	}
-	
-	if ((*stack_idx) > 0) 
-		return stack_buf[--(*stack_idx)];
+
+	// allocate a new concatenating node
+	if (node_allocate(*node, CONCAT) != 0){
+		return BAD_ALLOCATION;
+	}
+
+	// allocate new left child
+	if (node_allocate((*node)->l_child, NONE) != 0){
+		node_deallocate((*node));
+		return BAD_ALLOCATION;
+	}
+
+	// set the left child to the character literal
+	(*node)->l_child->c = c;
+
+	// peek if there is a '+' or a '*' behind
+	if (peek(regexpr, *regexpr_index) == '*'){
 		
-	return NULL;
+		// allocate new kleene node between parent and left child
+		node_t* intermediate;
+		if ((error_code = node_allocate(intermediate, STAR)) == 0){
+			return error_code;
+		}
+
+		intermediate->l_child = (*node)->l_child;
+		(*node)->l_child = intermediate;
+
+		// eat out eventual additional stars
+		while((c = peek(regexpr, *regexpr_index)) == '*'){
+			(void) eat(regexpr, regexpr_index);
+		}
+
+	} // Otherwise check if there is a '+' ahead
+	else if (peek(regexpr, *regexpr_index) == '+'){
+
+		//this becomes a union node
+		(*node)->op = UNION;
+		(void) eat(regexpr, regexpr_index);
+	}
+
+	// descend into right node
+	if ((error_code = parser_rec((*node)->r_child, regexpr, regexpr_index, false)) != 0){
+		node_deallocate((*node)->l_child);
+		node_deallocate(*node);
+		return error_code;
+	}
+
+	return OK;
 }
 
 int tree_graph(node_t* node){

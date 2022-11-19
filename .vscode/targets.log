@@ -6,12 +6,10 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug 22 14:27:19 2022
+# Make data base, printed on Sat Nov 19 08:14:31 2022
 
 # Variables
 
-# environment
-JAVA_HOME = /usr/lib/jvm/java-17-oracle
 # environment
 GDK_BACKEND = x11
 # environment
@@ -27,7 +25,13 @@ OBJECT_FILES = $(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o $(BIN)/par
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
+LC_NAME = it_IT.UTF-8
+# environment
+LC_NUMERIC = it_IT.UTF-8
+# environment
 VSCODE_CWD = /home/lollerfirst
+# environment
+LC_ADDRESS = it_IT.UTF-8
 # default
 MAKE_COMMAND := make
 # environment
@@ -37,13 +41,13 @@ QT_ACCESSIBILITY = 1
 # environment
 SNAP_INSTANCE_NAME = code
 # environment
-GDK_PIXBUF_MODULEDIR = /snap/code/105/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
+GDK_PIXBUF_MODULEDIR = /snap/code/113/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /home/lollerfirst/dev/Compiler-Project
+PWD = /home/lollerfirst/dev/c/Compiler-Project
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -53,11 +57,11 @@ XDG_DATA_DIRS = /usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/d
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = /home/lollerfirst/.config/Code/CachedData/e4503b30fc78200f846c62cf8091b76ff5547662
+VSCODE_CODE_CACHE_PATH = /home/lollerfirst/.config/Code/CachedData/6261075646f055b99068d3688932416f2346dd3b
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.1GAOQ1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.C9DSV1
 # default
 .LOADED := 
 # default
@@ -65,11 +69,9 @@ XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.1GAOQ1
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /home/lollerfirst/dev/Compiler-Project
+CURDIR := /home/lollerfirst/dev/c/Compiler-Project
 # environment
-J2REDIR = /usr/lib/jvm/java-17-oracle
-# environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # automatic
@@ -95,7 +97,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 205200
+VSCODE_PID = 42810
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -105,7 +107,7 @@ BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
 # makefile (from 'Makefile', line 13)
 FLAGS = -Wall -Wextra $(DEBUG)
 # environment
-SESSION_MANAGER = local/lollerfirst-server:@/tmp/.ICE-unix/1755,unix/lollerfirst-server:/tmp/.ICE-unix/1755
+SESSION_MANAGER = local/lollerfirst-t431s:@/tmp/.ICE-unix/2296,unix/lollerfirst-t431s:/tmp/.ICE-unix/2296
 # automatic
 *F = $(notdir $*)
 # environment
@@ -139,27 +141,33 @@ IM_CONFIG_CHECK_ENV = 1
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-SNAP_COOKIE = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
+SNAP_COOKIE = BkS4wkMjECp_E_OsVsRugpG_xuloqh9KxGne8MA-p3mO97vO2x07
 # environment
-PATH = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/lib/jvm/java-17-oracle/bin:/usr/lib/jvm/java-17-oracle/db/bin:/usr/lib/jvm/java-17-oracle/bin:/usr/lib/jvm/java-17-oracle/db/bin
+PATH = /home/lollerfirst/.local/bin:/home/lollerfirst/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
 # default
 MAKEFILES := 
+# environment
+LC_MONETARY = it_IT.UTF-8
 # automatic
 ^F = $(notdir $^)
 # environment
 SNAP_USER_COMMON = /home/lollerfirst/snap/code/common
 # environment
-SNAP = /snap/code/105
+LC_TIME = it_IT.UTF-8
 # environment
-INVOCATION_ID = 398f333983464e8593d802297ae3d92d
+SNAP = /snap/code/113
 # environment
-SNAP_REVISION = 105
+INVOCATION_ID = ca3d63c180694bacb7b841e7fa7a5a67
+# environment
+SNAP_REVISION = 113
 # environment
 SNAP_REAL_HOME = /home/lollerfirst
 # environment
 USERNAME = lollerfirst
 # environment
 GNOME_SETUP_DISPLAY = :1
+# environment
+LC_TELEPHONE = it_IT.UTF-8
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # automatic
@@ -184,6 +192,8 @@ GIO_LAUNCHED_DESKTOP_FILE = /var/lib/snapd/desktop/applications/code_code.deskto
 SNAP_ARCH = amd64
 # makefile
 .DEFAULT_GOAL := main
+# environment
+SYSTEMD_EXEC_PID = 2325
 # makefile (from 'Makefile', line 2)
 SOURCE = ./src
 # environment
@@ -195,19 +205,21 @@ GTK_MODULES = gail:atk-bridge
 # default
 MAKE_VERSION := 4.3
 # environment
-DISABLE_WAYLAND = 1
+SNAP_DATA = /var/snap/code/113
 # environment
-SNAP_DATA = /var/snap/code/105
+SNAP_CONTEXT = BkS4wkMjECp_E_OsVsRugpG_xuloqh9KxGne8MA-p3mO97vO2x07
 # environment
-SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
+MANAGERPID = 2173
 # environment
-MANAGERPID = 1605
+LC_MEASUREMENT = it_IT.UTF-8
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 205156
+GIO_LAUNCHED_DESKTOP_FILE_PID = 42751
 # makefile (from 'Makefile', line 6)
 TARGETS = regexparse lexer nfa_builder parser
 # environment
-_ = /snap/code/105/usr/share/code/code
+_ = /snap/code/113/usr/share/code/code
+# environment
+LC_PAPER = it_IT.UTF-8
 # makefile (from 'Makefile', line 3)
 BIN = ./build
 # environment
@@ -215,7 +227,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GDK_PIXBUF_MODULE_FILE = /home/lollerfirst/snap/code/common/.cache/gdk-pixbuf-loaders.cache
 # environment
-JOURNAL_STREAM = 8:28763
+JOURNAL_STREAM = 8:36938
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -225,15 +237,13 @@ HOME = /home/lollerfirst
 # environment
 QT_IM_MODULE = ibus
 # environment
-J2SDKDIR = /usr/lib/jvm/java-17-oracle
-# environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-aa7f41c1-1.70.2-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-aa7f41c1-1.73.1-main.sock
 # environment
 SNAP_NAME = code
 # environment
-GSETTINGS_SCHEMA_DIR = /snap/code/105/usr/share/glib-2.0/schemas
+GSETTINGS_SCHEMA_DIR = /snap/code/113/usr/share/glib-2.0/schemas
 # environment
 IM_CONFIG_PHASE = 1
 # default
@@ -241,7 +251,7 @@ IM_CONFIG_PHASE = 1
 # automatic
 <F = $(notdir $<)
 # environment
-SNAP_VERSION = e4503b30
+SNAP_VERSION = 62610756
 # default
 SUFFIXES := 
 # environment
@@ -257,17 +267,18 @@ DEBUG =
 # makefile (from 'Makefile', line 1)
 CC = gcc
 # environment
-SNAP_USER_DATA = /home/lollerfirst/snap/code/105
+SNAP_USER_DATA = /home/lollerfirst/snap/code/113
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
-DERBY_HOME = /usr/lib/jvm/java-17-oracle/db
-# environment
 GDMSESSION = ubuntu
+# environment
+LC_IDENTIFICATION = it_IT.UTF-8
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
-# Load=128/1024=12%, Rehash=0, Collisions=3/168=2%
+# Load=133/1024=13%, Rehash=0, Collisions=5/173=3%
+ 
 
 # Pattern-specific Variable Values
 
@@ -275,10 +286,9 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Directories
 
-# . (device 2066, inode 10624066): 13 files, no impossibilities.
+# . (device 2051, inode 4079344): 13 files, no impossibilities.
 
 # 13 files, no impossibilities in 1 directories.
- 
 
 # Implicit Rules
 
@@ -286,7 +296,6 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Files
 
- 
 parser: src/parser.c
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -297,7 +306,7 @@ parser: src/parser.c
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-20 20:51:45.896164424
+#  Last modified 2022-09-06 12:16:04.516993756
 #  File has been updated.
 #  Successfully updated.
 
@@ -420,6 +429,6 @@ lexer: src/lexer.c
 # strcache performance: lookups = 46 / hit rate = 36%
 # hash-table stats:
 # Load=29/8192=0%, Rehash=0, Collisions=0/46=0%
-# Finished Make data base on Mon Aug 22 14:27:19 2022
+# Finished Make data base on Sat Nov 19 08:14:31 2022
 
  

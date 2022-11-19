@@ -202,7 +202,9 @@ static vartype_t AllExpr[] = {ASSIGNEXPR, END_PROD,
                             BOOLEXPR, END_PROD,
                             END_ARR};
 
-static vartype_t Declaration[] = {TYPE_VAR, DELIM_LIST, VARLIST, END_PROD, END_ARR};
+static vartype_t Declaration[] = {TYPE_VAR, DELIM_LIST, VARLIST, END_PROD, 
+                            ARRAY, DELIM_LIST, VARLIST, END_PROD,
+                            END_ARR};
 
 static vartype_t Statement[] = {L_CURLYB_VAR, STATEMENT_LIST, R_CURLYB_VAR, END_PROD,
                             DECLARATION, END_STMT_VAR, END_PROD,
@@ -237,8 +239,10 @@ int parser_ast(AST_t* ast, const toklist_t* token_list){
     ast->tl_len = 0;
     ast->tl_capacity = 0;
     
-    if (parser_ast_rec(ast, token_list, &index) != 0)
+    if (parser_ast_rec(ast, token_list, &index) != 0){
+        fprintf(stderr, "[!] Error: failed at char %lu\n", index);
         return -1;
+    }
 
     return 0;
 }
