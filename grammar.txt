@@ -1,24 +1,12 @@
 Tokens: (\\ is the escape)
 <delimiter>: "\n+\t+ "
-<assign-op>: "="
-<arithm-op>: "\\++-"
-<mul-op>: "\\*+/"
-<boolean-op>: "==+<+>+!=+<=+>="
+<define-op>: ":="
 <left-roundb>: "\\("
 <right-roundb>: "\\)"
 <left-squareb>: "["
 <right-squareb>: "]"
-<left-curlyb>: "{"
-<right-curlyb>: "}"
 <end-statement>: ";"
 <argstop>: ","
-<logical-not>: "!"
-<if>: "if"
-<while>: "while"
-<break>: "break"
-<else>: "else"
-<return>: "return"
-<type>: "int+char+float"
 <number>: "(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)"
 
 <name>: "(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+$+_)((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_)*)"
@@ -27,14 +15,19 @@ Tokens: (\\ is the escape)
 
 <char>: "'(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)'"
 
-Grammar for SimpleStupid language: (# is the epsilon)
+Grammar for lambda language: (# is the epsilon)
 
 /*** Wrapping the tokens into an unlimited amount of Delimiters (spaces, tabs, newlines) ***/
 
 <DelimiterList> := <delimiter> | 
 			<delimiter><DelimiterList>
 
-<Variable> := <name> |
+<Define-OP> := <define-op> |
+			<define-op><DelimiterList> |
+			<DelimiterList><define-op> |
+			<DelimiterList><define-op><DelimiterList>
+
+<Name> := <name> |
 				<DelimiterList><name> |
 				<name><DelimiterList> |
 				<DelimiterList><name><DelimiterList>
@@ -54,36 +47,6 @@ Grammar for SimpleStupid language: (# is the epsilon)
 				<number><DelimiterList> |
 				<DelimiterList><number><DelimiterList>
 
-<Type> := <type> |
-				<DelimiterList><type> |
-				<type><DelimiterList> |
-				<DelimiterList><type><DelimiterList>
-
-<Return> := <return> |
-				<DelimiterList><return> |
-				<return><DelimiterList> |
-				<DelimiterList><return><DelimiterList>
-
-<Else> := <else> |
-				<DelimiterList><else> |
-				<else><DelimiterList> |
-				<DelimiterList><else><DelimiterList>
-
-<Break> := <break> |
-				<DelimiterList><break> |
-				<break><DelimiterList> |
-				<DelimiterList><break><DelimiterList>
-
-<While> := <while> |
-				<DelimiterList><while> |
-				<while><DelimiterList> |
-				<DelimiterList><while><DelimiterList>
-
-<If> := <if> |
-				<DelimiterList><if> |
-				<if><DelimiterList> |
-				<DelimiterList><if><DelimiterList>
-
 <ArgSeparator> := <argstop> |
 				<DelimiterList><argstop> |
 				<argstop><DelimiterList> |
@@ -93,16 +56,6 @@ Grammar for SimpleStupid language: (# is the epsilon)
 				<DelimiterList><end-statement> |
 				<end-statement><DelimiterList> |
 				<DelimiterList><end-statement><DelimiterList>
-
-<Right-curlyb> := <right-curlyb> |
-				<DelimiterList><right-curlyb> |
-				<right-curlyb><DelimiterList> |
-				<DelimiterList><right-curlyb><DelimiterList>
-
-<Left-curlyb> := <left-curlyb> |
-				<DelimiterList><left-curlyb> |
-				<left-curlyb><DelimiterList> |
-				<DelimiterList><left-curlyb><DelimiterList>
 
 <Right-squareb> := <right-squareb> |
 				<DelimiterList><right-squareb> |
@@ -124,95 +77,29 @@ Grammar for SimpleStupid language: (# is the epsilon)
 				<left-roundb><DelimiterList> |
 				<DelimiterList><left-roundb><DelimiterList>
 
-<BoolOP> := <boolean-op> |
-				<DelimiterList><boolean-op> |
-				<boolean-op><DelimiterList> |
-				<DelimiterList><boolean-op><DelimiterList>
-
-<Assign-OP> := <assign-op> |
-				<DelimiterList><assign-op> |
-				<assign-op><DelimiterList> |
-				<DelimiterList><assign-op><DelimiterList>
-
-<Arithm-OP> := <arithm-op> |
-				<DelimiterList><arithm-op> |
-				<arithm-op><DelimiterList> |
-				<DelimiterList><arithm-op><DelimiterList>
-
-<Arithm-OP> := <arithm-op> |
-				<DelimiterList><arithm-op> |
-				<arithm-op><DelimiterList> |
-				<DelimiterList><arithm-op><DelimiterList>
-
-<Mul-OP> := <mul-op> |
-				<DelimiterList><mul-op> |
-				<mul-op><DelimiterList> |
-				<DelimiterList><mul-op><DelimiterList>
 
 /*** ************************** ***/
 
-<Array> := <Variable><Left-squareb><Number><Right-squareb>
-
-<Expr> := <Number> | 
+<Parameter> := <Name><Left-roundb><Name><Right-roundb> |
+		<Name><Left-roundb><Number><Right-roundb> |
+		<Name><Left-roundb><String><Right-roundb> |
+		<Name><Left-roundb><Char><Right-roundb> |
+		<Name><Left-roundb><Call><Right-roundb> |
+		<Name> |
+		<Number> |
 		<String> |
-		<Char> |
-		<Variable> |
-		<Array> |
-		<left-roundb><Expr><right-roundb>
+		<Char>
 
-<VarList> := <Variable><ArgSeparator><Varlist> |
-			 <Array><ArgSeparator><VarList> |
-		<Variable> |
-		<Array>
+<ParamList> := <Parameter><ArgSeparator><ParamList> |
+		<Parameter>
 
-<ExprList> := <Expr> |
-		<Expr><ArgSeparator><ExprList>
+<Definition> := <Name><Left-roundb><ParamList><Right-roundb>
 
-<Call> := <Variable><Left-roundb><Right-roundb> |
-		<Variable><Left-roundb><ExprList><Right-roundb>
-
-<MulExpr> := <Expr><Mul-OP><MulExpr> |
-		<Call><Mul-OP><MulExpr> |
-		<Expr> |
-		<Call>
-		
-<Arithmetic> := <Expr><Arithm-OP><Arithmetic> |
-		<Call><Arithm-OP><Arithmetic> |
-		<MulExpr> |
-		<Expr> |
-		<Call>
-
-<AssignExpr> := <Variable><Assign-OP><AssignExpr> |
-		<Variable><Assign-OP><Call> |
-		<Variable> |
-		<Call>
-
-<BoolExpr> := <Logical-not><BoolExpr> |
-		<Expr><BoolOP><BoolExpr> |
-		<Call><BoolOP><BoolExpr> |
-		<AssignExpr> |
-		<Arithmetic> |
-		<Expr> |
-		<Call>
-
-<AllExpr> := <AssignExpr> |
-		<Arithmetic> |
-		<BoolExpr>
-
-<Declaration> := <Type><DelimiterList><VarList> |
-		<Array><DelimiterList><VarList>
-
-<Statement> := <Left-curlyb><StatementList><Right-curlyb> |
-		<Declaration><End-Statement> |
-		<AllExpr><End-Statement> |
-		<If><Left-roundb><BoolExpr><Right-roundb><Statement> |
-		<If><Left-roundb><BoolExpr><Right-roundb><Statement><Else><Statement> |
-		<While><Left-roundb><BoolExpr><Right-roundb><Statement> |
-		<Break><End-Statement>
+<Statement> := <Name><Left-roundb><ParamList><Right-roundb><Define-OP><Definition><End-Statement> |
+		<Name><Left-roundb><ParamList><Right-roundb><End-Statement>
 
 <StatementList> := <Statement><StatementList> |
 		<Statement>
 		
-
 <Program> := <StatementList> |
 		#

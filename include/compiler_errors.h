@@ -7,7 +7,8 @@ enum error_codes{
     ILLFORMED_REGEXPR,
     NFA_CORRUPT_TREE,
     NFA_LOAD_ERROR,
-    NFA_SAVE_ERROR
+    NFA_SAVE_ERROR,
+    INVALID_BUFFER
 };
 
 

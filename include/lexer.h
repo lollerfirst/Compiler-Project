@@ -1,5 +1,5 @@
-#ifndef _LEXLER_H_
-#define _LEXLER_H_
+#ifndef _LEXER_H_
+#define _LEXER_H_
 
 #include <regexparse.h>
 #include <stdlib.h>
@@ -8,29 +8,17 @@
 #ifdef _DEBUG
 #include <assert.h>
 #endif
-#include <NFA_builder.h>
+#include <nfa_builder.h>
 
 typedef enum {
 	DELIM,
-	ASSIGN_OP,
-	ALGEBRAIC_OP,
-	MUL_OP,
-	BOOLEAN_OP,
+	DEFINE_OP,
 	L_ROUNDB,
 	R_ROUNDB,
 	L_SQUAREB,
 	R_SQUAREB,
-	L_CURLYB,
-	R_CURLYB,
 	END_STMT,
 	ARGSTOP,
-	LOGIC_NOT,
-	IF,
-	WHILE,
-	BREAK,
-	ELSE,
-	RETURN,
-	TYPE,
 	NUMBER,
 	NAME,
 	STRING,

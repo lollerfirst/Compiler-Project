@@ -70,10 +70,13 @@ int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
     return 0;
 }
 
-int nfa_accepts(nfa_t* nfa, const char* string){
+int nfa_accepts(nfa_t* nfa, bool* result, const char* string){
     int i;
     if ((nfa->current_states = malloc(sizeof(int) * nfa->states_len)) == NULL)
-        return -1;
+    {
+        return BAD_ALLOCATION;
+    }
+
     nfa->current_states_capacity = nfa->states_len;
 
     // INITIAL STATE
@@ -81,8 +84,12 @@ int nfa_accepts(nfa_t* nfa, const char* string){
     nfa->current_states_len = 1;
     
     for (i=0; string[i] != '\0'; ++i)
-        if (nfa_delta(nfa, string[i]) != 0)
-            return -1;
+    {
+        ERROR_RETHROW(
+            nfa_delta(nfa, string[i]),
+            free(nfa->current_states)
+        );  
+    }
 
     for (i=0; i < nfa->current_states_len; ++i){
 
@@ -352,13 +359,13 @@ static int nfa_state_init(state_t* state, bool final){
     
     if ((state->charset = malloc(sizeof(char) * 5)) == NULL)
     {
-        return NFA_BAD_STATE_ALLOC;
+        return BAD_ALLOCATION;
     }
 
     if ((state->mapped_state = malloc(sizeof(int) * 5)) == NULL)
     {
         free(state->charset);
-        return NFA_BAD_STATE_ALLOC;
+        return BAD_ALLOCATION;
     }
     
     state->capacity = 5;
@@ -371,13 +378,13 @@ static int nfa_state_extend(state_t* state){
 
     if ((state->charset = reallocarray(state->charset, new_capacity, sizeof(char))) == NULL)
     {
-        return NFA_BAD_STATE_REALLOC;
+        return BAD_ALLOCATION;
     }
 
     if ((state->mapped_state = reallocarray(state->mapped_state, new_capacity, sizeof(int))) == NULL)
     {
         free(state->charset);
-        return NFA_BAD_STATE_REALLOC;
+        return BAD_ALLOCATION;
     }
 
     state->capacity = new_capacity;

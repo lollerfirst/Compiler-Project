@@ -1,0 +1,10 @@
+/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles/main.dir
+/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles/edit_cache.dir
+/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles/rebuild_cache.dir
+/home/lollerfirst/dev/Compiler-Project/build/src/CMakeFiles/libcompiler.dir
+/home/lollerfirst/dev/Compiler-Project/build/src/CMakeFiles/edit_cache.dir
+/home/lollerfirst/dev/Compiler-Project/build/src/CMakeFiles/rebuild_cache.dir
+/home/lollerfirst/dev/Compiler-Project/build/tests/CMakeFiles/test1.dir
+/home/lollerfirst/dev/Compiler-Project/build/tests/CMakeFiles/test2.dir
+/home/lollerfirst/dev/Compiler-Project/build/tests/CMakeFiles/edit_cache.dir
+/home/lollerfirst/dev/Compiler-Project/build/tests/CMakeFiles/rebuild_cache.dir

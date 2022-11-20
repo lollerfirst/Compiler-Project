@@ -1,0 +1,1 @@
+/usr/bin/gcc-10 -g CMakeFiles/main.dir/src/main.c.o -o main  src/liblibcompiler.a 

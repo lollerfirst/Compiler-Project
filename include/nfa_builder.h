@@ -43,7 +43,7 @@ int nfa_load(nfa_t** nfa, const char* filename);
 // Destroys the NFA
 void nfa_destroy(nfa_t* nfa);
 // Checks if the NFA accepts a particular string
-int nfa_accepts(nfa_t* nfa, const char* string);
+int nfa_accepts(nfa_t* nfa, bool* result, const char* string);
 // Prints the NFA in graphviz format to stdout
 int nfa_graph(const nfa_t* nfa);
 

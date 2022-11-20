@@ -1,37 +1,28 @@
 #include <lexer.h>
+#include <compiler_errors.h>
 
 #define REGBUFFER_LEN (sizeof(regex_buffer) / sizeof(regex_buffer[0]))
 
 static const char* regex_buffer[] = { 
 				"\n+\t+ ",
-				"=",
-				"\\++-",
-				"\\*+/",
-				"==+<+>+!=+<=+>=",
+				":=",
 				"\\(",
 				"\\)",
 				"[",
 				"]",
-				"{",
-				"}",
 				";",
 				",",
-				"!",
-				"if",
-				"while",
-				"break",
-				"else",
-				"return",
-				"int+char+float",
 				"(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)",
 				"(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+$+_)((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_)*)",
 				"\"((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*)\"",
  				"'(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)'",
+				
+				//trash
  				"'+\"+'(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)+\"((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*)"
 };
 
 
-static NFA_t* nfa_buf[REGBUFFER_LEN];
+static nfa_t* nfa_buf[REGBUFFER_LEN];
 
 int tokenizer_init(){
 	size_t i;
@@ -39,11 +30,9 @@ int tokenizer_init(){
 	
 	for (i=0; i<REGBUFFER_LEN; ++i){
 		
-		if ((node = tree_parse(regex_buffer[i])) == NULL)
-			return -1;
+		ERROR_RETHROW(tree_parse(&node, regex_buffer[i]));
 
-		if ((nfa_buf[i] = NFA_build(node)) == NULL)
-			return -1;
+		ERROR_RETHROW(nfa_build(&nfa_buf[i], node));
 		
 		tree_deinit(node);
 	}
@@ -52,14 +41,14 @@ int tokenizer_init(){
 }
 
 int tokenize(toklist_t* token_list, char* buffer){
-	size_t buf_len = strlen(buffer);
+	size_t buffer_len = strlen(buffer);
 	
-	if (buf_len == 0)
-		return -1;
+	if (buffer_len == 0)
+		return INVALID_BUFFER;
 	
 	// Setting up
 	token_list->len = 0;
-	token_list->capacity = 128;
+	token_list->capacity = ASCII_LEN;
 	if ((token_list->list = malloc(token_list->capacity * sizeof(token_t)) ) == NULL)
 		return -1;
 	
@@ -70,7 +59,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 	toktype_t tt = NOTOK;
 	
 	 
-	while (i <= buf_len){
+	while (i <= buffer_len){
 		
 		char temp_ch = buffer[i];
 		buffer[i] = '\0';
