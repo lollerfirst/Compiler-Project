@@ -1,7 +1,9 @@
-#pragma once
+#ifndef _NFA_BUILDER_H
+#define _NFA_BUILDER_H
 
 #include <regexparse.h>
 #include <stdbool.h>
+#include <compiler_errors.h>
 
 #define ASCII_LEN 128
 
@@ -12,6 +14,7 @@ mapped_states is the array containing the indices of the states.
 In the event of a single character leading to multiple states, 
 the character should be repeated in the charset.   
 */
+
 typedef struct _state{
     ssize_t len;
     ssize_t capacity;
@@ -29,13 +32,19 @@ typedef struct _nfa{
     ssize_t current_states_capacity;
     state_t* states;
     int* current_states;
-} NFA_t;
+} nfa_t;
 
 // Builds the NFA corresponding to the passed parse-tree.
-NFA_t* NFA_build(const node_t* _parse_tree);
+int nfa_build(nfa_t** nfa, const node_t* _parse_tree);
+// Save the NFA to disk
+int nfa_save(nfa_t* nfa, const char* filename);
+// Load NFA from disk
+int nfa_load(nfa_t** nfa, const char* filename);
 // Destroys the NFA
-void NFA_destroy(NFA_t* nfa);
+void nfa_destroy(nfa_t* nfa);
 // Checks if the NFA accepts a particular string
-int NFA_accepts(NFA_t* nfa, const char* string);
+int nfa_accepts(nfa_t* nfa, const char* string);
 // Prints the NFA in graphviz format to stdout
-int NFA_graph(const NFA_t* nfa);
+int nfa_graph(const nfa_t* nfa);
+
+#endif
