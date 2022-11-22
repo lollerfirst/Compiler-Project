@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/lollerfirst/dev/Compiler-Project/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -130,67 +140,29 @@ test1/fast:
 	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/build
 .PHONY : test1/fast
 
-# Convenience name for target.
-tests/CMakeFiles/test2.dir/rule:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/test2.dir/rule
-.PHONY : tests/CMakeFiles/test2.dir/rule
-
-# Convenience name for target.
-test2: tests/CMakeFiles/test2.dir/rule
-.PHONY : test2
-
-# fast build rule for target.
-test2/fast:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test2.dir/build.make tests/CMakeFiles/test2.dir/build
-.PHONY : test2/fast
-
-test1.o: test1.c.o
+test1.o: test1.cpp.o
 .PHONY : test1.o
 
 # target to build an object file
-test1.c.o:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.c.o
-.PHONY : test1.c.o
+test1.cpp.o:
+	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.cpp.o
+.PHONY : test1.cpp.o
 
-test1.i: test1.c.i
+test1.i: test1.cpp.i
 .PHONY : test1.i
 
 # target to preprocess a source file
-test1.c.i:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.c.i
-.PHONY : test1.c.i
+test1.cpp.i:
+	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.cpp.i
+.PHONY : test1.cpp.i
 
-test1.s: test1.c.s
+test1.s: test1.cpp.s
 .PHONY : test1.s
 
 # target to generate assembly for a file
-test1.c.s:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.c.s
-.PHONY : test1.c.s
-
-test2.o: test2.c.o
-.PHONY : test2.o
-
-# target to build an object file
-test2.c.o:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test2.dir/build.make tests/CMakeFiles/test2.dir/test2.c.o
-.PHONY : test2.c.o
-
-test2.i: test2.c.i
-.PHONY : test2.i
-
-# target to preprocess a source file
-test2.c.i:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test2.dir/build.make tests/CMakeFiles/test2.dir/test2.c.i
-.PHONY : test2.c.i
-
-test2.s: test2.c.s
-.PHONY : test2.s
-
-# target to generate assembly for a file
-test2.c.s:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test2.dir/build.make tests/CMakeFiles/test2.dir/test2.c.s
-.PHONY : test2.c.s
+test1.cpp.s:
+	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.cpp.s
+.PHONY : test1.cpp.s
 
 # Help Target
 help:
@@ -200,14 +172,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... test1"
-	@echo "... test2"
 	@echo "... test1.o"
 	@echo "... test1.i"
 	@echo "... test1.s"
-	@echo "... test2.o"
-	@echo "... test2.i"
-	@echo "... test2.s"
 .PHONY : help
 
 

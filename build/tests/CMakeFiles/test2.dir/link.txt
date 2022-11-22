@@ -1,1 +1,1 @@
-/usr/bin/gcc-10 -g CMakeFiles/test2.dir/test2.c.o -o test2  ../src/liblibcompiler.a 
+/usr/bin/g++-10 -g CMakeFiles/test2.dir/test2.cpp.o -o test2  ../src/liblibcompiler.a /usr/local/lib/libgtest.a 
