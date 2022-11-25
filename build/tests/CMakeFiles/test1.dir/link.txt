@@ -1,1 +1,1 @@
-/usr/bin/g++-10 -g CMakeFiles/test1.dir/test1.cpp.o -o test1  ../src/liblibcompiler.a /usr/local/lib/libgtest.a 
+/usr/bin/gcc-10 -g -fsanitize=address -fsanitize=leak CMakeFiles/test1.dir/test1.c.o -o test1   -L/usr/local/lib  -Wl,-rpath,/usr/local/lib ../src/liblibcompiler.a -lcheck 

@@ -140,29 +140,29 @@ test1/fast:
 	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/build
 .PHONY : test1/fast
 
-test1.o: test1.cpp.o
+test1.o: test1.c.o
 .PHONY : test1.o
 
 # target to build an object file
-test1.cpp.o:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.cpp.o
-.PHONY : test1.cpp.o
+test1.c.o:
+	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.c.o
+.PHONY : test1.c.o
 
-test1.i: test1.cpp.i
+test1.i: test1.c.i
 .PHONY : test1.i
 
 # target to preprocess a source file
-test1.cpp.i:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.cpp.i
-.PHONY : test1.cpp.i
+test1.c.i:
+	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.c.i
+.PHONY : test1.c.i
 
-test1.s: test1.cpp.s
+test1.s: test1.c.s
 .PHONY : test1.s
 
 # target to generate assembly for a file
-test1.cpp.s:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.cpp.s
-.PHONY : test1.cpp.s
+test1.c.s:
+	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test1.dir/build.make tests/CMakeFiles/test1.dir/test1.c.s
+.PHONY : test1.c.s
 
 # Help Target
 help:
