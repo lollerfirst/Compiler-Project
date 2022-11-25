@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
 project(Compiler C)
 
-include_directories(./include)
 
-find_package(GTest REQUIRED)
+set(CMAKE_C_STANDARD 23)
+
+enable_testing()
 
 add_subdirectory(src)
 add_subdirectory(tests)
 
-add_executable(main ./src/main.c)
-target_link_libraries(main libcompiler)
+#add_executable(main ./src/main.c)
+#target_link_libraries(main libcompiler)
+#target_include_directories(main PUBLIC ./include)

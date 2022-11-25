@@ -1,9 +1,6 @@
 make --dry-run --always-make --keep-going --print-directory
 make: Entering directory '/home/lollerfirst/dev/Compiler-Project'
-gcc ./src/regexparse.c -I./include -c -Wall -Wextra  -o./build/regexparse.o
-gcc ./src/lexer.c -I./include -c -Wall -Wextra  -o./build/lexer.o
-gcc ./src/parser.c -I./include -c -Wall -Wextra  -o./build/parser.o
 make: Leaving directory '/home/lollerfirst/dev/Compiler-Project'
  
-make: *** No rule to make target 'src/NFA_builder.c', needed by 'nfa_builder'.
+make: *** No targets specified and no makefile found.  Stop.
 

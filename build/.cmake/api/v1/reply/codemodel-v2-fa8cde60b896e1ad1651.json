@@ -17,11 +17,7 @@
 						"string" : "3.14"
 					},
 					"projectIndex" : 0,
-					"source" : ".",
-					"targetIndexes" : 
-					[
-						1
-					]
+					"source" : "."
 				},
 				{
 					"build" : "src",
@@ -50,8 +46,7 @@
 					"source" : "tests",
 					"targetIndexes" : 
 					[
-						2,
-						3
+						1
 					]
 				}
 			],
@@ -69,9 +64,7 @@
 					"targetIndexes" : 
 					[
 						0,
-						1,
-						2,
-						3
+						1
 					]
 				}
 			],
@@ -80,29 +73,15 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "libcompiler::@145eef247bfb46b6828c",
-					"jsonFile" : "target-libcompiler-Debug-cfa48b475fcbc4ccae01.json",
+					"jsonFile" : "target-libcompiler-Debug-5040561f2863a67d3bd0.json",
 					"name" : "libcompiler",
-					"projectIndex" : 0
-				},
-				{
-					"directoryIndex" : 0,
-					"id" : "main::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-main-Debug-5f18b7f1ecce13aef321.json",
-					"name" : "main",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "test1::@a44f0ac069e85531cdee",
-					"jsonFile" : "target-test1-Debug-165c12b612c7565c8840.json",
+					"jsonFile" : "target-test1-Debug-be663de7d6a1093dbfb2.json",
 					"name" : "test1",
-					"projectIndex" : 0
-				},
-				{
-					"directoryIndex" : 2,
-					"id" : "test2::@a44f0ac069e85531cdee",
-					"jsonFile" : "target-test2-Debug-44a4d71dca43a5263d0c.json",
-					"name" : "test2",
 					"projectIndex" : 0
 				}
 			]

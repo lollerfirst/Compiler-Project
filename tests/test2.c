@@ -1,3 +1,5 @@
+/*
+
 #include <regexparse.h>
 #include <nfa_builder.h>
 
@@ -11,3 +13,5 @@ int main(){
 
     return 0;
 }
+
+*/

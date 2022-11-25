@@ -61,10 +61,10 @@ typedef struct _ast{
     size_t tl_len;
     size_t tl_capacity;
     struct _ast* tl;
-} AST_t;
+} ast_t;
 
 
-int parser_ast(AST_t* ast, const toklist_t* token_list);
-void parser_free(AST_t* ast);
-int parser_graph(AST_t* ast, const char* filename);
+int parser_ast(ast_t* ast, const toklist_t* token_list);
+void parser_free(ast_t* ast);
+int parser_graph(ast_t* ast, const char* filename);
 const char* parser_vartypestr(vartype_t vartype);

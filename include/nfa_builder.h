@@ -3,7 +3,6 @@
 
 #include <regexparse.h>
 #include <stdbool.h>
-#include <compiler_errors.h>
 
 #define ASCII_LEN 128
 

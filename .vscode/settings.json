@@ -3,6 +3,7 @@
     "files.associations": {
         "memory.h": "c",
         "assert.h": "c",
-        "lexer.h": "c"
+        "lexer.h": "c",
+        "gtest.h": "c"
     }
 }

@@ -16,8 +16,8 @@ enum error_codes{
 // executes the second argument before returning the error
 #define ERROR_RETHROW(__FUNC, __COMMAND...) ({ \
     int __err_code;\
-    if ((__err_code = __FUNC) != OK) { \
-        {__COMMAND __VA_OPT__(;)} \
+    if ((__err_code = (__FUNC)) != OK) { \
+        {__COMMAND;} \
         return __err_code; \
     }\
 })

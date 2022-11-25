@@ -1,0 +1,4 @@
+/home/lollerfirst/dev/Compiler-Project/tests/build/CMakeFiles/test1.dir
+/home/lollerfirst/dev/Compiler-Project/tests/build/CMakeFiles/test2.dir
+/home/lollerfirst/dev/Compiler-Project/tests/build/CMakeFiles/edit_cache.dir
+/home/lollerfirst/dev/Compiler-Project/tests/build/CMakeFiles/rebuild_cache.dir

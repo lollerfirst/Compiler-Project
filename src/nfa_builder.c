@@ -1,5 +1,6 @@
 #include <nfa_builder.h>
 #include <stdlib.h>
+#include <compiler_errors.h>
 
 #ifdef _DEBUG
 #include <assert.h>
@@ -91,7 +92,8 @@ int nfa_accepts(nfa_t* nfa, bool* result, const char* string){
         );  
     }
 
-    for (i=0; i < nfa->current_states_len; ++i){
+    for (i=0; i < nfa->current_states_len; ++i)
+    {
 
         int idx = nfa->current_states[i];
         if (nfa->states[idx].final)

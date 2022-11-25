@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Nov 20 13:36:38 2022
+# Make data base, printed on Thu Nov 24 18:59:30 2022
 
 # Variables
 
@@ -22,8 +24,6 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 SSH_AGENT_LAUNCHER = gnome-keyring
 # environment
 SNAP_INSTANCE_KEY = 
-# makefile (from 'Makefile', line 5)
-OBJECT_FILES = $(BIN)/lexer.o $(BIN)/regexparse.o $(BIN)/nfabuilder.o $(BIN)/parser.o
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
@@ -88,22 +88,20 @@ XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 +D = $(patsubst %/,%,$(dir $+))
 # environment
 XDG_SESSION_DESKTOP = ubuntu
-# makefile (from 'Makefile', line 1)
-MAKEFILE_LIST := Makefile
+# makefile
+MAKEFILE_LIST := 
 # environment
 SNAP_REEXEC = 
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 22418
+VSCODE_PID = 167203
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
 BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
-# makefile (from 'Makefile', line 13)
-FLAGS = -Wall -Wextra $(DEBUG)
 # environment
 SESSION_MANAGER = local/lollerfirst-server:@/tmp/.ICE-unix/1659,unix/lollerfirst-server:/tmp/.ICE-unix/1659
 # automatic
@@ -116,8 +114,6 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 <D = $(patsubst %/,%,$(dir $<))
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
-# makefile (from 'Makefile', line 4)
-INCLUDE = ./include
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -183,11 +179,9 @@ GIO_LAUNCHED_DESKTOP_FILE = /var/lib/snapd/desktop/applications/code_code.deskto
 # environment
 SNAP_ARCH = amd64
 # makefile
-.DEFAULT_GOAL := main
+.DEFAULT_GOAL := 
 # environment
 SYSTEMD_EXEC_PID = 1697
-# makefile (from 'Makefile', line 2)
-SOURCE = ./src
 # environment
 DISPLAY = :0
 # environment
@@ -203,13 +197,9 @@ SNAP_CONTEXT = 1miAI2YL6UOPrfzj56BkIN_PS604NerlIXV__F2LEF9mwtln5i4i
 # environment
 MANAGERPID = 1559
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 22378
-# makefile (from 'Makefile', line 6)
-TARGETS = regexparse lexer nfa_builder parser
+GIO_LAUNCHED_DESKTOP_FILE_PID = 167163
 # environment
 _ = /snap/code/113/usr/share/code/code
-# makefile (from 'Makefile', line 3)
-BIN = ./build
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -250,12 +240,8 @@ VSCODE_CLI = 1
 ELECTRON_NO_ATTACH_CONSOLE = 1
 # environment
 SNAP_COMMON = /var/snap/code/common
-# makefile (from 'Makefile', line 10)
-DEBUG = 
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
-# makefile (from 'Makefile', line 1)
-CC = gcc
 # environment
 SNAP_USER_DATA = /home/lollerfirst/snap/code/113
 # environment
@@ -267,7 +253,7 @@ GDMSESSION = ubuntu
 # environment
 SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
 # variable set hash-table stats:
-# Load=128/1024=12%, Rehash=0, Collisions=3/168=2%
+# Load=120/1024=12%, Rehash=0, Collisions=3/147=2%
 
 # Pattern-specific Variable Values
 
@@ -278,7 +264,6 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 # . (device 2066, inode 10624066): 13 files, no impossibilities.
 
 # 13 files, no impossibilities in 1 directories.
- 
 
 # Implicit Rules
 
@@ -286,64 +271,12 @@ SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd
 
 # Files
 
-parser: src/parser.c
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 29):
-	$(CC) $(SOURCE)/parser.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/parser.o
-
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-20 20:51:45.896164424
+#  File does not exist.
 #  File has been updated.
-#  Successfully updated.
-
-clean:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 35):
-	rm $(BIN)/*
-
-# Not a target:
-src/NFA_builder.c:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-src/lexer.c:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-src/parser.c:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-src/main.c:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-regexparse: src/regexparse.c
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 23):
-	$(CC) $(SOURCE)/regexparse.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/regexparse.o
-
-nfa_builder: src/NFA_builder.c
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 26):
-	$(CC) $(SOURCE)/NFA_builder.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/nfabuilder.o
+#  Failed to be updated.
 
 # Not a target:
 .DEFAULT:
@@ -351,74 +284,42 @@ nfa_builder: src/NFA_builder.c
 #  Modification time never checked.
 #  File has not been updated.
 
+# Not a target:
 all:
 #  Command line target.
-#  Implicit rule search has not been done.
-#  Implicit/static pattern stem: ''
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has not been updated.
+
+ 
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
-#  Needs to be updated (-q is set).
-# automatic
-# @ := all
-# automatic
-# * := 
-# automatic
-# < := 
-# automatic
-# + := 
-# automatic
-# % := 
-# automatic
-# ^ := 
-# automatic
-# ? := 
-# automatic
-# | := 
-# variable set hash-table stats:
-# Load=8/32=25%, Rehash=0, Collisions=1/11=9%
-#  recipe to execute (from 'Makefile', line 32):
-	make main
-
-main: regexparse lexer nfa_builder parser src/main.c
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 17):
-	$(CC) $(SOURCE)/main.c $(OBJECT_FILES) -I$(INCLUDE) $(FLAGS) -o$(BIN)/main
+#  Failed to be updated.
 
 # Not a target:
-src/regexparse.c:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-lexer: src/lexer.c
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 20):
-	$(CC) $(SOURCE)/lexer.c -I$(INCLUDE) -c $(FLAGS) -o$(BIN)/lexer.o
-
-# Not a target:
-.SUFFIXES:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+GNUmakefile:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
 
 # files hash-table stats:
-# Load=15/1024=1%, Rehash=0, Collisions=0/40=0%
+# Load=6/1024=1%, Rehash=0, Collisions=0/15=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 29 / storage = 261 B / avg = 9 B
-# current buf: size = 8162 B / used = 261 B / count = 29 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 21 / storage = 179 B / avg = 8 B
+# current buf: size = 8162 B / used = 179 B / count = 21 / avg = 8 B
 
-# strcache performance: lookups = 46 / hit rate = 36%
+# strcache performance: lookups = 24 / hit rate = 12%
 # hash-table stats:
-# Load=29/8192=0%, Rehash=0, Collisions=0/46=0%
-# Finished Make data base on Sun Nov 20 13:36:38 2022
+# Load=21/8192=0%, Rehash=0, Collisions=0/24=0%
+# Finished Make data base on Thu Nov 24 18:59:30 2022
 
  

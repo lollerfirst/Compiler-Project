@@ -12,13 +12,12 @@
 		[
 			"add_executable",
 			"target_link_libraries",
-			"target_compile_options",
-			"include_directories"
+			"target_link_directories",
+			"target_include_directories"
 		],
 		"files" : 
 		[
-			"tests/CMakeLists.txt",
-			"CMakeLists.txt"
+			"tests/CMakeLists.txt"
 		],
 		"nodes" : 
 		[
@@ -28,13 +27,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 5,
+				"line" : 4,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 11,
+				"line" : 7,
 				"parent" : 0
 			},
 			{
@@ -44,13 +43,10 @@
 				"parent" : 0
 			},
 			{
-				"file" : 1
-			},
-			{
 				"command" : 3,
-				"file" : 1,
-				"line" : 4,
-				"parent" : 4
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
 			}
 		]
 	},
@@ -63,22 +59,37 @@
 					"fragment" : "-g"
 				},
 				{
-					"backtrace" : 3,
-					"fragment" : "fsanitize=address"
+					"backtrace" : 2,
+					"fragment" : "-fsanitize=address"
 				},
 				{
-					"backtrace" : 3,
-					"fragment" : "fsanitize=leak"
+					"backtrace" : 2,
+					"fragment" : "-fsanitize=leak"
+				},
+				{
+					"fragment" : "-std=gnu2x"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 5,
-					"path" : "/home/lollerfirst/dev/Compiler-Project/./include"
+					"backtrace" : 4,
+					"path" : "/home/lollerfirst/dev/Compiler-Project/tests/../include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/home/lollerfirst/dev/Compiler-Project/src/../include"
 				}
 			],
 			"language" : "C",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "23"
+			},
 			"sourceIndexes" : 
 			[
 				0
@@ -107,7 +118,31 @@
 			},
 			{
 				"backtrace" : 2,
+				"fragment" : "-fsanitize=address",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-fsanitize=leak",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-L/usr/local/lib",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/usr/local/lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
 				"fragment" : "../src/liblibcompiler.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lcheck",
 				"role" : "libraries"
 			}
 		],

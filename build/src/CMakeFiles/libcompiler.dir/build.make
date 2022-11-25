@@ -83,65 +83,17 @@ src/CMakeFiles/libcompiler.dir/regexparse.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/libcompiler.dir/regexparse.c.s"
 	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/lollerfirst/dev/Compiler-Project/src/regexparse.c -o CMakeFiles/libcompiler.dir/regexparse.c.s
 
-src/CMakeFiles/libcompiler.dir/nfa_builder.c.o: src/CMakeFiles/libcompiler.dir/flags.make
-src/CMakeFiles/libcompiler.dir/nfa_builder.c.o: ../src/nfa_builder.c
-src/CMakeFiles/libcompiler.dir/nfa_builder.c.o: src/CMakeFiles/libcompiler.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object src/CMakeFiles/libcompiler.dir/nfa_builder.c.o"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT src/CMakeFiles/libcompiler.dir/nfa_builder.c.o -MF CMakeFiles/libcompiler.dir/nfa_builder.c.o.d -o CMakeFiles/libcompiler.dir/nfa_builder.c.o -c /home/lollerfirst/dev/Compiler-Project/src/nfa_builder.c
-
-src/CMakeFiles/libcompiler.dir/nfa_builder.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/libcompiler.dir/nfa_builder.c.i"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/lollerfirst/dev/Compiler-Project/src/nfa_builder.c > CMakeFiles/libcompiler.dir/nfa_builder.c.i
-
-src/CMakeFiles/libcompiler.dir/nfa_builder.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/libcompiler.dir/nfa_builder.c.s"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/lollerfirst/dev/Compiler-Project/src/nfa_builder.c -o CMakeFiles/libcompiler.dir/nfa_builder.c.s
-
-src/CMakeFiles/libcompiler.dir/lexer.c.o: src/CMakeFiles/libcompiler.dir/flags.make
-src/CMakeFiles/libcompiler.dir/lexer.c.o: ../src/lexer.c
-src/CMakeFiles/libcompiler.dir/lexer.c.o: src/CMakeFiles/libcompiler.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object src/CMakeFiles/libcompiler.dir/lexer.c.o"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT src/CMakeFiles/libcompiler.dir/lexer.c.o -MF CMakeFiles/libcompiler.dir/lexer.c.o.d -o CMakeFiles/libcompiler.dir/lexer.c.o -c /home/lollerfirst/dev/Compiler-Project/src/lexer.c
-
-src/CMakeFiles/libcompiler.dir/lexer.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/libcompiler.dir/lexer.c.i"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/lollerfirst/dev/Compiler-Project/src/lexer.c > CMakeFiles/libcompiler.dir/lexer.c.i
-
-src/CMakeFiles/libcompiler.dir/lexer.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/libcompiler.dir/lexer.c.s"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/lollerfirst/dev/Compiler-Project/src/lexer.c -o CMakeFiles/libcompiler.dir/lexer.c.s
-
-src/CMakeFiles/libcompiler.dir/parser.c.o: src/CMakeFiles/libcompiler.dir/flags.make
-src/CMakeFiles/libcompiler.dir/parser.c.o: ../src/parser.c
-src/CMakeFiles/libcompiler.dir/parser.c.o: src/CMakeFiles/libcompiler.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object src/CMakeFiles/libcompiler.dir/parser.c.o"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT src/CMakeFiles/libcompiler.dir/parser.c.o -MF CMakeFiles/libcompiler.dir/parser.c.o.d -o CMakeFiles/libcompiler.dir/parser.c.o -c /home/lollerfirst/dev/Compiler-Project/src/parser.c
-
-src/CMakeFiles/libcompiler.dir/parser.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/libcompiler.dir/parser.c.i"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/lollerfirst/dev/Compiler-Project/src/parser.c > CMakeFiles/libcompiler.dir/parser.c.i
-
-src/CMakeFiles/libcompiler.dir/parser.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/libcompiler.dir/parser.c.s"
-	cd /home/lollerfirst/dev/Compiler-Project/build/src && /usr/bin/gcc-10 $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/lollerfirst/dev/Compiler-Project/src/parser.c -o CMakeFiles/libcompiler.dir/parser.c.s
-
 # Object files for target libcompiler
 libcompiler_OBJECTS = \
-"CMakeFiles/libcompiler.dir/regexparse.c.o" \
-"CMakeFiles/libcompiler.dir/nfa_builder.c.o" \
-"CMakeFiles/libcompiler.dir/lexer.c.o" \
-"CMakeFiles/libcompiler.dir/parser.c.o"
+"CMakeFiles/libcompiler.dir/regexparse.c.o"
 
 # External object files for target libcompiler
 libcompiler_EXTERNAL_OBJECTS =
 
 src/liblibcompiler.a: src/CMakeFiles/libcompiler.dir/regexparse.c.o
-src/liblibcompiler.a: src/CMakeFiles/libcompiler.dir/nfa_builder.c.o
-src/liblibcompiler.a: src/CMakeFiles/libcompiler.dir/lexer.c.o
-src/liblibcompiler.a: src/CMakeFiles/libcompiler.dir/parser.c.o
 src/liblibcompiler.a: src/CMakeFiles/libcompiler.dir/build.make
 src/liblibcompiler.a: src/CMakeFiles/libcompiler.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking C static library liblibcompiler.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lollerfirst/dev/Compiler-Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C static library liblibcompiler.a"
 	cd /home/lollerfirst/dev/Compiler-Project/build/src && $(CMAKE_COMMAND) -P CMakeFiles/libcompiler.dir/cmake_clean_target.cmake
 	cd /home/lollerfirst/dev/Compiler-Project/build/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/libcompiler.dir/link.txt --verbose=$(VERBOSE)
 

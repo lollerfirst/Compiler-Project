@@ -4,7 +4,7 @@
 # compile C with /usr/bin/gcc-10
 C_DEFINES = 
 
-C_INCLUDES = -I/home/lollerfirst/dev/Compiler-Project/./include
+C_INCLUDES = -I/home/lollerfirst/dev/Compiler-Project/./include -I/home/lollerfirst/dev/Compiler-Project/src/../include
 
-C_FLAGS = -g
+C_FLAGS = -g -std=gnu2x
 

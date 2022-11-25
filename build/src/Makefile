@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/lollerfirst/dev/Compiler-Project/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -130,78 +140,6 @@ libcompiler/fast:
 	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/build
 .PHONY : libcompiler/fast
 
-lexer.o: lexer.c.o
-.PHONY : lexer.o
-
-# target to build an object file
-lexer.c.o:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/lexer.c.o
-.PHONY : lexer.c.o
-
-lexer.i: lexer.c.i
-.PHONY : lexer.i
-
-# target to preprocess a source file
-lexer.c.i:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/lexer.c.i
-.PHONY : lexer.c.i
-
-lexer.s: lexer.c.s
-.PHONY : lexer.s
-
-# target to generate assembly for a file
-lexer.c.s:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/lexer.c.s
-.PHONY : lexer.c.s
-
-nfa_builder.o: nfa_builder.c.o
-.PHONY : nfa_builder.o
-
-# target to build an object file
-nfa_builder.c.o:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/nfa_builder.c.o
-.PHONY : nfa_builder.c.o
-
-nfa_builder.i: nfa_builder.c.i
-.PHONY : nfa_builder.i
-
-# target to preprocess a source file
-nfa_builder.c.i:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/nfa_builder.c.i
-.PHONY : nfa_builder.c.i
-
-nfa_builder.s: nfa_builder.c.s
-.PHONY : nfa_builder.s
-
-# target to generate assembly for a file
-nfa_builder.c.s:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/nfa_builder.c.s
-.PHONY : nfa_builder.c.s
-
-parser.o: parser.c.o
-.PHONY : parser.o
-
-# target to build an object file
-parser.c.o:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/parser.c.o
-.PHONY : parser.c.o
-
-parser.i: parser.c.i
-.PHONY : parser.i
-
-# target to preprocess a source file
-parser.c.i:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/parser.c.i
-.PHONY : parser.c.i
-
-parser.s: parser.c.s
-.PHONY : parser.s
-
-# target to generate assembly for a file
-parser.c.s:
-	cd /home/lollerfirst/dev/Compiler-Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/libcompiler.dir/build.make src/CMakeFiles/libcompiler.dir/parser.c.s
-.PHONY : parser.c.s
-
 regexparse.o: regexparse.c.o
 .PHONY : regexparse.o
 
@@ -234,16 +172,8 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... libcompiler"
-	@echo "... lexer.o"
-	@echo "... lexer.i"
-	@echo "... lexer.s"
-	@echo "... nfa_builder.o"
-	@echo "... nfa_builder.i"
-	@echo "... nfa_builder.s"
-	@echo "... parser.o"
-	@echo "... parser.i"
-	@echo "... parser.s"
 	@echo "... regexparse.o"
 	@echo "... regexparse.i"
 	@echo "... regexparse.s"
