@@ -1,2 +1,0 @@
-/usr/bin/ar qc liblibcompiler.a CMakeFiles/libcompiler.dir/regexparse.c.o
-/usr/bin/ranlib liblibcompiler.a
