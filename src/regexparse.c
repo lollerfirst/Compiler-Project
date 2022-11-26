@@ -70,7 +70,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 				return parser_recursive(node, regexpr, regexpr_index, true);
 	
 			case '(':
-				if (k == '+' || k == '*')
+				if (k == '+' || k == '*' || k == '\0')
 				{
 					*node = NULL;
 					return ILLFORMED_REGEXPR;

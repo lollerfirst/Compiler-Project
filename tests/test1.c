@@ -41,7 +41,7 @@ START_TEST(test_regexparser)
     
     node_t* node;
     int i;
-    for (i=0; i<sizeof(regex_buffer); ++i)
+    for (i=0; i<3; ++i)
     {
         int error_code;
         ck_assert_msg((error_code = tree_parse(&node, regex_buffer[i])) == 0, 
