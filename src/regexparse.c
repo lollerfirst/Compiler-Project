@@ -45,14 +45,14 @@ int tree_parse(node_t** node, const char* str){
 
 static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_index, bool escape){
 
-	char c = eat(regexpr, regexpr_index);
-	char k;
-	if (c == '\0')
+	char c, k;
+	if (peek(regexpr, *regexpr_index) == '\0')
 	{	
 		*node = NULL;
 		return OK;
 	}
-
+	
+	c = eat(regexpr, regexpr_index);
 	k = peek(regexpr, *regexpr_index);
 
 	if (!escape){
@@ -70,7 +70,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 				return parser_recursive(node, regexpr, regexpr_index, true);
 	
 			case '(':
-				if (k == '+' || k == '*' || k == '\0')
+				if (k == '+' || k == '*')
 				{
 					*node = NULL;
 					return ILLFORMED_REGEXPR;
@@ -84,31 +84,36 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 					parser_recursive(&(*node)->l_child, regexpr, regexpr_index, false),
 					tree_deinit(node);
 				);
-				
-				// peek if there is a kleene star before descending into right node
-				if (k == '*'){
+
+				// peek if there is a '+' or a '*' behind
+				k = peek(regexpr, *regexpr_index);
+				if (k == '*')
+				{
 					
 					// allocate new kleene node between parent and left child
 					node_t* intermediate;
 					ERROR_RETHROW(
 						node_allocate(&intermediate, STAR),
-						tree_deinit(node);
-					);					
+						tree_deinit(node)
+					);
 
 					intermediate->l_child = (*node)->l_child;
 					(*node)->l_child = intermediate;
 
 					// eat out eventual additional stars
-					while((c = peek(regexpr, *regexpr_index)) == '*'){
+					do
+					{
 						eat(regexpr, regexpr_index);
 					}
+					while(peek(regexpr, *regexpr_index) == '*');
 
 				} // Otherwise check if there is a '+' ahead
-				else if (k == '+'){
+				else if (k == '+')
+				{
 
 					//this becomes a union node
 					(*node)->op = UNION;
-					 eat(regexpr, regexpr_index);
+					eat(regexpr, regexpr_index);
 				}
 
 				// descend into right node
@@ -135,8 +140,6 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 
 	// set the left child to the character literal
 	(*node)->l_child->c = c;
-	(*node)->l_child->l_child = NULL;
-	(*node)->l_child->r_child = NULL;
 
 	// peek if there is a '+' or a '*' behind
 	if (k == '*'){
@@ -152,16 +155,18 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 		(*node)->l_child = intermediate;
 
 		// eat out eventual additional stars
-		while(peek(regexpr, *regexpr_index) == '*'){
-			 eat(regexpr, regexpr_index);
+		do
+		{
+			eat(regexpr, regexpr_index);
 		}
+		while(peek(regexpr, *regexpr_index) == '*');
 
 	} // Otherwise check if there is a '+' ahead
-	else if (peek(regexpr, *regexpr_index) == '+'){
+	else if (k == '+'){
 
 		//this becomes a union node
 		(*node)->op = UNION;
-		 eat(regexpr, regexpr_index);
+		eat(regexpr, regexpr_index);
 	}
 
 	// descend into right node
