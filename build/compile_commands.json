@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/lollerfirst/dev/Compiler-Project/build/src",
+  "command": "/usr/bin/gcc-10  -I/home/lollerfirst/dev/Compiler-Project/src/../include -g -fsanitize=address -fsanitize=leak -g -std=gnu2x -o CMakeFiles/libcompiler.dir/regexparse.c.o -c /home/lollerfirst/dev/Compiler-Project/src/regexparse.c",
+  "file": "/home/lollerfirst/dev/Compiler-Project/src/regexparse.c"
+},
+{
+  "directory": "/home/lollerfirst/dev/Compiler-Project/build/src",
+  "command": "/usr/bin/gcc-10  -I/home/lollerfirst/dev/Compiler-Project/src/../include -g -fsanitize=address -fsanitize=leak -g -std=gnu2x -o CMakeFiles/libcompiler.dir/nfa_builder.c.o -c /home/lollerfirst/dev/Compiler-Project/src/nfa_builder.c",
+  "file": "/home/lollerfirst/dev/Compiler-Project/src/nfa_builder.c"
+},
+{
+  "directory": "/home/lollerfirst/dev/Compiler-Project/build/tests",
+  "command": "/usr/bin/gcc-10  -I/home/lollerfirst/dev/Compiler-Project/tests/../include -I/home/lollerfirst/dev/Compiler-Project/src/../include -g -g -fsanitize=address -fsanitize=leak -std=gnu2x -o CMakeFiles/test1.dir/test1.c.o -c /home/lollerfirst/dev/Compiler-Project/tests/test1.c",
+  "file": "/home/lollerfirst/dev/Compiler-Project/tests/test1.c"
+},
+{
+  "directory": "/home/lollerfirst/dev/Compiler-Project/build/tests",
+  "command": "/usr/bin/gcc-10  -I/home/lollerfirst/dev/Compiler-Project/tests/../include -I/home/lollerfirst/dev/Compiler-Project/src/../include -g -g -fsanitize=address -fsanitize=leak -std=gnu2x -o CMakeFiles/test2.dir/test2.c.o -c /home/lollerfirst/dev/Compiler-Project/tests/test2.c",
+  "file": "/home/lollerfirst/dev/Compiler-Project/tests/test2.c"
+}
+]

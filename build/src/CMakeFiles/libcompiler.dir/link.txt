@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblibcompiler.a CMakeFiles/libcompiler.dir/regexparse.c.o CMakeFiles/libcompiler.dir/nfa_builder.c.o
+/usr/bin/ranlib liblibcompiler.a

@@ -1,0 +1,4 @@
+# ignore following folders #
+./build/**
+./graphs/**
+./tests/build/**
