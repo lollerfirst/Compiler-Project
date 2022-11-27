@@ -6,28 +6,10 @@ static vartype_t DelimList[] = {(vartype_t)DELIM, END_PROD,
                             (vartype_t)DELIM, DELIM_LIST, END_PROD,
                             END_ARR};
 
-static vartype_t Assign_OP[] = {(vartype_t)ASSIGN_OP, END_PROD,
-                            DELIM_LIST, (vartype_t)ASSIGN_OP, END_PROD,
-                            (vartype_t)ASSIGN_OP, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)ASSIGN_OP, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Arithm_OP[] = {(vartype_t)ALGEBRAIC_OP, END_PROD,
-                            DELIM_LIST, (vartype_t)ALGEBRAIC_OP, END_PROD,
-                            (vartype_t)ALGEBRAIC_OP, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)ALGEBRAIC_OP, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Mul_OP[] = {(vartype_t)MUL_OP, END_PROD,
-                            DELIM_LIST, (vartype_t)MUL_OP, END_PROD,
-                            (vartype_t)MUL_OP, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)MUL_OP, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Bool_OP[] = {(vartype_t)BOOLEAN_OP, END_PROD,
-                            DELIM_LIST, (vartype_t)BOOLEAN_OP, END_PROD,
-                            (vartype_t)BOOLEAN_OP, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)BOOLEAN_OP, DELIM_LIST, END_PROD,
+static vartype_t Define_OP[] = {(vartype_t)DEFINE_OP, END_PROD,
+                            DELIM_LIST, (vartype_t)DEFINE_OP, END_PROD,
+                            (vartype_t)DEFINE_OP, DELIM_LIST, END_PROD,
+                            DELIM_LIST, (vartype_t)DEFINE_OP, DELIM_LIST, END_PROD,
                             END_ARR};
 
 static vartype_t Left_roundb[] = {(vartype_t)L_ROUNDB, END_PROD,
@@ -54,18 +36,6 @@ static vartype_t Right_squareb[] = {(vartype_t)R_SQUAREB, END_PROD,
                             DELIM_LIST, (vartype_t)R_SQUAREB, DELIM_LIST, END_PROD,
                             END_ARR};
 
-static vartype_t Left_curlyb[] = {(vartype_t)L_CURLYB, END_PROD,
-                            DELIM_LIST, (vartype_t)L_CURLYB, END_PROD,
-                            (vartype_t)L_CURLYB, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)L_CURLYB, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Right_curlyb[] = {(vartype_t)R_CURLYB, END_PROD,
-                            DELIM_LIST, (vartype_t)R_CURLYB, END_PROD,
-                            (vartype_t)R_CURLYB, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)R_CURLYB, DELIM_LIST, END_PROD,
-                            END_ARR};
-
 static vartype_t End_statement[] = {(vartype_t)END_STMT, END_PROD,
                             DELIM_LIST, (vartype_t)END_STMT, END_PROD,
                             (vartype_t)END_STMT, DELIM_LIST, END_PROD,
@@ -78,55 +48,13 @@ static vartype_t Arg_separator[] = {(vartype_t)ARGSTOP, END_PROD,
                             DELIM_LIST, (vartype_t)ARGSTOP, DELIM_LIST, END_PROD,
                             END_ARR};
 
-static vartype_t Logic_not[] = {(vartype_t)LOGIC_NOT, END_PROD,
-                            DELIM_LIST, (vartype_t)LOGIC_NOT, END_PROD,
-                            (vartype_t)LOGIC_NOT, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)LOGIC_NOT, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t If_var[] = {(vartype_t)IF, END_PROD,
-                            DELIM_LIST, (vartype_t)IF, END_PROD,
-                            (vartype_t)IF, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)IF, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t While_var[] = {(vartype_t)WHILE, END_PROD,
-                            DELIM_LIST, (vartype_t)WHILE, END_PROD,
-                            (vartype_t)WHILE, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)WHILE, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Break_var[] = {(vartype_t)BREAK, END_PROD,
-                            DELIM_LIST, (vartype_t)BREAK, END_PROD,
-                            (vartype_t)BREAK, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)BREAK, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Else_var[] = {(vartype_t)ELSE, END_PROD,
-                            DELIM_LIST, (vartype_t)ELSE, END_PROD,
-                            (vartype_t)ELSE, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)ELSE, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Return_var[] = {(vartype_t)RETURN, END_PROD,
-                            DELIM_LIST, (vartype_t)RETURN, END_PROD,
-                            (vartype_t)RETURN, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)RETURN, DELIM_LIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Type[] = {(vartype_t)TYPE, END_PROD,
-                            DELIM_LIST, (vartype_t)TYPE, END_PROD,
-                            (vartype_t)TYPE, DELIM_LIST, END_PROD,
-                            DELIM_LIST, (vartype_t)TYPE, DELIM_LIST, END_PROD,
-                            END_ARR};
-
 static vartype_t Number[] = {(vartype_t)NUMBER, END_PROD,
                             DELIM_LIST, (vartype_t)NUMBER, END_PROD,
                             (vartype_t)NUMBER, DELIM_LIST, END_PROD,
                             DELIM_LIST, (vartype_t)NUMBER, DELIM_LIST, END_PROD,
                             END_ARR};
 
-static vartype_t Variable[] = {(vartype_t)NAME, END_PROD,
+static vartype_t Name[] = {(vartype_t)NAME, END_PROD,
                             DELIM_LIST, (vartype_t)NAME, END_PROD,
                             (vartype_t)NAME, DELIM_LIST, END_PROD,
                             DELIM_LIST, (vartype_t)NAME, DELIM_LIST, END_PROD,
@@ -145,89 +73,44 @@ static vartype_t Char[] = {(vartype_t)CHAR, END_PROD,
                             END_ARR};
 
 /*** REAL GRAMMAR PRODUCTIONS ***/
-static vartype_t Array[] = {VARIABLE, L_SQUAREB_VAR, NUMBER_VAR, R_SQUAREB_VAR, END_PROD, END_ARR};
-
-static vartype_t Expr[] = {NUMBER_VAR, END_PROD,
+static vartype_t Parameter = {NAME_VAR, END_PROD,
+                            NUMBER_VAR, END_PROD,
                             STRING_VAR, END_PROD,
                             CHAR_VAR, END_PROD,
-                            VARIABLE, END_PROD,
-                            ARRAY, END_PROD,
-                            L_ROUNDB_VAR, EXPR, R_ROUNDB_VAR,
                             END_ARR};
 
-static vartype_t VarList[] = {VARIABLE, ARGSEPARATOR, VARLIST, END_PROD,
-                            ARRAY, ARGSEPARATOR, VARLIST, END_PROD,
-                            VARIABLE, END_PROD,
-                            ARRAY, END_PROD,
+static vartype_t ParamList = {PARAMETER, ARGSEPARATOR, PARAMLIST, END_PROD,
+                            PARAMETER, END_PROD,
                             END_ARR};
 
-static vartype_t ExprList[] = {EXPR, END_PROD,
-                            EXPR, ARGSEPARATOR, EXPR_LIST, END_PROD,
+static vartype_t BaseCall = {NAME_VAR, L_ROUNDB_VAR, PARAMLIST, R_ROUNDB_VAR, END_PROD,
                             END_ARR};
 
-static vartype_t Call[] = {VARIABLE, L_ROUNDB_VAR, R_ROUNDB_VAR, END_PROD,
-                            VARIABLE, L_ROUNDB_VAR, EXPR_LIST, R_ROUNDB_VAR, END_PROD,
+static vartype_t BaseCallList = {BASECALL, ARGSEPARATOR, BASECALL_LIST, END_PROD,
+                            BASECALL, END_PROD,
                             END_ARR};
 
-static vartype_t MulExpr[] = {EXPR, MUL_OP_VAR, MULEXPR, END_PROD,
-                            CALL, MUL_OP_VAR, MULEXPR, END_PROD,
-                            EXPR, END_PROD,
-                            CALL, END_PROD,
+static vartype_t StepCall = {NAME_VAR, L_ROUNDB_VAR, STEPCALL, R_ROUNDB_VAR, END_PROD,
+                            BASECALL_LIST, END_PROD,
                             END_ARR};
 
-static vartype_t ArithmExpr[] = {EXPR, ARITHM_OP_VAR, ARITHMEXPR, END_PROD,
-                            CALL, ARITHM_OP_VAR, ARITHMEXPR, END_PROD,
-                            MULEXPR, END_PROD,
-                            EXPR, END_PROD,
-                            CALL, END_PROD,
-                            END_ARR};
-                        
-static vartype_t AssignExpr[] = {VARIABLE, ASSIGN_OP_VAR, ASSIGNEXPR, END_PROD,
-                            VARIABLE, ASSIGN_OP_VAR, CALL, END_PROD,
-                            VARIABLE, END_PROD,
-                            CALL, END_PROD,
+static vartype_t StepCallList = {STEPCALL, ARGSEPARATOR, STEPCALL_LIST, END_PROD,
+                            STEPCALL, END_PROD,
                             END_ARR};
 
-static vartype_t BoolExpr[] = {LOGIC_NOT_VAR, BOOLEXPR, END_PROD,
-                            EXPR, BOOL_OP_VAR, BOOLEXPR, END_PROD,
-                            CALL, BOOL_OP_VAR, BOOLEXPR, END_PROD,
-                            ASSIGNEXPR, END_PROD,
-                            ARITHMEXPR, END_PROD,
-                            EXPR, END_PROD,
-                            CALL, END_PROD,
+static vartype_t TrueCall = {NAME_VAR, L_ROUNDB_VAR, STEPCALL_LIST, R_ROUNDB_VAR, END_PROD,
+                            BASECALL, END_PROD,
                             END_ARR};
 
-static vartype_t AllExpr[] = {ASSIGNEXPR, END_PROD,
-                            ARITHMEXPR, END_PROD,
-                            BOOLEXPR, END_PROD,
+static vartype_t Definition = {BASECALL, DEFINE_OP_VAR, TRUECALL, END_PROD,
                             END_ARR};
 
-static vartype_t Declaration[] = {TYPE_VAR, DELIM_LIST, VARLIST, END_PROD, 
-                            ARRAY, DELIM_LIST, VARLIST, END_PROD,
-                            END_ARR};
-
-static vartype_t Statement[] = {L_CURLYB_VAR, STATEMENT_LIST, R_CURLYB_VAR, END_PROD,
-                            DECLARATION, END_STMT_VAR, END_PROD,
-                            ALLEXPR, END_STMT_VAR, END_PROD,
-                            IF_VAR, L_ROUNDB_VAR, BOOLEXPR, R_ROUNDB_VAR, STATEMENT, END_PROD,
-                            IF_VAR, L_ROUNDB_VAR, BOOLEXPR, R_ROUNDB_VAR, STATEMENT, ELSE_VAR, STATEMENT, END_PROD,
-                            WHILE_VAR, L_ROUNDB_VAR, BOOLEXPR, R_ROUNDB_VAR, STATEMENT, END_PROD,
-                            BREAK_VAR, END_STMT_VAR, END_PROD,
-                            END_ARR};
-
-static vartype_t StatementList[] = {STATEMENT, STATEMENT_LIST, END_PROD,
-                            STATEMENT, END_PROD,
-                            END_ARR};
-
-static vartype_t Program[] = {STATEMENT_LIST, END_PROD, END_ARR};
-
+static vartype_t Statement = {DEFINITION, END_STMT_VAR, END_PROD,
+                            TRUECALL, END_STMT_VAR, END_PROD,
+                            END_ARR}; 
 
 /*** Mapping Enum to production arrays ***/
-static vartype_t* production_map[] = {DelimList, Assign_OP, Arithm_OP, Mul_OP, Bool_OP, Left_roundb, Right_roundb, 
-                            Left_squareb, Right_squareb, Left_curlyb, Right_curlyb, End_statement, Arg_separator,
-                            Logic_not, If_var, While_var, Break_var, Else_var, Return_var, Type, Number, Variable,
-                            String, Char, Array, Expr, VarList, ExprList, Call, MulExpr, ArithmExpr, AssignExpr,
-                            BoolExpr, AllExpr, Declaration, Statement, StatementList, Program};
+static vartype_t* production_map[] = {};
 
 static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index);
 static int parser_graph_rec(AST_t* ast, FILE* f);

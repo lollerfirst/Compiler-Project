@@ -1,8 +1,15 @@
 #include <regexparse.h>
 #include <string.h>
 #include <compiler_errors.h>
+#include <nfa_builder.h>
 
 #include <check.h>
+
+static const char* regex_buffer[] = { 
+				"(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)",
+				"(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+$+_)((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_)*)",
+				"\"((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*)\""
+};
 
 void check_tree_integrity(const node_t* tree)
 {
@@ -33,11 +40,6 @@ void check_tree_integrity(const node_t* tree)
 
 START_TEST(test_regexparser)
 {
-    static const char* regex_buffer[] = { 
-				"(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)",
-				"(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+$+_)((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_)*)",
-				"\"((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*)\""
-    };
     
     node_t* node;
     int i;
@@ -63,11 +65,17 @@ int main(int argc, char** argv){
     TCase* test_case;
     int number_failed;
 
-    suite = suite_create("Regexpr");
-    test_case = tcase_create("core");
+    suite = suite_create("Regexpr Parser");
 
+    test_case = tcase_create("core");
     tcase_add_test(test_case, test_regexparser);
     suite_add_tcase(suite, test_case);
+
+    /*
+    test_case = tcase_create("nfa builder");
+    tcase_add_test(test_case, test_nfa_builder);
+    suite_add_tcase(suite, test_case);
+    */
     
     SRunner* suite_runner = srunner_create(suite);
     srunner_run_all(suite_runner, CK_NORMAL);

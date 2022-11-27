@@ -61,7 +61,11 @@ int tokenize(toklist_t* token_list, char* buffer){
 	 
 	while (i <= buffer_len){
 		
-		char temp_ch = buffer[i];
+		char temp_char;
+		size_t j;
+		int acc;
+		
+		temp_char = buffer[i];
 		buffer[i] = '\0';
 		
 		if (token_list->len >= token_list->capacity){
@@ -70,8 +74,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 				return -1;
 		}
 		
-		size_t j;
-		int acc;
+		
 		
 		for (j=0; j<REGBUFFER_LEN; ++j)
 			if ((acc = NFA_accepts(nfa_buf[j], buffer+base_i)))
@@ -80,7 +83,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 		if (acc == -1)
 			return -1;
 		
-		buffer[i] = temp_ch;
+		buffer[i] = temp_char;
 
 		if (acc){ // continue
 			++i;
@@ -133,14 +136,8 @@ const char* tokenizer_typetokstr(toktype_t tktype){
 	switch (tktype){
 		case DELIM:
 			return "delimiter";
-		case ASSIGN_OP:
-			return "assign-op";
-		case ALGEBRAIC_OP:
-			return "algebraic-op";
-		case MUL_OP:
-			return "multiplication-op";
-		case BOOLEAN_OP:
-			return "boolean-op";
+		case DEFINE_OP:
+			return "define-op";
 		case L_ROUNDB:
 			return "left-roundbracket";
 		case R_ROUNDB:
@@ -149,28 +146,10 @@ const char* tokenizer_typetokstr(toktype_t tktype){
 			return "left-squarebracket";
 		case R_SQUAREB:
 			return "right-squarebracket";
-		case L_CURLYB:
-			return "left-curlybracket";
-		case R_CURLYB:
-			return "right-curlybracket";
 		case END_STMT:
 			return "end-statement";
 		case ARGSTOP:
 			return "argstop";
-		case LOGIC_NOT:
-			return "logical-not";
-		case IF:
-			return "if";
-		case WHILE:
-			return "while";
-		case BREAK:
-			return "break";
-		case ELSE:
-			return "else";
-		case RETURN:
-			return "return";
-		case TYPE:
-			return "type";
 		case NUMBER:
 			return "number";
 		case NAME:

@@ -72,6 +72,8 @@ int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
 }
 
 int nfa_accepts(nfa_t* nfa, bool* result, const char* string){
+    *result = false;
+
     int i;
     if ((nfa->current_states = malloc(sizeof(int) * nfa->states_len)) == NULL)
     {
@@ -97,20 +99,34 @@ int nfa_accepts(nfa_t* nfa, bool* result, const char* string){
 
         int idx = nfa->current_states[i];
         if (nfa->states[idx].final)
-            return 1;
+        {
+            *result = true;
+        }
     }
 
     free(nfa->current_states);
-    return 0;
+    return OK;
 }
 
 
-void nfa_destroy(nfa_t* nfa){
+void nfa_destroy(nfa_t** nfa){
+
+    if (nfa == NULL)
+    {
+        return;
+    }
+
+    if (*nfa == NULL)
+    {
+        return;
+    }
+
     int i;
-    for (i=0; i<nfa->states_len; ++i)
-        nfa_state_deinit(&nfa->states[i]);
+    for (i=0; i<(*nfa)->states_len; ++i)
+        nfa_state_deinit(&(*nfa)->states[i]);
     
     nfa_deinit(nfa);
+    *nfa = NULL;
 }
 
 int nfa_graph(const nfa_t* nfa){
@@ -151,12 +167,15 @@ static int nfa_delta(nfa_t* nfa, char c){
         const int k = nfa->current_states[i];
 
         int j;        
-        for (j=0; j<nfa->states[k].len; ++j)
+        for (j=0; j<nfa->states[k].len; ++j){
 
-            if (nfa->states[k].charset[j] == c){
+            if (nfa->states[k].charset[j] == c)
+            {
                 
-                if (next_states_len >= next_states_capacity){
-                    if ((next_states = reallocarray(next_states, next_states_capacity * 2, sizeof(int))) == NULL){
+                if (next_states_len >= next_states_capacity)
+                {
+                    if ((next_states = reallocarray(next_states, next_states_capacity * 2, sizeof(int))) == NULL)
+                    {
                         free(next_states);
                         return BAD_ALLOCATION;
                     }
@@ -165,6 +184,7 @@ static int nfa_delta(nfa_t* nfa, char c){
 
                 next_states[next_states_len++] = nfa->states[k].mapped_state[j];
             }
+        }
     }
 
     free(nfa->current_states);

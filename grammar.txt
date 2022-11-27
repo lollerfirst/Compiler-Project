@@ -80,12 +80,7 @@ Grammar for lambda language: (# is the epsilon)
 
 /*** ************************** ***/
 
-<Parameter> := <Name><Left-roundb><Name><Right-roundb> |
-		<Name><Left-roundb><Number><Right-roundb> |
-		<Name><Left-roundb><String><Right-roundb> |
-		<Name><Left-roundb><Char><Right-roundb> |
-		<Name><Left-roundb><Call><Right-roundb> |
-		<Name> |
+<Parameter> := <Name> |
 		<Number> |
 		<String> |
 		<Char>
@@ -93,10 +88,24 @@ Grammar for lambda language: (# is the epsilon)
 <ParamList> := <Parameter><ArgSeparator><ParamList> |
 		<Parameter>
 
-<Definition> := <Name><Left-roundb><ParamList><Right-roundb>
+<BaseCall> := <Name><Left-roundb><ParamList><Right-roundb>
 
-<Statement> := <Name><Left-roundb><ParamList><Right-roundb><Define-OP><Definition><End-Statement> |
-		<Name><Left-roundb><ParamList><Right-roundb><End-Statement>
+<BaseCallList> := <BaseCall><ArgSeparator><BaseCallList> |
+		<BaseCall>
+
+<StepCall> := <Name><Left-roundb><StepCall><Right-roundb> |
+		<BaseCallList>
+
+<StepCallList> := <StepCall><ArgSeparator><StepCallList> |
+		<StepCall>
+
+<TrueCall> := <Name><Left-roundb><StepCallList><Right-roundb> |
+		<BaseCall>
+
+<Definition> := <BaseCall><Define-OP><TrueCall>
+
+<Statement> := <Definition><End-Statement> |
+		<Call><End-Statement>
 
 <StatementList> := <Statement><StatementList> |
 		<Statement>
