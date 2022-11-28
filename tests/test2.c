@@ -1,6 +1,8 @@
-#include <check.h>
 #include <nfa_builder.h>
 #include <regexparse.h>
+#include <compiler_errors.h>
+#include <assert.h>
+#include <stdio.h>
 
 static const char* regex_buffer[] = { 
 				"(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)",
@@ -8,47 +10,88 @@ static const char* regex_buffer[] = {
 				"\"((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*)\""
 };
 
-START_TEST(test_nfa_builder)
+static node_t* node[3];
+static nfa_t* nfa_collection[3];
+
+void setup()
 {
-    nfa_t* nfa;
-    node_t* node;
     int i;
     for (i=0; i<3; ++i)
     {
-        int error_code;
+        tree_parse(&node[i], regex_buffer[i]);
+    }
+}
 
-        tree_parse(&node, regex_buffer[i]);
+void teardown()
+{
+    int i;
+    for (i=0; i<3; ++i)
+    {
+        tree_deinit(&node[i]);
+    }
+}
 
-        ck_assert_msg((error_code = nfa_build(&nfa, node)) == 0,
-            "Error while building the nfa. CODE=%d",
-            error_code
-        );
+void test_nfa_builder()
+{
 
-
-        nfa_destroy(&nfa);
-        tree_deinit(&node);
-
-        ck_assert_ptr_eq(nfa, NULL);
+    int i;
+    for (i=0; i<3; ++i)
+    {
+        assert(nfa_build(&nfa_collection[i], node[i]) == OK);
+        
+        nfa_t* nfa = nfa_collection[i];
+        assert(nfa != NULL);
+        assert(nfa->states_len > 0);
+        
+        int j;
+        for (j=0; j<nfa->states_len; ++j)
+        {
+            assert(nfa->states[j].len <= nfa->states[j].capacity);
+            if (nfa->states[j].len > 0)
+            {
+                assert(nfa->states[j].charset != NULL);
+                assert(nfa->states[j].mapped_state != NULL);
+            }
+        }
     }
 
 }
-END_TEST
 
-int main(int argc, char** argv){
-    Suite* suite;
-    TCase* test_case;
-    int number_failed;
-
-    suite = suite_create("NFA builder");
-
-    test_case = tcase_create("nfa builder");
-    tcase_add_test(test_case, test_nfa_builder);
-    suite_add_tcase(suite, test_case);
+void test_nfa_accepts()
+{
     
-    SRunner* suite_runner = srunner_create(suite);
-    srunner_run_all(suite_runner, CK_NORMAL);
+}
 
-    number_failed = srunner_ntests_failed(suite_runner);
-    srunner_free(suite_runner);
-    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+void test_nfa_destroy()
+{
+    int i;
+    for (i=0; i<3; ++i)
+    {
+        nfa_destroy(&nfa_collection[i]);
+        assert(nfa_collection[i] == NULL);
+    }
+}
+
+int main()
+{
+    printf("[*] Setting up...\n");
+    setup();
+
+    printf("[*] Test nfa_builder:\n");
+    test_nfa_builder();
+    printf("[+] Test Successful\n");
+
+    printf("[*] Test nfa_accepts:\n");
+    test_nfa_accepts();
+    printf("[+] Test Successful\n");
+
+    printf("[*] Test nfa_destroy\n");
+    test_nfa_destroy();
+    printf("[+] Test Successful\n");
+
+
+    printf("[*] Cleaning up...\n");
+    teardown();
+    
+    return 0;
 }

@@ -4,7 +4,6 @@
 
 #ifdef _DEBUG
 #include <assert.h>
-#include <stdio.h>
 #endif
 
 static int nfa_simple(nfa_t**, char);
@@ -23,6 +22,10 @@ static int nfa_delta(nfa_t*, char);
 
 int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
     nfa_t *nfa_right;
+
+    #ifdef _DEBUG
+    assert(parse_tree != NULL);
+    #endif
     
     switch(parse_tree->op){
 
@@ -38,8 +41,8 @@ int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
             #endif
 
             ERROR_RETHROW(nfa_build(nfa_left, parse_tree->l_child));
-            ERROR_RETHROW(nfa_build(&nfa_right, parse_tree->r_child), nfa_destroy(*nfa_left)); 
-            ERROR_RETHROW(nfa_concat(nfa_left, nfa_right), nfa_destroy(*nfa_left); nfa_destroy(nfa_right));
+            ERROR_RETHROW(nfa_build(&nfa_right, parse_tree->r_child), nfa_destroy(nfa_left)); 
+            ERROR_RETHROW(nfa_concat(nfa_left, nfa_right), nfa_destroy(nfa_left); nfa_destroy(&nfa_right));
 
     
             break;
@@ -52,8 +55,8 @@ int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
             #endif
 
             ERROR_RETHROW(nfa_build(nfa_left, parse_tree->l_child));
-            ERROR_RETHROW(nfa_build(&nfa_right, parse_tree->r_child), nfa_destroy(*nfa_left));
-            ERROR_RETHROW(nfa_union(nfa_left, nfa_right), nfa_destroy(*nfa_left); nfa_destroy(nfa_right));
+            ERROR_RETHROW(nfa_build(&nfa_right, parse_tree->r_child), nfa_destroy(nfa_left));
+            ERROR_RETHROW(nfa_union(nfa_left, nfa_right), nfa_destroy(nfa_left); nfa_destroy(&nfa_right));
             
             break;
 
@@ -63,15 +66,15 @@ int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
             #endif
 
             ERROR_RETHROW(nfa_build(nfa_left, parse_tree->l_child));
-            ERROR_RETHROW(nfa_star(*nfa_left), nfa_destroy(*nfa_left));
+            ERROR_RETHROW(nfa_star(*nfa_left), nfa_destroy(nfa_left));
             
         default: break;
     }
 
-    return 0;
+    return OK;
 }
 
-int nfa_accepts(nfa_t* nfa, bool* result, const char* string){
+int nfa_accepts(nfa_t* nfa, const char* string, bool* result){
     *result = false;
 
     int i;
@@ -125,7 +128,7 @@ void nfa_destroy(nfa_t** nfa){
     for (i=0; i<(*nfa)->states_len; ++i)
         nfa_state_deinit(&(*nfa)->states[i]);
     
-    nfa_deinit(nfa);
+    nfa_deinit(*nfa);
     *nfa = NULL;
 }
 
@@ -157,7 +160,7 @@ int nfa_graph(const nfa_t* nfa){
 static int nfa_delta(nfa_t* nfa, char c){
     int* next_states;
     if ((next_states = malloc(sizeof(int) * nfa->current_states_len)) == NULL)
-        return -1;
+        return BAD_ALLOCATION;
 
     ssize_t next_states_len = 0;
     ssize_t next_states_capacity = nfa->current_states_len;
@@ -203,12 +206,13 @@ static int nfa_init(nfa_t** nfa, ssize_t n_states){
         return BAD_ALLOCATION;
     }
     
-    if ((tmp_nfa->states = calloc(n_states, sizeof(state_t))) == NULL)
+    if ((tmp_nfa->states = calloc((size_t) n_states, sizeof(state_t))) == NULL)
     {
         free(tmp_nfa);
         return BAD_ALLOCATION;
     }
-    
+
+    tmp_nfa->states_len = n_states;
     *nfa = tmp_nfa;
     return 0;
 }
@@ -219,17 +223,17 @@ static int nfa_simple(nfa_t** nfa, char c){
     
     ERROR_RETHROW(
         nfa_state_init(&temp->states[0], false),
-        nfa_destroy(temp);
+        nfa_destroy(&temp);
     );
     
     ERROR_RETHROW(
         nfa_state_init(&temp->states[1], true),
-        nfa_destroy(temp);
+        nfa_destroy(&temp);
     );
     
     ERROR_RETHROW(
         nfa_state_addsymbol(&temp->states[0], c, 1),
-        nfa_destroy(temp);
+        nfa_destroy(&temp);
     );
 
     *nfa = temp;
@@ -278,7 +282,7 @@ static int nfa_concat(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
                                 &nfa->states[i], nfa2->states[0].charset[j],
                                 nfa2->states[0].mapped_state[j] + nfa1->states_len - 1
                                 ),
-                        nfa_destroy(nfa)
+                        nfa_destroy(&nfa)
                 );
             
             nfa->states[i].final = nfa2->states[0].final; //state is final only if the initial state of nfa2 was
@@ -308,17 +312,20 @@ static int nfa_union(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
         nfa->states[i] = nfa1->states[i];
     }
 
-    // MOVE nfa2 LESS INITIAL STATE AND CHANGING STATES' NUMBERS
+    // MOVE NFA2 LESS INITIAL STATE
     int j;
     i = nfa->states_len - 1;
     for (j=nfa2->states_len - 1; j>0; --j)
     {
         nfa->states[i] = nfa2->states[j];
         
+        // REDENOMINATE NFA2 STATES' NUMBERS
         int l;
         for (l=0; l<nfa->states[i].len; ++l)
+        {
             nfa->states[i].mapped_state[l] += nfa1->states_len-1;
-        
+        }
+
         --i;
     }
 
@@ -330,7 +337,7 @@ static int nfa_union(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
                 nfa2->states[0].charset[i], 
                 nfa2->states[0].mapped_state[i] + nfa1->states_len - 1
             ),
-            nfa_destroy(nfa)
+            nfa_destroy(&nfa)
         );
     }        
 
@@ -339,6 +346,8 @@ static int nfa_union(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
     nfa_deinit(nfa1);
     nfa_deinit(nfa2);
 
+    *nfa_left = nfa;
+    
     return 0;
 }
 
@@ -366,9 +375,13 @@ static int nfa_star(nfa_t* nfa){
 }
 
 static void nfa_deinit(nfa_t* nfa){
-    if (nfa != NULL && nfa->states != NULL){
-        free(nfa->states);
-        nfa->states = NULL;
+    if (nfa != NULL)
+    {
+        if (nfa->states != NULL)
+        {
+            free(nfa->states);
+        }
+
         free(nfa);
     }
     
@@ -427,11 +440,13 @@ static int nfa_state_addsymbol(state_t* state, char c, int ns){
 }
 
 static void nfa_state_deinit(state_t* state){
-    if (state->charset != NULL) {
+    if (state->charset != NULL)
+    {
         free(state->charset);
     }
 
-    if (state->mapped_state != NULL) {
+    if (state->mapped_state != NULL)
+    {
         free(state->mapped_state);
     }
 

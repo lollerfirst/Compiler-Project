@@ -112,10 +112,10 @@ static vartype_t Statement = {DEFINITION, END_STMT_VAR, END_PROD,
 /*** Mapping Enum to production arrays ***/
 static vartype_t* production_map[] = {};
 
-static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index);
-static int parser_graph_rec(AST_t* ast, FILE* f);
+static int parser_ast_rec(ast_t* ast, const toklist_t* token_list, size_t* index);
+static int parser_graph_rec(ast_t* ast, FILE* f);
 
-int parser_ast(AST_t* ast, const toklist_t* token_list){
+int parser_ast(ast_t* ast, const toklist_t* token_list){
     size_t index = 0;
     ast->vardual.vartype = PROGRAM;
     ast->tk = NULL;
@@ -130,7 +130,7 @@ int parser_ast(AST_t* ast, const toklist_t* token_list){
     return 0;
 }
 
-void parser_free(AST_t* ast){
+void parser_free(ast_t* ast){
     if(ast == NULL)
         return;
     
@@ -145,7 +145,7 @@ void parser_free(AST_t* ast){
         free(ast->tl);
 }
 
-int parser_graph(AST_t* ast, const char* filename){
+int parser_graph(ast_t* ast, const char* filename){
     FILE* f;
     if ((f = fopen(filename, "w")) == NULL)
         return -1;
@@ -162,7 +162,7 @@ int parser_graph(AST_t* ast, const char* filename){
     return 0;    
 }
 
-static int parser_graph_rec(AST_t* ast, FILE* f){
+static int parser_graph_rec(ast_t* ast, FILE* f){
     if (ast->vardual.toktype > NOTOK)
         fprintf(f, "%lu [label=\"%s\", style=\"filled\", fillcolor=\"white\", shape=\"oval\"]\n", (uintptr_t)ast, parser_vartypestr(ast->vardual.vartype));
     else{
@@ -183,14 +183,8 @@ const char* parser_vartypestr(vartype_t vartype){
     switch(vartype){
         case DELIM_LIST:
             return "DelimList";
-        case ASSIGN_OP_VAR:
+        case DEFINE_OP_VAR:
             return "Assign Var";
-        case ARITHM_OP_VAR:
-            return "Arithm Var";
-        case MUL_OP_VAR:
-            return "Mul Var";
-        case BOOL_OP_VAR:
-            return "Bool Var";
         case L_ROUNDB_VAR:
             return "Left Round Bracket";
         case R_ROUNDB_VAR:
@@ -199,61 +193,21 @@ const char* parser_vartypestr(vartype_t vartype){
             return "Left Square Bracket";
         case R_SQUAREB_VAR:
             return "Right Square Bracket";
-        case L_CURLYB_VAR:
-            return "Left Curly Bracket";
-        case R_CURLYB_VAR:
-            return "Right Curly Bracket";
         case END_STMT_VAR:
             return "End Statement Var";
         case ARGSEPARATOR:
             return "Argument Separator";
         case LOGIC_NOT_VAR:
             return "Logic Not Var";
-        case IF_VAR:
-            return "If Var";
-        case WHILE_VAR:
-            return "While Var";
-        case BREAK_VAR:
-            return "Break Var";
-        case ELSE_VAR:
-            return "Else Var";
-        case RETURN_VAR:
-            return "Return Var";
-        case TYPE_VAR:
-            return "Type Var";
         case NUMBER_VAR:
             return "Number Var";
-        case VARIABLE:
-            return "Variable";
         case STRING_VAR:
             return "String Var";
         case CHAR_VAR:
             return "Char Var";
-        case ARRAY:
-            return "Array";
-        case EXPR:
-            return "Expression";
-        case VARLIST:
-            return "Var List";
-        case EXPR_LIST:
-            return "Expr List";
-        case CALL:
-            return "Call";
-        case MULEXPR:
-            return "Mul Expression";
-        case ARITHMEXPR:
-            return "Arithm Expression";
-        case ASSIGNEXPR:
-            return "Assign Expression";
-        case BOOLEXPR:
-            return "Boolean Expression";
-        case ALLEXPR:
-            return "All Expression";
-        case DECLARATION:
-            return "Declaration";
         case STATEMENT:
             return "Statement";
-        case STATEMENT_LIST:
+        case STATEMENTLIST:
             return "Statement List";
         case PROGRAM:
             return "Program";
@@ -262,15 +216,15 @@ const char* parser_vartypestr(vartype_t vartype){
     }
 }
 
-static int parser_ast_expand(AST_t* ast){
-    if ((ast->tl = reallocarray(ast->tl, ast->tl_capacity*2, sizeof(AST_t))) == NULL)
+static int parser_ast_expand(ast_t* ast){
+    if ((ast->tl = reallocarray(ast->tl, ast->tl_capacity*2, sizeof(ast_t))) == NULL)
         return -1;
     
     ast->tl_capacity *= 2;
     return 0; 
 }
 
-static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index){
+static int parser_ast_rec(ast_t* ast, const toklist_t* token_list, size_t* index){
     
     // If leaf token
     if (ast->vardual.toktype <= NOTOK){
@@ -298,7 +252,7 @@ static int parser_ast_rec(AST_t* ast, const toklist_t* token_list, size_t* index
     size_t i = 0;
     union vardual_t var;
 
-    if ((ast->tl = calloc(10, sizeof(AST_t))) == NULL)
+    if ((ast->tl = calloc(10, sizeof(ast_t))) == NULL)
         return -1;
 
     ast->tk = NULL;

@@ -14,13 +14,14 @@ enum error_codes{
 
 // error handling macro. Checks the return value for __FUNC call and if there is an error
 // executes the second argument before returning the error
-#define ERROR_RETHROW(__FUNC, __COMMAND...) ({ \
-    int __err_code;\
-    if ((__err_code = (__FUNC)) != OK) { \
-        {__COMMAND;} \
-        return __err_code; \
-    }\
-})
+#define ERROR_RETHROW(__FUNC, ...)              \
+do{                                             \
+    int __err_code;                             \
+    if ((__err_code = (__FUNC)) != OK) {        \
+        do{__VA_ARGS__;}while(0);               \
+        return __err_code;                      \
+    }                                           \
+}while(0)
 
 
 

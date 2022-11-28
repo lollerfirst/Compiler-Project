@@ -18,7 +18,8 @@ static char graph_rec(node_t* node, FILE* f);
 static int node_allocate(node_t**, op_t);
 /* ******* */
 
-void tree_deinit(node_t** node){
+void tree_deinit(node_t** node)
+{
 	assert(node != NULL);
 	assert(*node != NULL);
 
@@ -37,7 +38,8 @@ void tree_deinit(node_t** node){
 }
 
 
-int tree_parse(node_t** node, const char* str){
+int tree_parse(node_t** node, const char* str)
+{
 	int i=0;
 	assert(str != NULL);
 	return parser_recursive(node, str, &i, false);
@@ -103,7 +105,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 					// eat out eventual additional stars
 					do
 					{
-						eat(regexpr, regexpr_index);
+						(void) eat(regexpr, regexpr_index);
 					}
 					while(peek(regexpr, *regexpr_index) == '*');
 
@@ -113,7 +115,7 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 
 					//this becomes a union node
 					(*node)->op = UNION;
-					eat(regexpr, regexpr_index);
+					(void) eat(regexpr, regexpr_index);
 				}
 
 				// descend into right node
@@ -121,6 +123,15 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 					parser_recursive(&(*node)->r_child, regexpr, regexpr_index, false),
 					tree_deinit(node);
 				);
+
+				// Backtrack if last node is null
+				if ((*node)->r_child == NULL)
+				{
+					node_t* temp = (*node)->l_child;
+					**node = *temp;
+
+					node_deallocate(temp);
+				}
 				
 				return OK;
 			
@@ -142,7 +153,8 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 	(*node)->l_child->c = c;
 
 	// peek if there is a '+' or a '*' behind
-	if (k == '*'){
+	if (k == '*')
+	{
 		
 		// allocate new kleene node between parent and left child
 		node_t* intermediate;
@@ -157,16 +169,17 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 		// eat out eventual additional stars
 		do
 		{
-			eat(regexpr, regexpr_index);
+			(void) eat(regexpr, regexpr_index);
 		}
 		while(peek(regexpr, *regexpr_index) == '*');
 
 	} // Otherwise check if there is a '+' ahead
-	else if (k == '+'){
+	else if (k == '+')
+	{
 
 		//this becomes a union node
 		(*node)->op = UNION;
-		eat(regexpr, regexpr_index);
+		(void) eat(regexpr, regexpr_index);
 	}
 
 	// descend into right node
@@ -174,6 +187,15 @@ static int parser_recursive(node_t** node, const char* regexpr, int* regexpr_ind
 		parser_recursive(&(*node)->r_child, regexpr, regexpr_index, false),
 		tree_deinit(node)
 	);
+
+	// Backtrack if last node is null
+	if ((*node)->r_child == NULL)
+	{
+		node_t* temp = (*node)->l_child;
+		**node = *temp;
+
+		node_deallocate(temp);
+	}
 
 	return OK;
 }

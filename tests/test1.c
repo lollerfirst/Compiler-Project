@@ -2,8 +2,9 @@
 #include <string.h>
 #include <compiler_errors.h>
 #include <nfa_builder.h>
+#include <assert.h>
+#include <stdio.h>
 
-#include <check.h>
 
 static const char* regex_buffer[] = { 
 				"(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)",
@@ -13,20 +14,22 @@ static const char* regex_buffer[] = {
 
 void check_tree_integrity(const node_t* tree)
 {
-    static int depth = 0;
 
-    ck_assert_msg(tree->op >= NONE && tree->op <= STAR, 
-        "Corrupted tree: depth = %d",
-        depth
-    );
+    assert(tree != NULL);
 
-    ck_assert_msg(tree->op != NONE || (tree->c > 0 && tree->c < 128),
-        "Invalid value for char while tree->op is NONE: depth = %d",
-        depth
-    );
+    assert(tree->op >= NONE && tree->op <= STAR);
 
-    ++depth;
+    assert(tree->op != NONE || (tree->c > 0 && tree->c < 128));
 
+    if (tree->op == CONCAT || tree->op == UNION)
+    {
+        assert(tree->l_child != NULL);
+        assert(tree->r_child != NULL);
+    }else if (tree->op == STAR)
+    {
+        assert(tree->l_child != NULL);
+    }
+    
     if (tree->l_child != NULL){
         check_tree_integrity(tree->l_child);
     }
@@ -38,49 +41,28 @@ void check_tree_integrity(const node_t* tree)
     return;
 }
 
-START_TEST(test_regexparser)
+void test_regexpr()
 {
     
     node_t* node;
     int i;
     for (i=0; i<3; ++i)
     {
-        int error_code;
-        ck_assert_msg((error_code = tree_parse(&node, regex_buffer[i])) == 0, 
-            "Error while parsing the tree: CODE=%d", error_code);
+        
+        assert(tree_parse(&node, regex_buffer[i]) == OK);
         
         check_tree_integrity(node);
         
         tree_deinit(&node);
-        ck_assert_msg(node == NULL,
-            "Node pointer is not NULL after deinitialization"
-        );
+        assert(node == NULL);
     }
 }
-END_TEST
 
-
-int main(int argc, char** argv){
-    Suite* suite;
-    TCase* test_case;
-    int number_failed;
-
-    suite = suite_create("Regexpr Parser");
-
-    test_case = tcase_create("core");
-    tcase_add_test(test_case, test_regexparser);
-    suite_add_tcase(suite, test_case);
-
-    /*
-    test_case = tcase_create("nfa builder");
-    tcase_add_test(test_case, test_nfa_builder);
-    suite_add_tcase(suite, test_case);
-    */
+int main(){
+    printf("[*] Test Regexpr:\n");
     
-    SRunner* suite_runner = srunner_create(suite);
-    srunner_run_all(suite_runner, CK_NORMAL);
-
-    number_failed = srunner_ntests_failed(suite_runner);
-    srunner_free(suite_runner);
-    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    test_regexpr();
+    
+    printf("[+] Test Successful\n");
+    return 0;
 }
