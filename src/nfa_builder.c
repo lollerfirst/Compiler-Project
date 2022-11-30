@@ -1,5 +1,4 @@
 #include <nfa_builder.h>
-#include <stdlib.h>
 #include <compiler_errors.h>
 
 #ifdef _DEBUG
@@ -10,7 +9,7 @@ static int nfa_simple(nfa_t**, char);
 static int nfa_concat(nfa_t** restrict, nfa_t* restrict);
 static int nfa_union(nfa_t** restrict, nfa_t* restrict);
 static int nfa_star(nfa_t*);
-static int nfa_init(nfa_t**, ssize_t);
+static int nfa_init(nfa_t**, size_t);
 static void nfa_deinit(nfa_t*);
 static int nfa_state_init(state_t*, bool);
 static void nfa_state_deinit(state_t*);
@@ -77,7 +76,7 @@ int nfa_build(nfa_t** nfa_left, const node_t* parse_tree){
 int nfa_accepts(nfa_t* nfa, const char* string, bool* result){
     *result = false;
 
-    int i;
+    size_t i;
     if ((nfa->current_states = malloc(sizeof(int) * nfa->states_len)) == NULL)
     {
         return BAD_ALLOCATION;
@@ -124,7 +123,7 @@ void nfa_destroy(nfa_t** nfa){
         return;
     }
 
-    int i;
+    size_t i;
     for (i=0; i<(*nfa)->states_len; ++i)
         nfa_state_deinit(&(*nfa)->states[i]);
     
@@ -138,14 +137,14 @@ int nfa_graph(const nfa_t* nfa){
 		return -1;
 	
 	fputs("digraph G{", f);
-	int i;
+	size_t i;
     for (i=0; i<nfa->states_len; ++i){
         const char* bgcolor = (nfa->states[i].final) ? "red" : "white";
-        fprintf(f, "%d [label=\"%d\", style=\"filled\", fillcolor=\"%s\", shape=\"oval\"]\n", i, i, bgcolor);
+        fprintf(f, "%lu [label=\"%lu\", style=\"filled\", fillcolor=\"%s\", shape=\"oval\"]\n", i, i, bgcolor);
         
-        int j;
+        size_t j;
         for (j=0; j<nfa->states[i].len; ++j){
-            fprintf(f, "%d -> %d [label=\"%c\"]\n", i, nfa->states[i].mapped_state[j], nfa->states[i].charset[j]);
+            fprintf(f, "%lu -> %d [label=\"%c\"]\n", i, nfa->states[i].mapped_state[j], nfa->states[i].charset[j]);
         }
     }
 	fputs("}", f);
@@ -162,14 +161,14 @@ static int nfa_delta(nfa_t* nfa, char c){
     if ((next_states = malloc(sizeof(int) * nfa->current_states_len)) == NULL)
         return BAD_ALLOCATION;
 
-    ssize_t next_states_len = 0;
-    ssize_t next_states_capacity = nfa->current_states_len;
+    size_t next_states_len = 0;
+    size_t next_states_capacity = nfa->current_states_len;
 
-    int i;
+    size_t i;
     for (i=0; i<nfa->current_states_len; ++i){
         const int k = nfa->current_states[i];
 
-        int j;        
+        size_t j;        
         for (j=0; j<nfa->states[k].len; ++j){
 
             if (nfa->states[k].charset[j] == c)
@@ -199,7 +198,7 @@ static int nfa_delta(nfa_t* nfa, char c){
 
 }
 
-static int nfa_init(nfa_t** nfa, ssize_t n_states){
+static int nfa_init(nfa_t** nfa, size_t n_states){
     nfa_t* tmp_nfa;
     if ((tmp_nfa = calloc(1, sizeof(nfa_t))) == NULL)
     {
@@ -252,18 +251,18 @@ static int nfa_concat(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
     );
 
     // MOVE nfa1 AS IS
-    int i;
+    size_t i;
     for (i=0; i<nfa1->states_len; ++i){
         nfa->states[i] = nfa1->states[i];
     }
 
     // MOVE nfa2 LESS INITIAL STATE AND CHANGING STATES' NUMBERS
-    int j;
+    size_t j;
     i = nfa->states_len - 1;
     for (j=nfa2->states_len - 1; j>0; --j){
         nfa->states[i] = nfa2->states[j];
         
-        int l;
+        size_t l;
         for (l=0; l<nfa->states[i].len; ++l){
             nfa->states[i].mapped_state[l] += nfa1->states_len - 1;
         }
@@ -306,21 +305,21 @@ static int nfa_union(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
     ERROR_RETHROW(nfa_init(&nfa, nfa1->states_len + nfa2->states_len - 1));
 
     // MOVE nfa1 AS IS
-    int i;
+    size_t i;
     for (i=0; i<nfa1->states_len; ++i)
     {
         nfa->states[i] = nfa1->states[i];
     }
 
     // MOVE NFA2 LESS INITIAL STATE
-    int j;
+    size_t j;
     i = nfa->states_len - 1;
     for (j=nfa2->states_len - 1; j>0; --j)
     {
         nfa->states[i] = nfa2->states[j];
         
         // REDENOMINATE NFA2 STATES' NUMBERS
-        int l;
+        size_t l;
         for (l=0; l<nfa->states[i].len; ++l)
         {
             nfa->states[i].mapped_state[l] += nfa1->states_len-1;
@@ -353,10 +352,10 @@ static int nfa_union(nfa_t** restrict nfa_left, nfa_t* restrict nfa_right){
 
 static int nfa_star(nfa_t* nfa){
     //COPY THE INITIAL STATE TRANSITIONS INTO EVERY FINAL STATE
-    int i;
+    size_t i;
     for (i=1; i<nfa->states_len; ++i){
         if (nfa->states[i].final){
-            int j;
+            size_t j;
             for (j=0; j<nfa->states[0].len; ++j)
             {
                 ERROR_RETHROW(

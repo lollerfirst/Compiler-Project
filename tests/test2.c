@@ -34,7 +34,7 @@ void teardown()
 void test_nfa_builder()
 {
 
-    int i;
+    size_t i;
     for (i=0; i<3; ++i)
     {
         assert(nfa_build(&nfa_collection[i], node[i]) == OK);
@@ -43,7 +43,7 @@ void test_nfa_builder()
         assert(nfa != NULL);
         assert(nfa->states_len > 0);
         
-        int j;
+        size_t j;
         for (j=0; j<nfa->states_len; ++j)
         {
             assert(nfa->states[j].len <= nfa->states[j].capacity);
@@ -59,7 +59,49 @@ void test_nfa_builder()
 
 void test_nfa_accepts()
 {
+    bool result;
+
+    // 2 correct tokens, 1 wrong
+    static const char* tokens1[] = {"5", "110", "00ab"};
     
+    result = false;
+    assert(nfa_accepts(nfa_collection[0], tokens1[0], &result) == OK);
+    assert(result == true);
+
+    assert(nfa_accepts(nfa_collection[0], tokens1[1], &result) == OK);
+    assert(result == true);
+
+    assert(nfa_accepts(nfa_collection[0], tokens1[2], &result) == OK);
+    assert(result == false);
+
+    // second nfa
+    // 2 correct tokens, 1 wrong
+    static const char* tokens2[] = {"name", "_$name$_", "00name"};
+    
+    result = false;
+    assert(nfa_accepts(nfa_collection[1], tokens2[0], &result) == OK);
+    assert(result == true);
+
+    assert(nfa_accepts(nfa_collection[1], tokens2[1], &result) == OK);
+    assert(result == true);
+
+    assert(nfa_accepts(nfa_collection[1], tokens2[2], &result) == OK);
+    assert(result == false);
+
+    //third nfa
+    // 2 correct tokens, 1 wrong
+    static const char* tokens3[] = {"\"I am a string\"", "\"I+am_also[a]$tr1ng\"", "I am not a string"};
+
+    result = false;
+    assert(nfa_accepts(nfa_collection[2], tokens3[0], &result) == OK);
+    assert(result == true);
+
+    assert(nfa_accepts(nfa_collection[2], tokens3[1], &result) == OK);
+    assert(result == true);
+
+    assert(nfa_accepts(nfa_collection[2], tokens3[2], &result) == OK);
+    assert(result == false);
+
 }
 
 void test_nfa_destroy()

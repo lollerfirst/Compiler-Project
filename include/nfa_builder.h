@@ -3,6 +3,7 @@
 
 #include <regexparse.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define ASCII_LEN 128
 
@@ -15,8 +16,8 @@ the character should be repeated in the charset.
 */
 
 typedef struct _state{
-    ssize_t len;
-    ssize_t capacity;
+    size_t len;
+    size_t capacity;
     char* charset;
     int* mapped_state;
     bool final;
@@ -26,9 +27,9 @@ typedef struct _state{
     type definition of the NFA
 */
 typedef struct _nfa{
-    ssize_t states_len;
-    ssize_t current_states_len;
-    ssize_t current_states_capacity;
+    size_t states_len;
+    size_t current_states_len;
+    size_t current_states_capacity;
     state_t* states;
     int* current_states;
 } nfa_t;
