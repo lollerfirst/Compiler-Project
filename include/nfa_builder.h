@@ -37,7 +37,7 @@ typedef struct _nfa{
 // Builds the NFA corresponding to the passed parse-tree.
 int nfa_build(nfa_t** nfa, const node_t* _parse_tree);
 // Save the NFA to disk
-int nfa_save(nfa_t* nfa, const char* filename);
+int nfa_save(const nfa_t** nfa_collection, size_t count, const char* filename);
 // Load NFA from disk
 int nfa_load(nfa_t** nfa, const char* filename);
 // Destroys the NFA

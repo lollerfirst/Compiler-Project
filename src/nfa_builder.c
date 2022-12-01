@@ -1,4 +1,6 @@
 #include <nfa_builder.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <compiler_errors.h>
 
 #ifdef _DEBUG
@@ -455,4 +457,192 @@ static void nfa_state_deinit(state_t* state){
     state->capacity = 0;
     state->len = 0;
     state->final = false;
+}
+
+// Serialize Object and save
+int nfa_save(const nfa_t** nfa, size_t count, const char* filename)
+{
+    #ifdef _DEBUG
+    assert(nfa != NULL);
+    assert(filename != NULL);
+    assert(count > 0);
+    #endif
+
+    // Open file
+    int fd;
+    if ((fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0)
+    {
+        return IO_ERROR;
+    }
+
+    // try to write the length of the collection
+    if (write(fd, &count, sizeof(size_t)) < 0)
+    {
+        close(fd);
+        return IO_ERROR;
+    }
+
+    // for every nfa in the collection
+    size_t i;
+    for (i=0; i<count; ++i)
+    {
+        // try to write the states count for nfa i
+        if (write(fd, &(nfa[i]->states_len), sizeof(size_t)) < 0)
+        {
+            close(fd);
+            return IO_ERROR;
+        }
+
+        // for every state in nfa i
+        size_t j;
+        for (j=0; j<nfa[i]->states_len; ++j)
+        {
+
+            // try to write the length of the charset for that state
+            if (write(fd, &(nfa[i]->states[j].len), sizeof(size_t)) < 0)
+            {
+                close(fd);
+                return IO_ERROR;
+            }
+
+            // try to write the charset
+            if (write(fd, nfa[i]->states[j].charset, sizeof(char) * nfa[i]->states[j].len) < 0)
+            {
+                close(fd);
+                return IO_ERROR;
+            }
+
+            // try to write the mapped states
+            if (write(fd, nfa[i]->states[j].mapped_state, sizeof(int) * nfa[i]->states[j].len) < 0)
+            {
+                close(fd);
+                return IO_ERROR;
+            }
+            
+            // try to write the finality of the state
+            if (write(fd, &(nfa[i]->states[j].final), sizeof(bool)) < 0)
+            {
+                close(fd);
+                return IO_ERROR;
+            }
+        }
+    }
+    
+
+    close(fd);
+    return OK;
+}
+
+int nfa_load(nfa_t** nfa_collection, const char* filename)
+{
+    #ifdef _DEBUG
+    assert(nfa_collection != NULL);
+    assert(filename != NULL);
+    #endif
+
+    int fd;
+    if ((fd = open(filename, O_RDONLY)) < 0)
+    {
+        return IO_ERROR;
+    }
+
+    size_t count = 0;
+    if (read(fd, &count, sizeof(size_t)) <= 0)
+    {
+        close(fd);
+        return IO_ERROR;
+    }
+
+    if (count == 0)
+    {
+        close(fd);
+        return INVALID_FORMAT;
+    }
+
+    nfa_t* temp;
+    if ((temp = malloc(sizeof(nfa_t) * count)) == NULL)
+    {
+        close(fd);
+        return BAD_ALLOCATION;
+    }
+
+    size_t i;
+    for (i=0; i<count; ++i)
+    {
+        if (read(fd, &(temp[i].states_len), sizeof(size_t)) < 0)
+        {
+            close(fd);
+            nfa_destroy(&temp);
+            return IO_ERROR;
+        }
+
+        if (temp[i].states_len == 0)
+        {
+            close(fd);
+            nfa_destroy(&temp);
+            return INVALID_FORMAT;
+        }
+        
+        if ((temp[i].states = malloc(sizeof(state_t) * temp[i].states_len)) == NULL)
+        {
+            close(fd);
+            nfa_destroy(&temp);
+            return BAD_ALLOCATION;
+        }
+
+        size_t j;
+        for (j=0; j<temp[i].states_len; ++j)
+        {
+
+            if (read(fd, &(temp[i].states[j].len), sizeof(size_t)) <= 0)
+            {
+                close(fd);
+                nfa_destroy(&temp);
+                return IO_ERROR;
+            }
+
+            if (temp[i].states[j].len > 0)
+            {
+                if ((temp[i].states[j].charset = malloc(sizeof(char) * temp[i].states[j].len)) == NULL)
+                {
+                    close(fd);
+                    nfa_destroy(&temp);
+                    return BAD_ALLOCATION;
+                }
+
+                if ((temp[i].states[j].mapped_state = malloc(sizeof(int) * temp[i].states[j].len)) == NULL)
+                {
+                    close(fd);
+                    nfa_destroy(&temp);
+                    return BAD_ALLOCATION;
+                }
+
+                if (read(fd, temp[i].states[j].charset, sizeof(char) * temp[i].states[j].len) <= 0)
+                {
+                    close(fd);
+                    nfa_destroy(&temp);
+                    return IO_ERROR;
+                }
+
+                if (read(fd, temp[i].states[j].mapped_state, sizeof(int) * temp[i].states[j].len) <= 0)
+                {
+                    close(fd);
+                    nfa_destroy(&temp);
+                    return IO_ERROR;
+                }
+            }
+            
+            if (read(fd, &(temp[i].states[j].final), sizeof(bool)) <= 0)
+            {
+                close(fd);
+                nfa_destroy(&temp);
+                return IO_ERROR;
+            }
+        }
+
+
+    }
+
+    *nfa_collection = temp;
+    return OK;
 }
