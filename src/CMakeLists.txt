@@ -3,7 +3,7 @@ project(Compiler C)
 
 
 
-add_library(libcompiler STATIC ./regexparse.c ./nfa_builder.c)
+add_library(libcompiler STATIC ./regexparse.c ./nfa_builder.c ./lexer.c)
 
 target_compile_options(libcompiler PUBLIC -Wall -Wextra -pedantic -Werror -fsanitize=address PUBLIC -fsanitize=leak -g)
 target_link_options(libcompiler PUBLIC -fsanitize=address PUBLIC -fsanitize=leak)

@@ -33,9 +33,12 @@ typedef struct{
 } token_t;
 
 typedef struct{
-	size_t len;
-	size_t capacity;
+	size_t list_size;
+	size_t list_capacity;
 	token_t* list;
+
+	nfa_t* nfa_collection;
+	size_t nfa_collection_size;
 } toklist_t;
 
 /* scans a string for tokens */

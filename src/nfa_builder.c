@@ -658,6 +658,10 @@ static int nfa_state_addsymbol(state_t* state, char c, int ns){
 }
 
 static void nfa_state_deinit(state_t* state){
+    #ifdef _DEBUG
+    assert(state != NULL);
+    #endif
+
     if (state->capacity > 0)
     {
         if (state->charset != NULL)

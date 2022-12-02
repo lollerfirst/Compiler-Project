@@ -11,7 +11,8 @@ enum error_codes{
     INVALID_BUFFER,
     IO_ERROR,
     NOT_SERIALIZABLE,
-    INVALID_FORMAT
+    INVALID_FORMAT,
+    INVALID_TOKEN,
 };
 
 
