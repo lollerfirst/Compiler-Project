@@ -35,16 +35,18 @@ typedef struct _nfa{
 } nfa_t;
 
 // Builds the NFA corresponding to the passed parse-tree.
-int nfa_build(nfa_t** nfa, const node_t* _parse_tree);
-// Save the NFA to disk
-int nfa_save(const nfa_t** nfa_collection, size_t count, const char* filename);
-// Load NFA from disk
-int nfa_load(nfa_t** nfa, const char* filename);
+int nfa_build(nfa_t* nfa, const node_t* _parse_tree);
+// Save a NFA collection to disk
+int nfa_collection_save(const nfa_t* nfa_collection, size_t count, const char* filename);
+// Load NFA collection from disk into nfa, its length into len
+int nfa_collection_load(nfa_t** nfa, size_t* len, const char* filename);
 // Destroys the NFA
-void nfa_destroy(nfa_t** nfa);
+void nfa_destroy(nfa_t* nfa);
 // Checks if the NFA accepts a particular string
 int nfa_accepts(nfa_t* nfa, const char* string, bool* result);
 // Prints the NFA in graphviz format to stdout
 int nfa_graph(const nfa_t* nfa);
+// Delete a collection loaded with nfa_collection_load
+void nfa_collection_delete(nfa_t* nfa_list, size_t len);
 
 #endif

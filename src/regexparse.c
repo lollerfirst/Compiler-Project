@@ -20,8 +20,10 @@ static int node_allocate(node_t**, op_t);
 
 void tree_deinit(node_t** node)
 {
+	#ifdef _DEBUG
 	assert(node != NULL);
 	assert(*node != NULL);
+	#endif
 
 	if ((*node)->l_child != NULL){
 		tree_deinit(&(*node)->l_child);
