@@ -7,7 +7,7 @@
 static const char* regex_buffer[] = { 
 				"(0+1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*)",
 				"(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+$+_)((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_)*)",
-				"\"((a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*)\""
+				":+\"(a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t+u+v+w+x+y+z+A+B+C+E+F+G+H+I+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z+0+1+2+3+4+5+6+7+8+9+$+_+\\\\+/+ +<+>+&+\\++-+#+[+]+=+:+?+^+,+.+;+\\*)*"
 };
 
 static node_t* node[3];
@@ -76,7 +76,7 @@ void test_nfa_accepts()
 
     // second nfa
     // 2 correct tokens, 1 wrong
-    static const char* tokens2[] = {"name", "_$name$_", "00name"};
+    static const char* tokens2[] = {"n", "_$name$_", "00name"};
     
     result = false;
     nfa = &nfa_collection[1];
@@ -91,7 +91,7 @@ void test_nfa_accepts()
 
     //third nfa
     // 2 correct tokens, 1 wrong
-    static const char* tokens3[] = {"\"I am a string\"", "\"I+am_also[a]$tr1ng\"", "I am not a string"};
+    static const char* tokens3[] = {"\"I", "\"gokoko", "I am not a string"};
 
     result = false;
     nfa = &nfa_collection[2];

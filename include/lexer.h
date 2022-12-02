@@ -46,8 +46,8 @@ int tokenize(toklist_t*, char*);
 /* prints the scanned tokens */
 void print_tokens(const toklist_t*);
 /* Initializes the tokenizer (builds NFAs with hard-coded regular expressions) */
-int tokenizer_init();
-void tokenizer_deinit();
+int tokenizer_init(toklist_t* toklist, const char* nfa_collection_filename);
+void tokenizer_deinit(toklist_t* toklist);
 const char* tokenizer_typetokstr(toktype_t tktype);
 
 #endif

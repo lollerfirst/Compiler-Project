@@ -25,9 +25,10 @@ static const char* regex_buffer[] = {
 
 
 int tokenizer_init(toklist_t* toklist, const char* nfa_collection_filename){
-	toklist->list = NULL;
-	toklist->list_capacity = 0;
-	toklist->list_size = 0;
+	#ifdef _DEBUG
+	assert(toklist != NULL);
+	assert(nfa_collection_filename != NULL);
+	#endif
 
 	ERROR_RETHROW(nfa_collection_load(
 			&(toklist->nfa_collection),
@@ -35,6 +36,10 @@ int tokenizer_init(toklist_t* toklist, const char* nfa_collection_filename){
 			nfa_collection_filename
 		)
 	);
+
+	toklist->list = NULL;
+	toklist->list_capacity = 0;
+	toklist->list_size = 0;
 
 	return OK;
 }
@@ -51,14 +56,14 @@ int tokenize(toklist_t* token_list, char* buffer){
 
 	if ((token_list->list = malloc(
 			token_list->list_capacity * sizeof(token_t)
-		) ) == NULL)
+		)) == NULL)
 	{
 		return BAD_ALLOCATION;
 	}
 	
 	size_t i = 1;
-	size_t prev_i = 0;
-	size_t base_i = 0;
+	size_t previous_index = 1;
+	size_t base_index = 0;
 	
 	toktype_t tt = NOTOK;
 	
@@ -67,7 +72,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 		
 		char temp_char;
 		size_t j;
-		bool accepted;
+		bool accepted = false;
 		
 		temp_char = buffer[i];
 		buffer[i] = '\0';
@@ -96,17 +101,16 @@ int tokenize(toklist_t* token_list, char* buffer){
 			ERROR_RETHROW(
 				nfa_accepts(
 					&(token_list->nfa_collection[j]),
-					&(buffer[base_i]),
+					&(buffer[base_index]),
 					&accepted
 				),
 				tokenizer_deinit(token_list)
 			);
-		}
 
-		if (accepted == false)
-		{
-			tokenizer_deinit(token_list);
-			return INVALID_TOKEN;
+			if (accepted)
+			{
+				break;
+			}
 		}
 
 		buffer[i] = temp_char;
@@ -117,32 +121,32 @@ int tokenize(toklist_t* token_list, char* buffer){
 		}else{
 
 			//means characters are not recognized, throw error
-			if (i == prev_i)
+			if (i == previous_index)
 			{ 	
 				tokenizer_deinit(token_list);
 				return INVALID_TOKEN;
 			}
 			
 			// allocating new token
-			if ((token_list->list[token_list->list_size].tk = calloc(sizeof(char), i-base_i)) == NULL)
+			if ((token_list->list[token_list->list_size].tk = calloc(sizeof(char), i-base_index)) == NULL)
 			{
 				tokenizer_deinit(token_list);
 				return BAD_ALLOCATION;
 			}
 
 			token_list->list[token_list->list_size].tt = tt;
-			strncpy(token_list->list[token_list->list_size].tk, buffer+base_i, i-base_i-1);
+			strncpy(token_list->list[token_list->list_size].tk, buffer+base_index, i-base_index-1);
 			++token_list->list_size;
 
 			// Setting up for next iteration
-			base_i = i-1; //base_i to the first not recognized character
-			prev_i = i;   //prev_i to the current i location for control purposes
+			base_index = i-1; //base_index to the first not recognized character
+			previous_index = i;   //previous_base_index to the current i location for control purposes
 		}
 		
 	}
 
 
-	return 0;
+	return OK;
 }
 
 void print_tokens(const toklist_t* token_list){
@@ -173,15 +177,16 @@ void tokenizer_deinit(toklist_t* toklist)
 		size_t i;
 		for (i=0; i<toklist->list_size; ++i)
 		{
-			if (toklist->list->tk != NULL)
+			if (toklist->list[i].tk != NULL)
 			{
-				free(toklist->list->tk);
+				free(toklist->list[i].tk);
 			}
 		}
 		
 		free(toklist->list);
 		toklist->list_capacity = 0;
 		toklist->list_size = 0;
+		toklist->list = NULL;
 	}
 }
 
