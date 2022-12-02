@@ -11,10 +11,7 @@ static const char* regex_buffer[] = {
 };
 
 static node_t* node[3];
-static nfa_t nfa_collection[3];
-
-static nfa_t* nfa_loaded_list;
-static size_t list_len;
+static nfa_t* nfa_collection[3];
 
 void setup()
 {
@@ -42,17 +39,18 @@ void test_nfa_builder()
     {
         assert(nfa_build(&nfa_collection[i], node[i]) == OK);
         
-        nfa_t nfa = nfa_collection[i];
-        assert(nfa.states_len > 0);
+        nfa_t* nfa = nfa_collection[i];
+        assert(nfa != NULL);
+        assert(nfa->states_len > 0);
         
         size_t j;
-        for (j=0; j<nfa.states_len; ++j)
+        for (j=0; j<nfa->states_len; ++j)
         {
-            assert(nfa.states[j].len <= nfa.states[j].capacity);
-            if (nfa.states[j].len > 0)
+            assert(nfa->states[j].len <= nfa->states[j].capacity);
+            if (nfa->states[j].len > 0)
             {
-                assert(nfa.states[j].charset != NULL);
-                assert(nfa.states[j].mapped_state != NULL);
+                assert(nfa->states[j].charset != NULL);
+                assert(nfa->states[j].mapped_state != NULL);
             }
         }
     }
@@ -67,13 +65,13 @@ void test_nfa_accepts()
     static const char* tokens1[] = {"5", "110", "00ab"};
     
     result = false;
-    assert(nfa_accepts(&nfa_collection[0], tokens1[0], &result) == OK);
+    assert(nfa_accepts(nfa_collection[0], tokens1[0], &result) == OK);
     assert(result == true);
 
-    assert(nfa_accepts(&nfa_collection[0], tokens1[1], &result) == OK);
+    assert(nfa_accepts(nfa_collection[0], tokens1[1], &result) == OK);
     assert(result == true);
 
-    assert(nfa_accepts(&nfa_collection[0], tokens1[2], &result) == OK);
+    assert(nfa_accepts(nfa_collection[0], tokens1[2], &result) == OK);
     assert(result == false);
 
     // second nfa
@@ -81,13 +79,13 @@ void test_nfa_accepts()
     static const char* tokens2[] = {"name", "_$name$_", "00name"};
     
     result = false;
-    assert(nfa_accepts(&nfa_collection[1], tokens2[0], &result) == OK);
+    assert(nfa_accepts(nfa_collection[1], tokens2[0], &result) == OK);
     assert(result == true);
 
-    assert(nfa_accepts(&nfa_collection[1], tokens2[1], &result) == OK);
+    assert(nfa_accepts(nfa_collection[1], tokens2[1], &result) == OK);
     assert(result == true);
 
-    assert(nfa_accepts(&nfa_collection[1], tokens2[2], &result) == OK);
+    assert(nfa_accepts(nfa_collection[1], tokens2[2], &result) == OK);
     assert(result == false);
 
     //third nfa
@@ -95,53 +93,15 @@ void test_nfa_accepts()
     static const char* tokens3[] = {"\"I am a string\"", "\"I+am_also[a]$tr1ng\"", "I am not a string"};
 
     result = false;
-    assert(nfa_accepts(&nfa_collection[2], tokens3[0], &result) == OK);
+    assert(nfa_accepts(nfa_collection[2], tokens3[0], &result) == OK);
     assert(result == true);
 
-    assert(nfa_accepts(&nfa_collection[2], tokens3[1], &result) == OK);
+    assert(nfa_accepts(nfa_collection[2], tokens3[1], &result) == OK);
     assert(result == true);
 
-    assert(nfa_accepts(&nfa_collection[2], tokens3[2], &result) == OK);
+    assert(nfa_accepts(nfa_collection[2], tokens3[2], &result) == OK);
     assert(result == false);
 
-}
-
-
-void test_collection_save()
-{
-    assert(nfa_collection_save(nfa_collection, 3UL, "nfa_collection.dat") == OK);
-}
-
-void test_collection_load()
-{
-    nfa_loaded_list = NULL;
-    list_len = 0;
-
-    assert(nfa_collection_load(&nfa_loaded_list, &list_len, "nfa_collection.dat") == OK);
-
-    assert(list_len > 0);
-
-    size_t i;
-    for (i=0; i<list_len; ++i)
-    {
-        assert(nfa_loaded_list[i].states_len > 0);
-        assert(nfa_loaded_list[i].states != NULL);
-
-        size_t j;
-        for (j=0; j<nfa_loaded_list[i].states_len; ++j)
-        {
-            if (nfa_loaded_list[i].states[j].len > 0)
-            {
-                assert(nfa_loaded_list[i].states[j].charset != NULL);
-                assert(nfa_loaded_list[i].states[j].mapped_state != NULL);
-            }
-        }
-    }
-}
-
-void test_collection_delete()
-{
-    nfa_collection_delete(nfa_loaded_list, list_len);
 }
 
 void test_nfa_destroy()
@@ -150,6 +110,7 @@ void test_nfa_destroy()
     for (i=0; i<3; ++i)
     {
         nfa_destroy(&nfa_collection[i]);
+        assert(nfa_collection[i] == NULL);
     }
 }
 
@@ -166,21 +127,10 @@ int main()
     test_nfa_accepts();
     printf("[+] Test Successful\n");
 
-    printf("[*] Test nfa_collection_save:\n");
-    test_collection_save();
-    printf("[+] Test Successful\n");
-
     printf("[*] Test nfa_destroy\n");
     test_nfa_destroy();
     printf("[+] Test Successful\n");
 
-    printf("[*] Test nfa_collection_load:\n");
-    test_collection_load();
-    printf("[+] Test Successful\n");
-
-    printf("[*] Test nfa_collection_delete:\n");
-    test_collection_delete();
-    printf("[+] Test Successful\n");
 
     printf("[*] Cleaning up...\n");
     teardown();
