@@ -13,6 +13,7 @@ enum error_codes{
     NOT_SERIALIZABLE,
     INVALID_FORMAT,
     INVALID_TOKEN,
+    NOT_A_PRODUCTION
 };
 
 

@@ -1,11 +1,12 @@
-#pragma once
+#ifndef _PARSER_H_
+#define _PARSER_H_
 
 #include <lexer.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-/*** Fix for productions array indexing since lexer exists ***/
-#define I(_idx) ((_idx)-NOTOK-1)
+/*** Fix for productions array indexing to offset toktype_t values ***/
+#define indexer(_idx) ((_idx)-NOTOK-1)
 
 typedef enum __vartype{
     DELIM_LIST = NOTOK+1,
@@ -16,7 +17,6 @@ typedef enum __vartype{
     R_SQUAREB_VAR,
     END_STMT_VAR,
     ARGSEPARATOR,
-    LOGIC_NOT_VAR,
     NUMBER_VAR,
     NAME_VAR,
     STRING_VAR,
@@ -51,7 +51,9 @@ typedef struct _ast{
 } ast_t;
 
 
-int parser_ast(ast_t* ast, const toklist_t* token_list);
-void parser_free(ast_t* ast);
-int parser_graph(ast_t* ast, const char* filename);
+int parser_ast(ast_t* ast, toklist_t* token_list);
+void parser_ast_delete(ast_t* ast);
+int parser_ast_graph(ast_t* ast, const char* filename);
 const char* parser_vartypestr(vartype_t vartype);
+
+#endif
