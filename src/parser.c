@@ -359,8 +359,11 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
         var.vartype = (production_map[indexer(ast->vardual.vartype)])[++i];
     }
     
-    if (!match){
-        parser_ast_delete(ast);
+    if (!match)
+		{
+        free(ast->tl);
+			  ast->tl = NULL;
+			  ast->tl_len = 0;
         return NOT_A_PRODUCTION;
     }
 
@@ -388,6 +391,5 @@ static void parser_ast_recursive_undo(ast_t* branch, toklist_t* token_list, size
         parser_ast_recursive_undo(&branch->tl[i-1], token_list, index);
     }
 
-    bzero(branch, sizeof(ast_t));
-    free(branch);
+    branch->tl_len = 0;
 }
