@@ -121,7 +121,7 @@ int tokenize(toklist_t* token_list, char* buffer){
 		}else{
 
 			//means characters are not recognized, throw error
-			if (i == previous_index)
+			if (i == previous_index || tt == NOTOK)
 			{ 	
 				tokenizer_deinit(token_list);
 				return INVALID_TOKEN;

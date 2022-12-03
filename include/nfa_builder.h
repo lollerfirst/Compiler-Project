@@ -44,8 +44,14 @@ int nfa_collection_load(nfa_t** nfa, size_t* len, const char* filename);
 void nfa_destroy(nfa_t* nfa);
 // Checks if the NFA accepts a particular string
 int nfa_accepts(nfa_t* nfa, const char* string, bool* result);
+
+/* DEBUG */
 // Prints the NFA in graphviz format to stdout
 int nfa_graph(const nfa_t* nfa);
+// Compares 2 NFA and prints first found difference
+void nfa_compare(const nfa_t* restrict nfa1, const nfa_t* restrict nfa2);
+/* *** */
+
 // Delete a collection loaded with nfa_collection_load
 void nfa_collection_delete(nfa_t* nfa_list, size_t len);
 

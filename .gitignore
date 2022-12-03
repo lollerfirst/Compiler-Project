@@ -1,11 +1,2 @@
 
 *
-!./src/*.c
-!./src/*.txt
-!./include/*.h
-!./res/*
-!./tests/*.c
-!./tests/*.txt
-
-!*.txt
-!LICENSE

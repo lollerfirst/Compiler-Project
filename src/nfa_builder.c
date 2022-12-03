@@ -129,6 +129,8 @@ void nfa_destroy(nfa_t* nfa){
     nfa_deinit(nfa);
 }
 
+/* DEBUGGING */
+
 int nfa_graph(const nfa_t* nfa){
 	FILE* f;
 	if ( (f = fopen("nfa_graph.gv", "w")) == NULL)
@@ -151,6 +153,44 @@ int nfa_graph(const nfa_t* nfa){
     return 0;
 }
 
+void nfa_compare(const nfa_t* restrict nfa1, const nfa_t* restrict nfa2)
+{
+    if (nfa1->states_len != nfa2->states_len)
+    {
+        fprintf(stderr, "different: %s @ line %d\n", __FILE__, __LINE__);
+        return;
+    }
+
+    size_t i;
+    for (i=0; i<nfa1->states_len; ++i)
+    {
+        if (nfa1->states[i].len != nfa2->states[i].len)
+        {
+            fprintf(stderr, "different: %s @ line %d @ iteration %lu\n", __FILE__, __LINE__, i);
+            return;
+        }
+
+        size_t j;
+        for (j=0; j<nfa1->states[i].len; ++j)
+        {
+            if (nfa1->states[i].charset[j] != nfa2->states[i].charset[j])
+            {
+                fprintf(stderr, "different: %s @ line %d @ iteration %lu\n", __FILE__, __LINE__, j);
+                return;
+            }
+
+            if (nfa1->states[i].mapped_state[j] != nfa2->states[i].mapped_state[j])
+            {
+                fprintf(stderr, "different: %s @ line %d @ iteration %lu\n", __FILE__, __LINE__, j);
+                return;
+            }
+        }
+    }
+
+    fprintf(stderr, "NFA1 == NFA2\n");
+
+}
+
 // Serialize Object and save
 int nfa_collection_save(const nfa_t* nfa, size_t count, const char* filename)
 {
@@ -168,7 +208,7 @@ int nfa_collection_save(const nfa_t* nfa, size_t count, const char* filename)
     }
 
     // try to write the length of the collection
-    if (write(fd, &count, sizeof(size_t)) < 0)
+    if (write(fd, &count, sizeof(size_t)) < (ssize_t) sizeof(size_t))
     {
         close(fd);
         return IO_ERROR;
@@ -179,7 +219,7 @@ int nfa_collection_save(const nfa_t* nfa, size_t count, const char* filename)
     for (i=0; i<count; ++i)
     {
         // try to write the states count for nfa i
-        if (write(fd, &(nfa[i].states_len), sizeof(size_t)) < 0)
+        if (write(fd, &(nfa[i].states_len), sizeof(size_t)) < (ssize_t) sizeof(size_t))
         {
             close(fd);
             return IO_ERROR;
@@ -189,30 +229,33 @@ int nfa_collection_save(const nfa_t* nfa, size_t count, const char* filename)
         size_t j;
         for (j=0; j<nfa[i].states_len; ++j)
         {
-
             // try to write the length of the charset for that state
-            if (write(fd, &(nfa[i].states[j].len), sizeof(size_t)) < 0)
+            if (write(fd, &(nfa[i].states[j].len), sizeof(size_t)) < (ssize_t) sizeof(size_t))
             {
                 close(fd);
                 return IO_ERROR;
             }
 
-            // try to write the charset
-            if (write(fd, nfa[i].states[j].charset, sizeof(char) * nfa[i].states[j].len) < 0)
+            if (nfa[i].states[j].len > 0)
             {
-                close(fd);
-                return IO_ERROR;
+
+                // try to write the charset
+                if (write(fd, nfa[i].states[j].charset, sizeof(char) * nfa[i].states[j].len) < (ssize_t) (sizeof(char) * nfa[i].states[j].len))
+                {
+                    close(fd);
+                    return IO_ERROR;
+                }
+
+                // try to write the mapped states
+                if (write(fd, nfa[i].states[j].mapped_state, sizeof(int) * nfa[i].states[j].len) < (ssize_t) (sizeof(int) * nfa[i].states[j].len))
+                {
+                    close(fd);
+                    return IO_ERROR;
+                }
             }
 
-            // try to write the mapped states
-            if (write(fd, nfa[i].states[j].mapped_state, sizeof(int) * nfa[i].states[j].len) < 0)
-            {
-                close(fd);
-                return IO_ERROR;
-            }
-            
             // try to write the finality of the state
-            if (write(fd, &(nfa[i].states[j].final), sizeof(bool)) < 0)
+            if (write(fd, &(nfa[i].states[j].final), sizeof(bool)) < (ssize_t) sizeof(bool))
             {
                 close(fd);
                 return IO_ERROR;
@@ -262,7 +305,7 @@ int nfa_collection_load(nfa_t** nfa_collection, size_t* len, const char* filenam
 
     // try to read 8 bytes for the length of the collection
     size_t count = 0;
-    if (read(fd, &count, sizeof(size_t)) <= 0)
+    if (read(fd, &count, sizeof(size_t)) < (ssize_t) sizeof(size_t))
     {
         close(fd);
         return IO_ERROR;
@@ -286,7 +329,7 @@ int nfa_collection_load(nfa_t** nfa_collection, size_t* len, const char* filenam
     size_t i;
     for (i=0; i<count; ++i)
     {
-        if (read(fd, &(temp[i].states_len), sizeof(size_t)) < 0)
+        if (read(fd, &(temp[i].states_len), sizeof(size_t)) < (ssize_t) sizeof(size_t))
         {
             close(fd);
             nfa_collection_delete(temp, count);
@@ -311,7 +354,7 @@ int nfa_collection_load(nfa_t** nfa_collection, size_t* len, const char* filenam
         for (j=0; j<temp[i].states_len; ++j)
         {
 
-            if (read(fd, &(temp[i].states[j].len), sizeof(size_t)) <= 0)
+            if (read(fd, &(temp[i].states[j].len), sizeof(size_t)) < (ssize_t) sizeof(size_t))
             {
                 close(fd);
                 nfa_collection_delete(temp, count);
@@ -320,38 +363,37 @@ int nfa_collection_load(nfa_t** nfa_collection, size_t* len, const char* filenam
 
             if (temp[i].states[j].len > 0)
             {
-                if ((temp[i].states[j].charset = calloc(sizeof(char), temp[i].states[j].len)) == NULL)
+                if ((temp[i].states[j].charset = calloc(sizeof(char), (temp[i].states[j].len))) == NULL)
                 {
                     close(fd);
                     nfa_collection_delete(temp, count);
                     return BAD_ALLOCATION;
                 }
 
-                if ((temp[i].states[j].mapped_state = calloc(sizeof(int), temp[i].states[j].len)) == NULL)
+                if ((temp[i].states[j].mapped_state = calloc(sizeof(int), (temp[i].states[j].len))) == NULL)
                 {
                     close(fd);
                     nfa_collection_delete(temp, count);
                     return BAD_ALLOCATION;
                 }
 
-                if (read(fd, temp[i].states[j].charset, sizeof(char) * temp[i].states[j].len) <= 0)
+                if (read(fd, temp[i].states[j].charset, sizeof(char) * (temp[i].states[j].len)) < (ssize_t) (sizeof(char) * (temp[i].states[j].len)))
                 {
                     close(fd);
                     nfa_collection_delete(temp, count);
                     return IO_ERROR;
                 }
 
-                if (read(fd, temp[i].states[j].mapped_state, sizeof(int) * temp[i].states[j].len) <= 0)
+                if (read(fd, temp[i].states[j].mapped_state, sizeof(int) * (temp[i].states[j].len)) < (ssize_t) (sizeof(int) * (temp[i].states[j].len)))
                 {
                     close(fd);
                     nfa_collection_delete(temp, count);
                     return IO_ERROR;
                 }
 
-                
             }
 
-            if (read(fd, &(temp[i].states[j].final), sizeof(bool)) <= 0)
+            if (read(fd, &(temp[i].states[j].final), sizeof(bool)) < (ssize_t) sizeof(bool))
             {
                 close(fd);
                 nfa_collection_delete(temp, count);
@@ -361,7 +403,9 @@ int nfa_collection_load(nfa_t** nfa_collection, size_t* len, const char* filenam
             temp[i].states[j].capacity = temp[i].states[j].len;
         }
 
-
+        temp->current_states = NULL;
+        temp->current_states_len = 0;
+        temp->current_states_capacity = 0;
     }
 
     *nfa_collection = temp;
@@ -384,7 +428,7 @@ static int nfa_delta(nfa_t* nfa, char c){
 
     size_t i;
     for (i=0; i<nfa->current_states_len; ++i){
-        const int k = nfa->current_states[i];
+        int k = nfa->current_states[i];
 
         size_t j;        
         for (j=0; j<nfa->states[k].len; ++j){
