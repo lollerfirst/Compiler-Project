@@ -8,8 +8,7 @@ static ast_t ast;
 static toklist_t token_list;
 
 static char program[] = "\
-    generic_function(parameter0, parameter1, 101) := base_function(other_generic_function(\"generic string\"));\
-    irrelevant_name1(parameter0, parameter2, parameter3) := add(parameter0, generic_function(parameter2, parameter3, 101));\
+    generic_function(parameter0) := next(parameter0);\
 ";
 
 void setup()
