@@ -44,22 +44,25 @@ int tokenizer_init(toklist_t* toklist, const char* nfa_collection_filename){
 	return OK;
 }
 
-int tokenize(toklist_t* token_list, char* buffer){
+int tokenize(toklist_t* token_list, char* buffer)
+{
 	size_t buffer_len = strlen(buffer);
 	
 	if (buffer_len == 0)
 		return INVALID_BUFFER;
 	
 	// Setting up
-	token_list->list_size = 0;
-	token_list->list_capacity = ASCII_LEN;
-
-	if ((token_list->list = malloc(
-			token_list->list_capacity * sizeof(token_t)
+	token_t* new_list;
+	if ((new_list = malloc(
+			ASCII_LEN * sizeof(token_t)
 		)) == NULL)
 	{
 		return BAD_ALLOCATION;
 	}
+
+	token_list->list = new_list;
+	token_list->list_size = 0;
+	token_list->list_capacity = ASCII_LEN;
 	
 	size_t i = 1;
 	size_t previous_index = 1;

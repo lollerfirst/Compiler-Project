@@ -126,6 +126,7 @@ static vartype_t* production_map[] = {DelimList, Define_OP, Left_roundb, Right_r
 
 static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index);
 static int parser_graph_recursive(ast_t* ast, FILE* f);
+static void parser_ast_recursive_undo(ast_t* branch, toklist_t* token_list, size_t* index);
 
 int parser_ast(ast_t* ast, toklist_t* token_list){
     size_t index = 0;
@@ -270,27 +271,36 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
     // If leaf token
     if (ast->vardual.toktype < NOTOK)
     {
-        // Check if the token type is in the production
-        if (token_list->list[*index].tt == ast->vardual.toktype)
-        {
-                       
-            // steal token from token_list
-            ast->tk = token_list->list[*index].tk;
-            token_list->list[*index].tk = NULL;
 
-            ast->tl_len = 0;
-            ast->tl_capacity = 0;
-            ast->tl = NULL;
-
-            ++(*index);
-
-        }else
+        // Check for the end of the token list
+        if (*index < token_list->list_size)
         {
             
+            // Check if the token type is in the production
+            if (token_list->list[*index].tt == ast->vardual.toktype)
+            {
+
+                // steal token from token_list
+                ast->tk = token_list->list[*index].tk;
+                token_list->list[*index].tk = NULL;
+
+                ast->tl_len = 0;
+                ast->tl_capacity = 0;
+                ast->tl = NULL;
+
+                ++(*index);
+
+            }else
+            {
+                return NOT_A_PRODUCTION;
+            }
+
+            return OK;
+        }
+        else
+        {
             return NOT_A_PRODUCTION;
         }
-
-        return OK;
     }
 
     bool match = false;
@@ -344,6 +354,7 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
                 {
                     skip_prod = true;
                     match = false;
+                    parser_ast_recursive_undo(ast->tl, token_list, index);
                 }
                 else
                 {
@@ -360,10 +371,10 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
     }
     
     if (!match)
-		{
+	{
         free(ast->tl);
-			  ast->tl = NULL;
-			  ast->tl_len = 0;
+	    ast->tl = NULL;
+		ast->tl_len = 0;
         return NOT_A_PRODUCTION;
     }
 
