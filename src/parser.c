@@ -93,7 +93,9 @@ static vartype_t StatementList[] = {STATEMENT, STATEMENTLIST, END_PROD,
                             STATEMENT, END_PROD,
                             END_ARR};
 
-static vartype_t Program[] = {STATEMENTLIST, END_PROD, END_ARR};
+static vartype_t Program[] = {STATEMENTLIST, END_PROD,
+                            STATEMENTLIST, DELIM_LIST, END_PROD,
+                            END_ARR};
 
 /*** Mapping Enum to production arrays ***/
 static vartype_t* production_map[] = {DelimList, Define_OP, Left_roundb, Right_roundb,
@@ -116,14 +118,9 @@ int parser_ast(ast_t* ast, toklist_t* token_list){
     
     ERROR_RETHROW(parser_ast_recursive(ast, token_list, &index),
 
+        parser_ast_graph(ast, "ast_error_graph.gv");
         fprintf(stderr, "[!] Error: failed at token %lu\n", index);
     );
-
-    if (index < token_list->list_size)
-    {
-        fprintf(stderr, "[!] index < token_list->list_size\n");
-        return -1;
-    }
 
     return 0;
 }
@@ -154,20 +151,26 @@ void parser_ast_delete(ast_t* ast){
 }
 
 int parser_ast_graph(ast_t* ast, const char* filename){
-    FILE* f;
-    if ((f = fopen(filename, "w")) == NULL)
-        return -1;
+    static bool already_called = false;
     
-    fputs("digraph G{", f);
-    
-    if (parser_graph_recursive(ast, f) != 0){
-        fclose(f);
-        return -1;
-    }
+    if (!already_called)
+    {
+        FILE* f;
+        if ((f = fopen(filename, "w")) == NULL)
+            return -1;
+        
+        fputs("digraph G{", f);
+        
+        if (parser_graph_recursive(ast, f) != 0){
+            fclose(f);
+            return -1;
+        }
 
-    fputs("}", f);
-    fclose(f);
-    return 0;    
+        fputs("}", f);
+        fclose(f);
+        already_called = true;
+    }
+    return 0;   
 }
 
 static int parser_graph_recursive(ast_t* ast, FILE* f){
@@ -288,7 +291,6 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
                 ast->tl_capacity = 0;
                 ast->tl = NULL;
 
-                // we have read a token, increment the counter
                 ++(*index);
 
             }else
@@ -346,12 +348,11 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
                 }
                 
                 // put the vartype of the next production down the tree
-                ast->tl[ast->tl_len].vardual.vartype = var.vartype;
+                ast->tl[ast->tl_len++].vardual.vartype = var.vartype;
                  
                 int error_code;
-                if ((error_code = parser_ast_recursive(&ast->tl[ast->tl_len], token_list, index)) == OK)
+                if ((error_code = parser_ast_recursive(&ast->tl[ast->tl_len-1], token_list, index)) == OK)
                 {
-                    ast->tl_len++;
                     match = true; 
                 }
                 else if(error_code == NOT_A_PRODUCTION)
@@ -362,11 +363,14 @@ static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index
 
                     // delete all the sub-branches on the list, without deallocating the list itself.
                     parser_ast_recursive_undo(ast, index);
+
+                    // reset the length of this current list
                     ast->tl_len = 0;
                 }
                 else
                 {
                     // ERROR
+                    parser_ast_graph(ast, "ast_error_graph.gv");
                     parser_ast_delete(ast);
                     return error_code;
                 }
@@ -424,6 +428,8 @@ static void parser_ast_recursive_undo(ast_t* branch, size_t* index)
         {
             free(branch->tl[i-1].tl);
             branch->tl[i-1].tl = NULL;
+            branch->tl[i-1].tl_len = 0;
+            branch->tl[i-1].tl_capacity = 0;
         }
     }
 }
