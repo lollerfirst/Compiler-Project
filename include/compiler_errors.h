@@ -15,7 +15,8 @@ enum error_codes{
     INVALID_TOKEN,
     NOT_A_PRODUCTION,
     INVALID_AST,
-    UNDEFINED_SYMBOL
+    UNDEFINED_SYMBOL,
+    TYPE_ERROR
 };
 
 
