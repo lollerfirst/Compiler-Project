@@ -251,7 +251,8 @@ static int execute_call(const ast_t* ast)
 
     // verify there is a function with such name and number of arguments in the global symbols table
     size_t i;
-    size_t chosen_index, chosen_index_parameters_len = 0;
+    size_t chosen_indexes[64] = {0};
+    size_t chosen_indexes_iterator = 0;
     bool match = false;
 
     for (i=0; i<symbol_table_length; ++i)
@@ -260,12 +261,7 @@ static int execute_call(const ast_t* ast)
         {
             match = true;
 
-            // Select the function with the most parameters
-            if (global_symbol_table[i].parameters_len > chosen_index_parameters_len)
-            {
-                chosen_index = i;
-                chosen_index_parameters_len = global_symbol_table[i].parameters_len;
-            }
+            chosen_indexes[chosen_indexes_iterator++] = i;
         }
     }
 
@@ -276,11 +272,74 @@ static int execute_call(const ast_t* ast)
         return UNDEFINED_SYMBOL;
     }
 
+    // choose a function evaluating arguments
+    choose_from_set(chosen_indexes, chosen_indexes_iterator, argument_list, argument_list_len, &i);
+    
+
     // Call the function, return value will be stored into argument_list[0]
-    ERROR_RETHROW(execute_call_recursive(chosen_index, argument_list, argument_list_len),
+    ERROR_RETHROW(execute_call_recursive(chosen_indexes, argument_list, argument_list_len),
         free(argument_list);
     );
 
     free(argument_list);
+    return OK;
+}
+
+int choose_from_indexes(const size_t* chosen_indexes, size_t chosen_indexes_iterator, const parameter_t* argument_list, size_t argument_list_len, size_t* index)
+{
+
+size_t i = *index;
+
+bool match = false;
+for (i=0; i<chosen_indexes_iterator; ++i)
+    {
+        size_t j;
+        for (j=0; j<argument_list_len; ++j)
+        {
+            if (global_symbol_table[i].parameter_map[j].parameter_type == argument_list[j].parameter_type &&
+                argument_list[j].parameter_type == CHAR)
+            {
+                if (global_symbol_table[i].parameter_map[j].character_literal == argument_list[j].character_literal)
+                {
+                    match = true;
+                    break;
+                }
+            }
+            else if (global_symbol_table[i].parameter_map[j].parameter_type == argument_list[j].parameter_type &&
+                argument_list[j].parameter_type == INT)
+            {
+                if (global_symbol_table[i].parameter_map[j].number_literal == argument_list[j].number_literal)
+                {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        if (match)
+        {
+            break;
+        }
+    }
+
+    // Pick the function with the most argument if no actual match
+    if (!match)
+    {
+        size_t max_index = 0;
+        size_t max = 0;
+
+        for(i=0; i<chosen_indexes_iterator; ++i)
+        {
+            if (global_symbol_table[i].parameters_len >= max)
+            {
+                max_index = i;
+                max = global_symbol_table[i].parameters_len;
+            }
+        }
+
+        i = max_index;
+    }
+
+    *index = i;
     return OK;
 }
