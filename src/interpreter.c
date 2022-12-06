@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <compiler_errors.h>
+#include <assert.h>
 
 // base functions
 
@@ -12,13 +13,18 @@ typedef enum
     INT
 } type_t;
 
-typedef struct __parameter
-{
-    type_t parameter_type;
 
+union __param
+{
     size_t local_symbol_reference; // 0 -> 0-th parameter of the current function, 2 -> 2nd parameter of the current function
     int number_literal; // calling a function with a number literal
     char character_literal; // calling a charachter with a character literal
+};
+
+typedef struct __parameter
+{
+    type_t parameter_type;
+    union __param param;
 } parameter_t;
 
 typedef struct __symbol
@@ -35,54 +41,58 @@ static symbol_t* global_symbol_table;
 static size_t symbol_table_length;
 static size_t symbol_table_capacity;
 
+static size_t choose_from_set(const size_t* chosen_indexes, size_t chosen_indexes_iterator, const parameter_t* argument_list, size_t argument_list_len);
+static int interpret_statement(const ast_t* ast);
+static int interpret_definition(const ast_t* ast);
+
 
 // BASE FUNCTIONS
-static void* next(void* arg0, type_t type_size)
+static void next(void* arg0, type_t type_size)
 {
     switch(type_size)
     {
         case CHAR:
             char* c = (char*)arg0;
             ++(*c);
-            return (void*)c;
-        
+            return;
+
         case INT:
             int* i = (int*)arg0;
             ++(*i);
-            return (void*)i;
+            return;
     }
 }
 
 
-static void* prev(void* arg0, type_t type_size)
+static void prev(void* arg0, type_t type_size)
 {
     switch(type_size)
     {
         case CHAR:
             char* c = (char*)arg0;
             --(*c);
-            return (void*)c;
+            return;
         
         case INT:
             int* i = (int*)arg0;
             --(*i);
-            return (void*)i;
+            return;
     }
 }
 
-static void* proj(size_t index, void* args, type_t type_size)
+static void proj(int index, void* args, type_t type_size)
 {
     switch(type_size)
     {
         case CHAR:
             char* c = (char*)args;
-            c += index;
-            return (void*)c;
+            c[0] = c[index];
+            return;
         
         case INT:
             int* i = (int*)args;
-            i += index;
-            return (void*)i;
+            i[0] = i[index];
+            return;
     }
 }
 
@@ -93,12 +103,12 @@ static void* zero(void* arg0, type_t type_size)
         case CHAR:
             char* c = (char*)arg0;
             *c = '\0';
-            return (void*)c;
+            return;
         
         case INT:
             int* i = (int*)arg0;
             *i = 0;
-            return (void*)i;
+            return;
     }
 }
 
@@ -273,11 +283,11 @@ static int execute_call(const ast_t* ast)
     }
 
     // choose a function evaluating arguments
-    choose_from_set(chosen_indexes, chosen_indexes_iterator, argument_list, argument_list_len, &i);
+    i = choose_from_set(chosen_indexes, chosen_indexes_iterator, argument_list, argument_list_len);
     
 
     // Call the function, return value will be stored into argument_list[0]
-    ERROR_RETHROW(execute_call_recursive(chosen_indexes, argument_list, argument_list_len),
+    ERROR_RETHROW(execute_call_recursive(i, argument_list, argument_list_len),
         free(argument_list);
     );
 
@@ -285,13 +295,13 @@ static int execute_call(const ast_t* ast)
     return OK;
 }
 
-int choose_from_indexes(const size_t* chosen_indexes, size_t chosen_indexes_iterator, const parameter_t* argument_list, size_t argument_list_len, size_t* index)
+static size_t choose_from_set(const size_t* chosen_indexes, size_t chosen_indexes_iterator, const parameter_t* argument_list, size_t argument_list_len)
 {
 
-size_t i = *index;
+    size_t i;
 
-bool match = false;
-for (i=0; i<chosen_indexes_iterator; ++i)
+    bool match = false;
+    for (i=0; i<chosen_indexes_iterator; ++i)
     {
         size_t j;
         for (j=0; j<argument_list_len; ++j)
@@ -299,7 +309,7 @@ for (i=0; i<chosen_indexes_iterator; ++i)
             if (global_symbol_table[i].parameter_map[j].parameter_type == argument_list[j].parameter_type &&
                 argument_list[j].parameter_type == CHAR)
             {
-                if (global_symbol_table[i].parameter_map[j].character_literal == argument_list[j].character_literal)
+                if (global_symbol_table[i].parameter_map[j].param.character_literal == argument_list[j].param.character_literal)
                 {
                     match = true;
                     break;
@@ -308,7 +318,7 @@ for (i=0; i<chosen_indexes_iterator; ++i)
             else if (global_symbol_table[i].parameter_map[j].parameter_type == argument_list[j].parameter_type &&
                 argument_list[j].parameter_type == INT)
             {
-                if (global_symbol_table[i].parameter_map[j].number_literal == argument_list[j].number_literal)
+                if (global_symbol_table[i].parameter_map[j].param.number_literal == argument_list[j].param.number_literal)
                 {
                     match = true;
                     break;
@@ -340,6 +350,44 @@ for (i=0; i<chosen_indexes_iterator; ++i)
         i = max_index;
     }
 
-    *index = i;
-    return OK;
+    return i;
+}
+
+static int execute_call_recursive(const size_t global_table_index, parameter_t* argument_list, size_t argument_list_len)
+{
+    #ifdef _DEBUG
+    assert(argumen_list_len > 0);
+    assert(argument_list != NULL);
+    assert(symbol != NULL);
+    #endif
+    
+    // handle base cases
+    if (global_table_index <= 5)
+    {
+        switch(global_table_index)
+        {
+            case 0: // next
+                next((void*) &argument_list[0].param, argument_list[0].parameter_type);
+                break;
+            
+            case 1:
+                prev((void*) &argument_list[0].param, argument_list[0].parameter_type);
+                break;
+            
+            case 2:
+                proj(argument_list[0].param.number_literal, (void*) &argument_list[1].param, argument_list[1].parameter_type);
+                break;
+
+            case 3:
+                zero((void*) &argument_list[0].param, argument_list[0].parameter_type);
+                break;
+            
+            case 4:
+                
+
+        }
+        
+        return OK;
+    }
+
 }

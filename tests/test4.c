@@ -11,7 +11,7 @@ static char program[] = "\
     generic_function(parameter0) := next(parameter0);\
     generic_function(parameter1) := next(parameter1);\
     generic_function(parameter2) := next(parameter2);\
-    generic_function(parameter3) := next(parameter3);\
+    generic_function(101);\
     \
 ";
 
