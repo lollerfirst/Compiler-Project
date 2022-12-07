@@ -66,7 +66,7 @@ static vartype_t ParamList[] = {PARAMETER, ARGSEPARATOR, PARAMLIST, END_PROD,
 static vartype_t BaseCall[] = {NAME_VAR, L_ROUNDB_VAR, PARAMLIST, R_ROUNDB_VAR, END_PROD,
                             END_ARR};
 
-static vartype_t BaseCallList[] = {BASECALL, ARGSEPARATOR, BASECALL_LIST, END_PROD,
+/*static vartype_t BaseCallList[] = {BASECALL, ARGSEPARATOR, BASECALL_LIST, END_PROD,
                             BASECALL, END_PROD,
                             END_ARR};
 
@@ -81,8 +81,8 @@ static vartype_t StepCallList[] = {STEPCALL, ARGSEPARATOR, STEPCALL_LIST, END_PR
 static vartype_t TrueCall[] = {NAME_VAR, L_ROUNDB_VAR, STEPCALL_LIST, R_ROUNDB_VAR, END_PROD,
                             BASECALL, END_PROD,
                             END_ARR};
-
-static vartype_t Definition[] = {BASECALL, DEFINE_OP_VAR, TRUECALL, END_PROD,
+*/
+static vartype_t Definition[] = {BASECALL, DEFINE_OP_VAR, BASECALL, END_PROD,
                             END_ARR};
 
 static vartype_t Statement[] = {DEFINITION, END_STMT_VAR, END_PROD,
@@ -101,7 +101,7 @@ static vartype_t Program[] = {STATEMENTLIST, END_PROD,
 static vartype_t* production_map[] = {DelimList, Define_OP, Left_roundb, Right_roundb,
                             Left_squareb, Right_squareb, End_statement, Arg_separator,
                             Number, Name, String, Char, Parameter, ParamList,
-                            BaseCall, BaseCallList, StepCall, StepCallList, TrueCall, Definition, Statement,
+                            BaseCall, Definition, Statement,
                             StatementList, Program};
 
 static int parser_ast_recursive(ast_t* ast, toklist_t* token_list, size_t* index);
@@ -222,14 +222,6 @@ const char* parser_vartypestr(vartype_t vartype){
             return "ParamList";
         case BASECALL:
             return "BaseCall";
-        case BASECALL_LIST:
-            return "BaseCall_List";
-        case STEPCALL:
-            return "StepCall";
-        case STEPCALL_LIST:
-            return "StepCall_List";
-        case TRUECALL:
-            return "TrueCall";
         case DEFINITION:
             return "Definition";
         case STATEMENT:
