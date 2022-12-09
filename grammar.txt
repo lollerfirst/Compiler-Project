@@ -88,24 +88,25 @@ Grammar for lambda language: (# is the epsilon)
 <ParamList> := <Parameter><ArgSeparator><ParamList> |
 		<Parameter>
 
+# call(argument1, argument2)
 <BaseCall> := <Name><Left-roundb><ParamList><Right-roundb>
 
-<BaseCallList> := <BaseCall><ArgSeparator><BaseCallList> |
+# call(call(call(argument1, argument2)))
+<StepCall> := <Name><Left-roundb><StepCall><Right-roundb> |
 		<BaseCall>
 
-<StepCall> := <Name><Left-roundb><StepCall><Right-roundb> |
-		<BaseCallList>
-
+# call(call(call(argument1, argument2))), call(call(call(argument3, argument4)))
 <StepCallList> := <StepCall><ArgSeparator><StepCallList> |
 		<StepCall>
 
+# call(call(call(call(argument1, argument2))), call(call(call(argument3, argument4))))
 <TrueCall> := <Name><Left-roundb><StepCallList><Right-roundb> |
 		<BaseCall>
 
 <Definition> := <BaseCall><Define-OP><TrueCall>
 
 <Statement> := <Definition><End-Statement> |
-		<Call><End-Statement>
+		<BaseCall><End-Statement>
 
 <StatementList> := <Statement><StatementList> |
 		<Statement>

@@ -7,13 +7,16 @@
 static ast_t ast;
 static toklist_t token_list;
 
+/*
 static char program[] = "\
     generic_function(parameter0) := next(parameter0);\
-    generic_function(parameter1) := next(parameter1);\
-    generic_function(parameter2) := next(parameter2);\
+    generic_function(parameter1, parameter2) := proj(proj(0, parameter2), generic_function(next(parameter1)));\
+    generic_function(parameter1, parameter2, parameter3) := write(proj(0, 1), proj(0, parameter2), generic_function(parameter3));\
     generic_function(101);\
     \
-";
+";*/
+
+static char program[] = "function(arg) := call(call(call(call(argument1, argument2))), call(call(call(argument3, argument4)))); ";
 
 void setup()
 {
