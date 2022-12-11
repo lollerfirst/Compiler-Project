@@ -17,6 +17,8 @@ enum error_codes{
     INVALID_AST,
     UNDEFINED_SYMBOL,
     TYPE_ERROR,
+    EXPECTED_LITERAL,
+    INVALID_SIGNATURE,
 };
 
 

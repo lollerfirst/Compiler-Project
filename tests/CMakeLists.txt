@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.8)
 project(Compiler C)
 
+cmake_policy(SET CMP0043 NEW)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-D_DEBUG)
+endif()
+
 add_executable(test1 test1.c)
 add_executable(test2 test2.c)
 add_executable(test3 test3.c)
