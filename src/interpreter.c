@@ -41,7 +41,7 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
 // BASE FUNCTIONS
 static parameter_t next(parameter_t arg)
 {
-    parameter_t rv;
+    parameter_t rv = {0};
 
     switch (arg.parameter_type)
     {
@@ -53,6 +53,11 @@ static parameter_t next(parameter_t arg)
     case CHARACTER:
         rv.parameter_type = CHARACTER;
         rv.param.character_literal = (arg.param.character_literal) + 1;
+
+        break;
+
+    case LOCAL_REFERENCE:
+        break;
     }
 
     return rv;
@@ -60,7 +65,7 @@ static parameter_t next(parameter_t arg)
 
 static parameter_t prev(parameter_t arg)
 {
-    parameter_t rv;
+    parameter_t rv = {0};
 
     switch (arg.parameter_type)
     {
@@ -72,6 +77,10 @@ static parameter_t prev(parameter_t arg)
     case CHARACTER:
         rv.parameter_type = CHARACTER;
         rv.param.character_literal = (arg.param.character_literal) - 1;
+        break;
+
+    case LOCAL_REFERENCE:
+        break;
     }
 
     return rv;
@@ -100,7 +109,7 @@ static parameter_t wr(parameter_t *argument_list)
     int fd = argument_list[0].param.number_literal;
     int len = argument_list[1].param.number_literal;
 
-    size_t i;
+    int i;
     for (i = 2; i < (len + 2); ++i)
     {
         switch (argument_list[i].parameter_type)
@@ -111,6 +120,10 @@ static parameter_t wr(parameter_t *argument_list)
 
         case CHARACTER:
             rv.param.number_literal = (int)write(fd, (void *)&argument_list[i].param.character_literal, sizeof(char));
+            break;
+
+        case LOCAL_REFERENCE:
+            break;
         }
     }
 
@@ -125,7 +138,7 @@ int interpreter_init(void)
     if ((temp = calloc(sizeof(symbol_t), 20)) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
 
         return BAD_ALLOCATION;
@@ -199,7 +212,7 @@ static int interpret_statement(const ast_t *ast)
 #ifdef _DEBUG
     assert(ast != NULL);
     assert(ast->tl_len > 0);
-    assert(ast->vardual.vartype == STATEMENT)
+    assert(ast->vardual.vartype == STATEMENT);
 #endif
 
     if (ast->tl[0].vardual.vartype == BASECALL)
@@ -229,8 +242,9 @@ static int interpret_definition(const ast_t *ast)
     ERROR_RETHROW(interpret_prototype(&ast->tl[0], &new_symbol, &parameter_names));
 
     ERROR_RETHROW(interpret_truecall(&ast->tl[2], &new_symbol, parameter_names),
-                  release_symbol(&new_symbol),
-                  free(parameter_names));
+                  //release_symbol(&new_symbol),
+                  free(parameter_names)
+    );
 
     // allocate more memory if necessary
     if (symbol_table_length >= symbol_table_capacity)
@@ -242,7 +256,7 @@ static int interpret_definition(const ast_t *ast)
             free(parameter_names);
 
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
             return BAD_ALLOCATION;
         }
@@ -262,7 +276,7 @@ static int interpret_prototype(const ast_t *ast, symbol_t *symbol, char **local_
     assert(ast != NULL);
     assert(ast->tl_len > 0);
     assert(symbol != NULL);
-    assert(parameter_names != NULL);
+    assert(local_names != NULL);
     assert(ast->vardual.vartype == BASECALL);
 #endif
 
@@ -289,7 +303,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
 {
 #ifdef _DEBUG
     assert(ast != NULL);
-    assert(name != NULL);
+    assert(local_names != NULL);
     assert(ast->tl_len > 0);
     assert(ast->vardual.vartype == PARAMLIST);
 #endif
@@ -300,7 +314,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
     if ((temp = calloc(64, sizeof(char))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
 
         return BAD_ALLOCATION;
@@ -312,7 +326,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
     if ((temp0 = calloc(64, sizeof(char))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
 
         return BAD_ALLOCATION;
@@ -323,14 +337,16 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
     do
     {
         // get the actual token
-        toktype_t tt = (ast->tl[0].tl_len > 1) ? ast->tl[0].tl[1].vardual.toktype : ast->tl[0].tl[0].vardual.toktype;
-        char *tk = (ast->tl[0].tl_len > 1) ? ast->tl[0].tl[1].tk : ast->tl[0].tl[0].tk;
+        vartype_t tt = ast->tl[0].tl[0].vardual.vartype;
+        
+        char *tk;
+        ERROR_RETHROW(interpret_name(&(ast->tl[0].tl[0]), &tk));
         size_t p_len = strlen(tk);
         size_t i;
 
         switch (tt)
         {
-        case NAME:
+        case NAME_VAR:
 
             // parameter name handling
             while (parameter_len + p_len + 1 >= parameter_capacity)
@@ -338,7 +354,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
                 if ((temp0 = reallocarray(temp0, parameter_capacity * 2, sizeof(char))) == NULL)
                 {
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
 
                     free(temp);
@@ -360,7 +376,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
                 if ((temp = reallocarray(temp, signature_capacity * 2, sizeof(char))) == NULL)
                 {
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
 
                     free(temp);
@@ -377,7 +393,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
 
             break;
 
-        case STRING:
+        case STRING_VAR:
             tk = strstr(tk, "\"") + 1;
 
             for (i = 0; (i < p_len) && (tk[i] != '\"'); ++i)
@@ -387,7 +403,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
                     if ((temp = reallocarray(temp, signature_capacity * 2, sizeof(char))) == NULL)
                     {
                         #ifdef _DEBUG
-                        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                         #endif
 
                         free(temp);
@@ -406,7 +422,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
             temp[signature_len] = '\0';
             break;
 
-        case CHARACTER:
+        case CHAR_VAR:
             tk = strstr(tk, "'") + 1;
 
             while (signature_len + 2 >= signature_capacity)
@@ -414,7 +430,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
                 if ((temp = reallocarray(temp, signature_capacity * 2, sizeof(char))) == NULL)
                 {
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
 
                     free(temp);
@@ -431,13 +447,13 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
 
             break;
 
-        case NUMBER:
+        case NUMBER_VAR:
             while (signature_len + p_len + 2 >= signature_capacity)
             {
                 if ((temp = reallocarray(temp, signature_capacity * 2, sizeof(char))) == NULL)
                 {
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
 
                     free(temp);
@@ -461,7 +477,7 @@ static int interpret_proto_signature(const ast_t *ast, char **signature, char **
             free(temp0);
 
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
             return INVALID_AST;
         }
@@ -524,18 +540,16 @@ static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char *local_na
     assert(ast->vardual.vartype == TRUECALL);
 #endif
 
-    ERROR_RETHROW(symbol_list_alloc(symbol));
 
     if (ast->tl_len == 1)
     {
-        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol->forward_calls, local_names),
-                      // free(symbol->parameters_map),
-                      free(symbol->forward_calls));
 
-        symbol->forward_calls_len = 1;
+        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol, local_names));
+
     }
     else
     {
+
         // fetch the name of the call
         char *name;
         ERROR_RETHROW(interpret_name(&ast->tl[0], &name));
@@ -557,20 +571,16 @@ static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char *local_na
             if (!match)
             {
                 #ifdef _DEBUG
-                fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                 #endif
 
-                free(symbol->forward_calls);
                 return UNDEFINED_SYMBOL;
             }
         }
 
-        symbol->forward_calls[symbol->forward_calls_len].name = name;
+        symbol->name = name;
 
-        ERROR_RETHROW(interpret_stepcall_list(&ast->tl[2], symbol->forward_calls, local_names),
-                      free(symbol->forward_calls));
-
-        symbol->forward_calls_len = 1;
+        ERROR_RETHROW(interpret_stepcall_list(&ast->tl[2], symbol, local_names));
     }
 
     return OK;
@@ -588,8 +598,12 @@ static int interpret_stepcall_list(const ast_t *ast, symbol_t *symbol, char *loc
 
     ERROR_RETHROW(symbol_list_alloc(symbol));
 
+    // pass forward the name
+    symbol->forward_calls[0].name = symbol->name;
+
     ERROR_RETHROW(interpret_stepcall(&ast->tl[0], symbol->forward_calls, local_names),
-                  free(symbol->forward_calls));
+                  free(symbol->forward_calls)
+    );
     symbol->forward_calls_len = 1;
 
     while (ast->tl_len > 1)
@@ -601,6 +615,8 @@ static int interpret_stepcall_list(const ast_t *ast, symbol_t *symbol, char *loc
         }
 
         ast = &ast->tl[2];
+        symbol->forward_calls[symbol->forward_calls_len].name = symbol->name;
+
         ERROR_RETHROW(interpret_stepcall(&ast->tl[0], &symbol->forward_calls[symbol->forward_calls_len], local_names),
                       free(symbol->forward_calls));
 
@@ -619,6 +635,7 @@ static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_na
     assert(local_names != NULL);
     assert(ast->vardual.vartype == STEPCALL);
 #endif
+
 
     if (ast->tl_len == 1)
     {
@@ -650,17 +667,20 @@ static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_na
             if (!match)
             {
                 #ifdef _DEBUG
-                fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                 #endif
 
                 return UNDEFINED_SYMBOL;
             }
         }
 
-        symbol->forward_calls[symbol->forward_calls_len].name = name;
-        symbol->forward_calls_len++;
+        symbol->forward_calls[0].name = symbol->name;
 
-        ERROR_RETHROW(interpret_stepcall(&ast->tl[2], symbol, local_names));
+        ERROR_RETHROW(interpret_stepcall(&ast->tl[2], symbol->forward_calls, local_names),
+            free(symbol->forward_calls));
+
+        symbol->name = name;
+        symbol->forward_calls_len = 1;
     }
 
     return OK;
@@ -676,15 +696,10 @@ static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char *local_na
     assert(ast->vardual.vartype == BASECALL);
 #endif
 
-    ERROR_RETHROW(symbol_list_alloc(symbol));
-
-    ERROR_RETHROW(interpret_paramlist(&ast->tl[2], symbol, local_names),
-                  free(symbol->forward_calls)
-    );
+    ERROR_RETHROW(interpret_paramlist(&ast->tl[2], symbol, local_names));
 
     char *name;
     ERROR_RETHROW(interpret_name(&ast->tl[0], &name),
-                  free(symbol->forward_calls),
                   free(symbol->parameters_map)
     );
 
@@ -705,14 +720,14 @@ static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char *local_na
         if (!match)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             return UNDEFINED_SYMBOL;
         }
     }
 
-    symbol->forward_calls[(symbol->forward_calls_len)++].name = name;
+    symbol->name = name;
 
     return OK;
 }
@@ -762,7 +777,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         ERROR_RETHROW(parameter_list_extend(symbol));
     }
 
-    vartype_t tt = (ast->tl_len > 1) ? ast->tl[1].vardual.vartype : ast->tl[0].vardual.vartype;
+    vartype_t tt = ast->tl[0].vardual.vartype;
 
     switch (tt)
     {
@@ -772,7 +787,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         if ((f = strtok(local_names, "\t")) == NULL)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             return UNDEFINED_SYMBOL;
@@ -793,7 +808,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         if (!match)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             return UNDEFINED_SYMBOL;
@@ -817,7 +832,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         if ((tk = strstr(tk, "'")) == NULL)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             return INVALID_AST;
@@ -833,7 +848,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         if ((tk = strstr(tk, "\"")) == NULL)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             return INVALID_AST;
@@ -856,7 +871,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
 
     default:
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return INVALID_AST;
     }
@@ -870,7 +885,7 @@ static int symbol_list_alloc(symbol_t *symbol)
     if ((temp1 = calloc(1, sizeof(symbol_t))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return BAD_ALLOCATION;
     }
@@ -887,13 +902,16 @@ static int symbol_list_extend(symbol_t *symbol)
     if ((temp1 = reallocarray(symbol->forward_calls, symbol->forward_calls_capacity * 2, sizeof(symbol_t))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return BAD_ALLOCATION;
     }
 
     symbol->forward_calls = temp1;
     symbol->forward_calls_capacity *= 2;
+
+    bzero(symbol->forward_calls + symbol->forward_calls_len,
+        (symbol->forward_calls_capacity - symbol->forward_calls_len) * sizeof(symbol_t));
 
     return OK;
 }
@@ -904,7 +922,7 @@ static int parameter_list_alloc(symbol_t *symbol)
     if ((temp1 = calloc(2, sizeof(parameter_t))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
 
         return BAD_ALLOCATION;
@@ -922,13 +940,16 @@ static int parameter_list_extend(symbol_t *symbol)
     if ((temp = reallocarray(symbol->parameters_map, symbol->parameters_map_capacity * 2, sizeof(parameter_t))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return BAD_ALLOCATION;
     }
 
     symbol->parameters_map = temp;
     symbol->parameters_map_capacity *= 2;
+
+    bzero(symbol->parameters_map + symbol->parameters_map_len,
+        (symbol->forward_calls_capacity - symbol->forward_calls_len) * sizeof(parameter_t));
 
     return OK;
 }
@@ -958,7 +979,7 @@ static int execute_call_recursive(symbol_t *symbol)
 {
 #ifdef _DEBUG
     assert(symbol->name != NULL);
-    assert(symbol->paramaters_map != NULL);
+    assert(symbol->parameters_map != NULL);
     assert(symbol->parameters_map_len > 0);
 #endif
 
@@ -1017,7 +1038,7 @@ static int execute_call_recursive(symbol_t *symbol)
     if (!match)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return UNDEFINED_SYMBOL;
     }
@@ -1181,7 +1202,7 @@ static int fetch_parameter(const ast_t *ast, symbol_t *symbol)
     {
     case NAME_VAR:
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
 
         return EXPECTED_LITERAL;
@@ -1198,7 +1219,7 @@ static int fetch_parameter(const ast_t *ast, symbol_t *symbol)
         if ((tk = strstr(tk, "'")) == NULL)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
             
             return INVALID_AST;
@@ -1214,7 +1235,7 @@ static int fetch_parameter(const ast_t *ast, symbol_t *symbol)
         if ((tk = strstr(tk, "\"")) == NULL)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             return INVALID_AST;
@@ -1237,7 +1258,7 @@ static int fetch_parameter(const ast_t *ast, symbol_t *symbol)
 
     default:
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return INVALID_AST;
     }
@@ -1254,7 +1275,7 @@ static int get_signature(symbol_t *symbol)
     if ((temp = calloc(64, sizeof(char))) == NULL)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return BAD_ALLOCATION;
     }
@@ -1275,7 +1296,7 @@ static int get_signature(symbol_t *symbol)
                 if ((temp = reallocarray(temp, signature_capacity * 2, sizeof(char))) == NULL)
                 {
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
                     free(temp);
                     return BAD_ALLOCATION;
@@ -1300,7 +1321,7 @@ static int get_signature(symbol_t *symbol)
                 if ((temp = reallocarray(temp, signature_capacity * 2, sizeof(char))) == NULL)
                 {
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
                     free(temp);
                     return BAD_ALLOCATION;
@@ -1315,7 +1336,7 @@ static int get_signature(symbol_t *symbol)
 
         default:
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
 
             free(temp);
@@ -1349,7 +1370,7 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
         if (candidate == NULL)
         {
             #ifdef _DEBUG
-            fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
             #endif
             return INVALID_SIGNATURE;
         }
@@ -1417,7 +1438,7 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
 
                 default:
                     #ifdef _DEBUG
-                    fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
                     #endif
                     return INVALID_SIGNATURE;
             }
@@ -1434,7 +1455,7 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
     if (!found)
     {
         #ifdef _DEBUG
-        fprintf(stder, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+        fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
         return INVALID_SIGNATURE;
     }

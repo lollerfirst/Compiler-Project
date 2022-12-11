@@ -1,4 +1,4 @@
-#include <interpret.h>
+#include <interpreter.h>
 #include <parser.h>
 #include <lexer.h>
 #include <unistd.h>
@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        fprintf("USAGE: tomc <textfile>\n");
+        fprintf(stdout, "USAGE: tomc <textfile>\n");
         return -1;
     }
     
@@ -32,9 +32,9 @@ int main(int argc, char** argv)
     size_t length = lseek(fd, 0, SEEK_CUR);
     lseek(fd, 0, SEEK_SET);
 
-    char buffer[length+1] = {0};
+    char* buffer = calloc(length+1, sizeof(char));
 
-    if (read(fd, buffer, sizeof(char) * length) < (sizeof(char) * length))
+    if (read(fd, buffer, sizeof(char) * length) < (ssize_t) (sizeof(char) * length))
     {
         close(fd);
         fprintf(stderr, "FILE: %s, LINE: %d\n", __FILE__, __LINE__);

@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 23)
 
 enable_testing()
 
+add_definitions(-D_DEBUG)
+
 add_subdirectory(src)
 add_subdirectory(tests)
 

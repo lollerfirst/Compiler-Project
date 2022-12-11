@@ -1,0 +1,4 @@
+add(a, 0) := proj(0, a);
+add(a, b) := add(next(a), prev(b));
+writeout_addition(a, b) := write(proj(0, 1), proj(0, 1), add(a, b));
+writeout_addition(5, 4);
