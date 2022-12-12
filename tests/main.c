@@ -32,7 +32,8 @@ int main(int argc, char** argv)
     size_t length = lseek(fd, 0, SEEK_CUR);
     lseek(fd, 0, SEEK_SET);
 
-    char* buffer = calloc(length+1, sizeof(char));
+    char buffer[length+1];
+    bzero(buffer, length+1);
 
     if (read(fd, buffer, sizeof(char) * length) < (ssize_t) (sizeof(char) * length))
     {
@@ -62,6 +63,8 @@ int main(int argc, char** argv)
         tokenizer_deinit(&token_list)
     );
 
+    tokenizer_deinit(&token_list);
+    parser_ast_delete(&ast);
     interpreter_release();
     return 0;
 }

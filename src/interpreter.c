@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <compiler_errors.h>
 
+#define DEFAULT_CALLS_THRESHOLD 5
+
 #ifdef _DEBUG
 #include <assert.h>
 #endif
@@ -18,14 +20,14 @@ static void release_symbol(symbol_t *symbol);
 static int interpret_prototype(const ast_t *ast, symbol_t *symbol, char **parameter_names);
 static int interpret_definition(const ast_t *ast);
 static int interpret_statement(const ast_t *ast);
-static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char *local_names);
+static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names);
 static int interpret_name(const ast_t *ast, char **name);
 static int interpret_proto_signature(const ast_t *ast, char **signature, char **local_names);
-static int interpret_stepcall_list(const ast_t* ast, symbol_t *symbol, char *local_names);
+static int interpret_stepcall_list(const ast_t* ast, symbol_t *symbol, char* def_name, char *local_names);
 static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_names);
 static int interpret_paramlist(const ast_t *ast, symbol_t *symbol, char *local_names);
-static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char *local_names);
-static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_names);
+static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names);
+static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names);
 static int interpret_statement_list(const ast_t *ast);
 static int parameter_list_extend(symbol_t *symbol);
 static int parameter_list_alloc(symbol_t *symbol);
@@ -33,10 +35,11 @@ static int symbol_list_extend(symbol_t *symbol);
 static int symbol_list_alloc(symbol_t *symbol);
 static int get_signature(symbol_t *symbol);
 static int execute_call(const ast_t *ast);
-static int execute_call_recursive(symbol_t *symbol);
 static int fetch_paramlist(const ast_t *ast, symbol_t *symbol);
 static int fetch_parameter(const ast_t *ast, symbol_t *symbol);
 static int select_from_set(size_t* selected, const size_t* suitable_set, size_t suitable_set_len, const char* signature);
+static int execute_global_call(symbol_t *symbol);
+static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symbol);
 
 // BASE FUNCTIONS
 static parameter_t next(parameter_t arg)
@@ -148,14 +151,19 @@ int interpreter_init(void)
     symbol_table_capacity = 20;
 
     global_symbol_table[0].name = "next";
-
+    global_symbol_table[0].signature = "S";
+    
     global_symbol_table[1].name = "prev";
-
+    global_symbol_table[1].signature = "S";
+    
     global_symbol_table[2].name = "proj";
+    global_symbol_table[2].signature = "S";
 
     global_symbol_table[3].name = "zero";
+    global_symbol_table[3].signature = "S";
 
     global_symbol_table[4].name = "write";
+    global_symbol_table[4].signature = "SSS";
 
     symbol_table_length = 5;
 
@@ -237,15 +245,18 @@ static int interpret_definition(const ast_t *ast)
 #endif
 
     symbol_t new_symbol = {0};
+    char *def_name;
     char *parameter_names;
 
     ERROR_RETHROW(interpret_prototype(&ast->tl[0], &new_symbol, &parameter_names));
 
-    ERROR_RETHROW(interpret_truecall(&ast->tl[2], &new_symbol, parameter_names),
+    def_name = new_symbol.name;
+
+    ERROR_RETHROW(interpret_truecall(&ast->tl[2], &new_symbol, def_name, parameter_names),
                   //release_symbol(&new_symbol),
                   free(parameter_names)
     );
-
+//
     // allocate more memory if necessary
     if (symbol_table_length >= symbol_table_capacity)
     {
@@ -528,9 +539,17 @@ static void release_symbol(symbol_t *symbol)
         free(symbol->parameters_map);
         symbol->parameters_map = NULL;
     }
+
+    symbol->name = NULL;
+    symbol->forward_calls_capacity = 0;
+    symbol->forward_calls_len = 0;
+    symbol->parameters_map_capacity = 0;
+    symbol->parameters_map_len = 0;
+
+    return;
 }
 
-static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char *local_names)
+static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names)
 {
 #ifdef _DEBUG
     assert(ast != NULL);
@@ -544,18 +563,18 @@ static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char *local_na
     if (ast->tl_len == 1)
     {
 
-        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol, local_names));
+        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol, def_name, local_names));
 
     }
     else
     {
-
+    
         // fetch the name of the call
         char *name;
         ERROR_RETHROW(interpret_name(&ast->tl[0], &name));
 
         // verify it either appears on the table or it's a recursive call
-        if (strcmp(name, symbol->name) != 0)
+        if (strcmp(name, def_name) != 0)
         {
             // verify it appears on the table
             size_t i;
@@ -578,15 +597,23 @@ static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char *local_na
             }
         }
 
-        symbol->name = name;
+        // allocate forward calls list
+        ERROR_RETHROW(symbol_list_alloc(symbol));
 
-        ERROR_RETHROW(interpret_stepcall_list(&ast->tl[2], symbol, local_names));
+        symbol->forward_calls->name = name;
+        symbol->forward_calls_len = 1;
+
+        ERROR_RETHROW(interpret_stepcall_list(&ast->tl[2], symbol->forward_calls, def_name, local_names),
+            release_symbol(symbol)
+        );
+
+        
     }
 
     return OK;
 }
 
-static int interpret_stepcall_list(const ast_t *ast, symbol_t *symbol, char *local_names)
+static int interpret_stepcall_list(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names)
 {
 #ifdef _DEBUG
     assert(ast != NULL);
@@ -597,28 +624,25 @@ static int interpret_stepcall_list(const ast_t *ast, symbol_t *symbol, char *loc
 #endif
 
     ERROR_RETHROW(symbol_list_alloc(symbol));
-
-    // pass forward the name
-    symbol->forward_calls[0].name = symbol->name;
-
-    ERROR_RETHROW(interpret_stepcall(&ast->tl[0], symbol->forward_calls, local_names),
-                  free(symbol->forward_calls)
-    );
     symbol->forward_calls_len = 1;
+
+    ERROR_RETHROW(interpret_stepcall(&ast->tl[0], symbol->forward_calls, def_name, local_names),
+                  release_symbol(symbol)
+    );
+    
 
     while (ast->tl_len > 1)
     {
         while (symbol->forward_calls_len >= symbol->forward_calls_capacity)
         {
             ERROR_RETHROW(symbol_list_extend(symbol),
-                          free(symbol->forward_calls));
+                          release_symbol(symbol));
         }
 
         ast = &ast->tl[2];
-        symbol->forward_calls[symbol->forward_calls_len].name = symbol->name;
 
-        ERROR_RETHROW(interpret_stepcall(&ast->tl[0], &symbol->forward_calls[symbol->forward_calls_len], local_names),
-                      free(symbol->forward_calls));
+        ERROR_RETHROW(interpret_stepcall(&ast->tl[0], &symbol->forward_calls[symbol->forward_calls_len], def_name, local_names),
+                      release_symbol(symbol));
 
         ++symbol->forward_calls_len;
     }
@@ -626,7 +650,7 @@ static int interpret_stepcall_list(const ast_t *ast, symbol_t *symbol, char *loc
     return OK;
 }
 
-static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_names)
+static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names)
 {
 #ifdef _DEBUG
     assert(ast != NULL);
@@ -639,7 +663,7 @@ static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_na
 
     if (ast->tl_len == 1)
     {
-        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol, local_names));
+        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol, def_name, local_names));
     }
     else
     {
@@ -648,10 +672,10 @@ static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_na
         // fetch the name of the call
         char *name;
         ERROR_RETHROW(interpret_name(&ast->tl[0], &name),
-                      free(symbol->forward_calls));
+                      release_symbol(symbol));
 
         // verify it either appears on the table or it's a recursive call
-        if (strcmp(name, symbol->name) != 0)
+        if (strcmp(name, def_name) != 0)
         {
             // verify it appears on the table
             size_t i;
@@ -674,10 +698,8 @@ static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_na
             }
         }
 
-        symbol->forward_calls[0].name = symbol->name;
-
-        ERROR_RETHROW(interpret_stepcall(&ast->tl[2], symbol->forward_calls, local_names),
-            free(symbol->forward_calls));
+        ERROR_RETHROW(interpret_stepcall(&ast->tl[2], symbol->forward_calls, def_name, local_names),
+            release_symbol(symbol));
 
         symbol->name = name;
         symbol->forward_calls_len = 1;
@@ -686,7 +708,7 @@ static int interpret_stepcall(const ast_t *ast, symbol_t *symbol, char *local_na
     return OK;
 }
 
-static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char *local_names)
+static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char* def_name, char *local_names)
 {
 #ifdef _DEBUG
     assert(ast != NULL);
@@ -700,11 +722,11 @@ static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char *local_na
 
     char *name;
     ERROR_RETHROW(interpret_name(&ast->tl[0], &name),
-                  free(symbol->parameters_map)
+                  release_symbol(symbol)
     );
 
     // verify it either appears on the table or it's a recursive call
-    if (strcmp(name, symbol->name) != 0)
+    if (strcmp(name, def_name) != 0)
     {
         // verify it appears on the table
         size_t i;
@@ -745,14 +767,14 @@ static int interpret_paramlist(const ast_t *ast, symbol_t *symbol, char *local_n
     ERROR_RETHROW(parameter_list_alloc(symbol));
 
     ERROR_RETHROW(interpret_parameter(&ast->tl[0], symbol, local_names),
-                  free(symbol->parameters_map););
+                  release_symbol(symbol););
 
     while (ast->tl_len > 1)
     {
         ast = &ast->tl[2];
 
         ERROR_RETHROW(interpret_parameter(&ast->tl[0], symbol, local_names),
-                      free(symbol->parameters_map););
+                      release_symbol(symbol));
     }
 
     return OK;
@@ -784,7 +806,8 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
     case NAME_VAR:
         // check the name is in the local_names
         char *f;
-        if ((f = strtok(local_names, "\t")) == NULL)
+        
+        if ((f = strstr(local_names, "\t")) == NULL)
         {
             #ifdef _DEBUG
             fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
@@ -797,13 +820,17 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         bool match = false;
         do
         {
-            if (strcmp(tk, f) == 0)
+            *f = '\0';
+            if (strcmp(tk, local_names) == 0)
             {
                 match = true;
+                *f = '\t';
                 break;
             }
             ++i;
-        } while ((f = strtok(NULL, "\t")) != NULL);
+            *f = '\t';
+            local_names = f+1;
+        } while ((f = strstr(local_names, "\t")) != NULL);
 
         if (!match)
         {
@@ -968,14 +995,16 @@ static int execute_call(const ast_t *ast)
     ERROR_RETHROW(fetch_paramlist(&ast->tl[2], &target));
 
 
-    ERROR_RETHROW(execute_call_recursive(&target));
+    ERROR_RETHROW(execute_global_call(&target),
+        release_symbol(&target);
+    );
 
     release_symbol(&target);
     return OK;
 }
 
 
-static int execute_call_recursive(symbol_t *symbol)
+static int execute_global_call(symbol_t *symbol)
 {
 #ifdef _DEBUG
     assert(symbol->name != NULL);
@@ -983,39 +1012,6 @@ static int execute_call_recursive(symbol_t *symbol)
     assert(symbol->parameters_map_len > 0);
 #endif
 
-    parameter_t rv;
-
-    if (strcmp(symbol->name, "next") == 0)
-    {
-        rv = next(symbol->parameters_map[0]);
-        symbol->parameters_map[0] = rv;
-        return OK;
-    }
-    else if (strcmp(symbol->name, "prev") == 0)
-    {
-        rv = prev(symbol->parameters_map[0]);
-        symbol->parameters_map[0] = rv;
-        return OK;
-    }
-    else if (strcmp(symbol->name, "proj") == 0)
-    {
-        rv = proj(symbol->parameters_map);
-        symbol->parameters_map[0] = rv;
-        return OK;
-    }
-    else if (strcmp(symbol->name, "zero") == 0)
-    {
-        rv = zero();
-        symbol->parameters_map[0] = rv;
-        return OK;
-    }
-    else if (strcmp(symbol->name, "write") == 0)
-    {
-        rv = wr(symbol->parameters_map);
-        symbol->parameters_map[0] = rv;
-        return OK;
-
-    }
 
     size_t i;
     size_t suitable_set[64];
@@ -1048,15 +1044,71 @@ static int execute_call_recursive(symbol_t *symbol)
 
     // select a function from the suitable set
     size_t selected;
-    ERROR_RETHROW(select_from_set(&selected, suitable_set, suitable_set_len, symbol->signature));
-    symbol_t* selected_function = &global_symbol_table[selected];
+    ERROR_RETHROW(select_from_set(&selected, suitable_set, suitable_set_len, symbol->signature),
+        release_symbol(symbol)
+    );
+    symbol_t* selected_function = &global_symbol_table[suitable_set[selected]];
 
-    
     // recursively descend into the call tree
+    ERROR_RETHROW(execute_descent_recursive(selected_function, symbol),
+        release_symbol(symbol)
+    );
+
+    /* TODO: REMEMBER TO HANDLE BASE CASES */
+
+    if (selected < DEFAULT_CALLS_THRESHOLD)
+    {
+        switch (i)
+        {
+            case 0:
+                symbol->parameters_map[0] = next(symbol->parameters_map[0]);
+                return OK;
+
+            case 1:
+                symbol->parameters_map[0] = prev(symbol->parameters_map[0]);
+                return OK;
+
+            case 2:
+                symbol->parameters_map[0] = proj(symbol->parameters_map);
+                return OK;
+
+            case 3:
+                symbol->parameters_map[0] = zero();
+                return OK;
+
+            case 4:
+                symbol->parameters_map[0] = wr(symbol->parameters_map);
+                return OK;
+
+            default:
+                fprintf(stderr, "FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                return UNDEFINED_SYMBOL;        
+        }
+    }
+
+    symbol->name = selected_function->name;
+    ERROR_RETHROW(execute_global_call(symbol));
+    
+    return 0;
+}
+
+static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symbol)
+{
+    size_t i;
+
     for (i=0; i<selected_function->forward_calls_len; ++i)
     {
         symbol_t next_function = {0};
         symbol_t* forward_alias = &selected_function->forward_calls[i];
+
+        // steal the forward_calls from forward_alias
+        if (forward_alias->forward_calls_len > 0)
+        {
+            next_function.forward_calls = forward_alias->forward_calls;
+            next_function.forward_calls_len = forward_alias->forward_calls_len;
+            forward_alias->forward_calls = NULL;
+            forward_alias->forward_calls_len = 0;
+        }
 
         ERROR_RETHROW(parameter_list_alloc(&next_function));
 
@@ -1069,14 +1121,14 @@ static int execute_call_recursive(symbol_t *symbol)
                 while (next_function.parameters_map_len >= next_function.parameters_map_capacity)
                 {
                     ERROR_RETHROW(parameter_list_extend(&next_function),
-                        free(next_function.parameters_map)
+                        
+                        release_symbol(&next_function)
                     );
                 }
 
                 next_function.parameters_map[j] = symbol->parameters_map[j];
             }
             next_function.parameters_map_len = symbol->parameters_map_len;
-
         }
         else // bind the passed-in arguments following the parameter-map
         {
@@ -1089,7 +1141,7 @@ static int execute_call_recursive(symbol_t *symbol)
                 while (j >= next_function.parameters_map_capacity)
                 {
                     ERROR_RETHROW(parameter_list_extend(&next_function),
-                        free(next_function.parameters_map)
+                        release_symbol(&next_function)
                     );
                 }
 
@@ -1124,7 +1176,7 @@ static int execute_call_recursive(symbol_t *symbol)
                     while (j >= next_function.parameters_map_capacity)
                     {
                         ERROR_RETHROW(parameter_list_extend(&next_function),
-                            free(next_function.parameters_map)
+                           release_symbol(&next_function)
                         );
                     }
 
@@ -1137,20 +1189,26 @@ static int execute_call_recursive(symbol_t *symbol)
 
         // forward the call
         next_function.name = forward_alias->name;
-        ERROR_RETHROW(execute_call_recursive(&next_function),
-            free(next_function.parameters_map);
+        ERROR_RETHROW(execute_global_call(&next_function),
+            release_symbol(&next_function)
         );
 
         // return value = modify symbol's parameter map to contain return values from the forward-calls
         symbol->parameters_map[i] = next_function.parameters_map[0];
-        free(next_function.parameters_map);
+        
+        if (next_function.forward_calls_len > 0)
+        {
+            // give back forward_calls, do not deallocate
+            forward_alias->forward_calls = next_function.forward_calls;
+            next_function.forward_calls = NULL;
+            forward_alias->forward_calls_len = next_function.forward_calls_len;
+            next_function.forward_calls_len = 0;
+        }   
 
+        release_symbol(&next_function);
     }
 
-    symbol->name = selected_function->name;
-    ERROR_RETHROW(execute_call_recursive(symbol));
-    
-    return 0;
+    return OK;
 }
 
 static int fetch_paramlist(const ast_t *ast, symbol_t *symbol)
@@ -1165,14 +1223,14 @@ static int fetch_paramlist(const ast_t *ast, symbol_t *symbol)
     ERROR_RETHROW(parameter_list_alloc(symbol));
 
     ERROR_RETHROW(fetch_parameter(&ast->tl[0], symbol),
-                  free(symbol->parameters_map););
+                  release_symbol(symbol));
 
     while (ast->tl_len > 1)
     {
         ast = &ast->tl[2];
 
         ERROR_RETHROW(fetch_parameter(&ast->tl[0], symbol),
-                      free(symbol->parameters_map););
+                      release_symbol(symbol));
     }
 
     return OK;
@@ -1377,11 +1435,12 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
 
         bool accepts = true;
         size_t j = 0;
+        size_t k = 0;
         size_t similarity = 0;
 
         while (accepts && candidate[j] != '\0')
         {
-            if (signature[j] == '\0')
+            if (signature[k] == '\0')
             {
                 accepts = false;
                 break;
@@ -1390,11 +1449,10 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
             switch (candidate[j])
             {
                 case 'D':
-                    if (signature[j] == candidate[j])
+                    if (signature[k++] == candidate[j++])
                     {
                         accepts = false;
-                        ++j;
-                        while ((signature[j] == candidate[j]) && signature[j] != '\0')
+                        while ((signature[k] == candidate[j]) && (signature[k] != '\0'))
                         {
                             if (candidate[j] == 'D')
                             {
@@ -1404,6 +1462,7 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
                             }
 
                             ++j;
+                            ++k;
                         }
                     
                     }
@@ -1415,15 +1474,17 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
                     break;
 
                 case 'C':
-                    if (signature[j] == candidate[j])
+                    if (signature[k++] == candidate[j++])
                     {
-                        ++j;
                         accepts = false;
-                        if ((signature[j] == candidate[j]) && signature[j] != '\0')
+                        if ((signature[k] == candidate[j]) && signature[k] != '\0')
                         {
                             accepts = true;
                             similarity += 2;
                         }
+
+                        ++j;
+                        ++k;
                     }
                     else
                     {
@@ -1433,7 +1494,28 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
                     break;
                 
                 case 'S':
+                    if (signature[k] == 'D')
+                    {
+                        do
+                        {
+                            ++k;
+                        }
+                        while (signature[k] != 'D' && signature[k] != '\0');
+
+                        k = (signature[k] != '\0') ? k+1 : k;
+                    }
+                    else if (signature[k] == 'C')
+                    {
+                        ++k;
+                        k = (signature[k] != '\0') ? k+1 : k;
+                    }
+                    else
+                    {
+                        ++k;
+                    }
                     similarity += 1;
+                    ++j;
+
                     break;
 
                 default:
