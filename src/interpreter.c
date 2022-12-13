@@ -1063,7 +1063,7 @@ static int execute_global_call(symbol_t *symbol)
 
     if (selected < DEFAULT_CALLS_THRESHOLD)
     {
-        switch (i)
+        switch (selected)
         {
             case 0:
                 symbol->parameters_map[0] = next(symbol->parameters_map[0]);
@@ -1194,7 +1194,7 @@ static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symb
 
         // forward the call
         next_function.name = forward_alias->name;
-        ERROR_RETHROW(execute_global_call(&next_function),
+        ERROR_RETHROW(execute_descent_recursive(&next_function),
             release_symbol(&next_function)
         );
 
