@@ -175,7 +175,10 @@ void interpreter_release(void)
     size_t i;
     for (i = 0; i < symbol_table_length; ++i)
     {
-        release_symbol(&global_symbol_table[i]);
+        if (i >= DEFAULT_CALLS_THRESHOLD)
+        {
+            release_symbol(&global_symbol_table[i]);
+        }
     }
 
     free(global_symbol_table);
@@ -253,7 +256,7 @@ static int interpret_definition(const ast_t *ast)
     def_name = new_symbol.name;
 
     ERROR_RETHROW(interpret_truecall(&ast->tl[2], &new_symbol, def_name, parameter_names),
-                  //release_symbol(&new_symbol),
+                  release_symbol(&new_symbol),
                   free(parameter_names)
     );
 //
@@ -562,8 +565,12 @@ static int interpret_truecall(const ast_t *ast, symbol_t *symbol, char* def_name
 
     if (ast->tl_len == 1)
     {
+        ERROR_RETHROW(symbol_list_alloc(symbol));
+        symbol->forward_calls_len = 1;
 
-        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol, def_name, local_names));
+        ERROR_RETHROW(interpret_basecall(&ast->tl[0], symbol->forward_calls, def_name, local_names),
+            release_symbol(symbol)
+        );
 
     }
     else
@@ -718,12 +725,8 @@ static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char* def_name
     assert(ast->vardual.vartype == BASECALL);
 #endif
 
-    ERROR_RETHROW(interpret_paramlist(&ast->tl[2], symbol, local_names));
-
     char *name;
-    ERROR_RETHROW(interpret_name(&ast->tl[0], &name),
-                  release_symbol(symbol)
-    );
+    ERROR_RETHROW(interpret_name(&ast->tl[0], &name));
 
     // verify it either appears on the table or it's a recursive call
     if (strcmp(name, def_name) != 0)
@@ -748,6 +751,8 @@ static int interpret_basecall(const ast_t *ast, symbol_t *symbol, char* def_name
             return UNDEFINED_SYMBOL;
         }
     }
+
+    ERROR_RETHROW(interpret_paramlist(&ast->tl[2], symbol, local_names));
 
     symbol->name = name;
 
