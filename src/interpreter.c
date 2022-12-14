@@ -92,7 +92,7 @@ static parameter_t prev(parameter_t arg)
 static parameter_t proj(parameter_t *args)
 {
     int index = args[0].param.number_literal;
-    return args[index];
+    return args[index+1];
 }
 
 static parameter_t zero(void)
@@ -805,12 +805,12 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
     }
 
     vartype_t tt = ast->tl[0].vardual.vartype;
+    char* f;
 
     switch (tt)
     {
     case NAME_VAR:
-        // check the name is in the local_names
-        char *f;
+        // check the name is in the local_name
         
         if ((f = strstr(local_names, "\t")) == NULL)
         {
@@ -981,7 +981,7 @@ static int parameter_list_extend(symbol_t *symbol)
     symbol->parameters_map_capacity *= 2;
 
     bzero(symbol->parameters_map + symbol->parameters_map_len,
-        (symbol->forward_calls_capacity - symbol->forward_calls_len) * sizeof(parameter_t));
+        (symbol->parameters_map_capacity - symbol->parameters_map_len) * sizeof(parameter_t));
 
     return OK;
 }
@@ -1054,16 +1054,18 @@ static int execute_global_call(symbol_t *symbol)
     );
     symbol_t* selected_function = &global_symbol_table[suitable_set[selected]];
 
-    // recursively descend into the call tree
-    ERROR_RETHROW(execute_descent_recursive(selected_function, symbol),
-        release_symbol(symbol)
-    );
+    if (selected_function->forward_calls_len > 0)
+    {
+        ERROR_RETHROW(execute_descent_recursive(selected_function->forward_calls, symbol),
+            release_symbol(symbol)
+        );
+    }
 
     /* TODO: REMEMBER TO HANDLE BASE CASES */
 
-    if (selected < DEFAULT_CALLS_THRESHOLD)
+    if (suitable_set[selected] < DEFAULT_CALLS_THRESHOLD)
     {
-        switch (selected)
+        switch (suitable_set[selected])
         {
             case 0:
                 symbol->parameters_map[0] = next(symbol->parameters_map[0]);
@@ -1091,49 +1093,62 @@ static int execute_global_call(symbol_t *symbol)
         }
     }
 
+    /*
     symbol->name = selected_function->name;
     ERROR_RETHROW(execute_global_call(symbol));
-    
+    */
+
     return 0;
 }
 
-static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symbol)
+static int execute_descent_recursive(symbol_t* selected_function, symbol_t* arguments)
 {
     size_t i;
+    symbol_t return_values_collector = {0};
+    if (selected_function->forward_calls_len > 0)
+    {
+        parameter_list_alloc(&return_values_collector);
+    }
+
 
     for (i=0; i<selected_function->forward_calls_len; ++i)
     {
         symbol_t next_function = {0};
         symbol_t* forward_alias = &selected_function->forward_calls[i];
 
-        // steal the forward_calls from forward_alias
-        if (forward_alias->forward_calls_len > 0)
-        {
-            next_function.forward_calls = forward_alias->forward_calls;
-            next_function.forward_calls_len = forward_alias->forward_calls_len;
-            forward_alias->forward_calls = NULL;
-            forward_alias->forward_calls_len = 0;
-        }
-
-        ERROR_RETHROW(parameter_list_alloc(&next_function));
+        ERROR_RETHROW(parameter_list_alloc(&next_function),
+            release_symbol(&return_values_collector)
+        );
 
         // if the forward call doesn't have a parameter map, just copy in the arguments as they are
         if (forward_alias->parameters_map_len == 0)
         {
+            ERROR_RETHROW(symbol_list_alloc(&next_function),
+                release_symbol(&next_function),
+                release_symbol(&return_values_collector)
+            );
+
             size_t j;
-            for (j=0; j<symbol->parameters_map_len; ++j)
+            for (j=0; j<forward_alias->forward_calls_len; ++j)
             {
-                while (next_function.parameters_map_len >= next_function.parameters_map_capacity)
+                while (next_function.forward_calls_len >= next_function.forward_calls_capacity)
                 {
-                    ERROR_RETHROW(parameter_list_extend(&next_function),
-                        
-                        release_symbol(&next_function)
+                    ERROR_RETHROW(symbol_list_extend(&next_function),
+                        release_symbol(&return_values_collector)
                     );
                 }
 
-                next_function.parameters_map[j] = symbol->parameters_map[j];
+                next_function.forward_calls[j] = forward_alias->forward_calls[j];
+                ++next_function.forward_calls_len;
             }
-            next_function.parameters_map_len = symbol->parameters_map_len;
+
+            // recursively descend the call tree
+            next_function.name = forward_alias->name;
+            ERROR_RETHROW(execute_descent_recursive(&next_function, arguments),
+                release_symbol(&next_function),
+                release_symbol(&return_values_collector)
+            );
+
         }
         else // bind the passed-in arguments following the parameter-map
         {
@@ -1143,13 +1158,15 @@ static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symb
             size_t last = 0;
             for (j=0; j<forward_alias->parameters_map_len; ++j)
             {
-                while (j >= next_function.parameters_map_capacity)
+                while (next_function.parameters_map_len >= next_function.parameters_map_capacity)
                 {
                     ERROR_RETHROW(parameter_list_extend(&next_function),
-                        release_symbol(&next_function)
+                        release_symbol(&next_function),
+                        release_symbol(&return_values_collector)
                     );
                 }
-
+                
+                size_t ref;
                 switch (forward_alias->parameters_map[j].parameter_type)
                 {
                     // call(param0, ->[10])
@@ -1161,8 +1178,8 @@ static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symb
 
                     // call( ->[parameter] )
                     case LOCAL_REFERENCE: 
-                        size_t ref = forward_alias->parameters_map[j].param.symbol_reference;
-                        next_function.parameters_map[j] = symbol->parameters_map[ref];
+                        ref = forward_alias->parameters_map[j].param.symbol_reference;
+                        next_function.parameters_map[j] = arguments->parameters_map[ref];
                         
                         if (ref >= max)
                         {
@@ -1171,47 +1188,60 @@ static int execute_descent_recursive(symbol_t* selected_function, symbol_t* symb
                         }
 
                 }
+
+                ++next_function.parameters_map_len;
             }
 
             // if the maximum reference is also the last parameter, copy-in all the others (variadic style)
             if (last == j - 1)
             {
-                for (last = max; last < symbol->parameters_map_len; ++last)
+                ++max;
+                for (; max < arguments->parameters_map_len; ++max)
                 {
-                    while (j >= next_function.parameters_map_capacity)
+                    while (next_function.parameters_map_len >= next_function.parameters_map_capacity)
                     {
                         ERROR_RETHROW(parameter_list_extend(&next_function),
-                           release_symbol(&next_function)
+                            release_symbol(&next_function),
+                            release_symbol(&return_values_collector)
                         );
                     }
 
-                    next_function.parameters_map[j++] = symbol->parameters_map[last];
+                    next_function.parameters_map[j++] = arguments->parameters_map[max];
+                    ++next_function.parameters_map_len;
                 }
+                
             }
 
-            next_function.parameters_map_len = j;
+            next_function.name = forward_alias->name;
+            ERROR_RETHROW(execute_global_call(&next_function),
+                release_symbol(&next_function),
+                release_symbol(&return_values_collector)
+            );
         }
 
-        // forward the call
-        next_function.name = forward_alias->name;
-        ERROR_RETHROW(execute_descent_recursive(&next_function),
-            release_symbol(&next_function)
-        );
-
-        // return value = modify symbol's parameter map to contain return values from the forward-calls
-        symbol->parameters_map[i] = next_function.parameters_map[0];
-        
-        if (next_function.forward_calls_len > 0)
+        while (return_values_collector.parameters_map_len >= return_values_collector.parameters_map_capacity)
         {
-            // give back forward_calls, do not deallocate
-            forward_alias->forward_calls = next_function.forward_calls;
-            next_function.forward_calls = NULL;
-            forward_alias->forward_calls_len = next_function.forward_calls_len;
-            next_function.forward_calls_len = 0;
-        }   
+                ERROR_RETHROW(parameter_list_extend(&return_values_collector),
+                    release_symbol(&next_function)
+                );
+        }
+
+        return_values_collector.parameters_map[i] = next_function.parameters_map[0];
+        ++return_values_collector.parameters_map_len;
 
         release_symbol(&next_function);
     }
+
+    free(arguments->parameters_map);
+
+    arguments->parameters_map = return_values_collector.parameters_map;
+    arguments->parameters_map_len = return_values_collector.parameters_map_len;
+    arguments->parameters_map_capacity = return_values_collector.parameters_map_capacity;
+    arguments->name = selected_function->name;
+
+    ERROR_RETHROW(execute_global_call(arguments),
+        release_symbol(arguments)
+    );
 
     return OK;
 }
@@ -1347,12 +1377,14 @@ static int get_signature(symbol_t *symbol)
 
     size_t i;
     for (i = 0; i < symbol->parameters_map_len; ++i)
-    {
+    {  
+        size_t p_len;
+
         switch (symbol->parameters_map[i].parameter_type)
         {
         case INT:
             // get the length of the string that will be written
-            size_t p_len = snprintf(NULL, 0, "%d", symbol->parameters_map[i].param.number_literal);
+            p_len = snprintf(NULL, 0, "%d", symbol->parameters_map[i].param.number_literal);
 
             while (signature_len + p_len + 2 >= signature_capacity)
             {
