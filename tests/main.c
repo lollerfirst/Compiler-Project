@@ -58,6 +58,8 @@ int main(int argc, char** argv)
         tokenizer_deinit(&token_list)
     );
 
+    parser_ast_graph(&ast, "ast_graph.gv");
+
     ERROR_RETHROW(interpret(&ast),
         parser_ast_delete(&ast);
         tokenizer_deinit(&token_list)

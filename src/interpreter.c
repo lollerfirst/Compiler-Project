@@ -1041,6 +1041,7 @@ static int execute_global_call(symbol_t *symbol)
         #ifdef _DEBUG
         fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
         #endif
+
         return UNDEFINED_SYMBOL;
     }
     
@@ -1054,194 +1055,206 @@ static int execute_global_call(symbol_t *symbol)
     );
     symbol_t* selected_function = &global_symbol_table[suitable_set[selected]];
 
-    if (selected_function->forward_calls_len > 0)
-    {
-        ERROR_RETHROW(execute_descent_recursive(selected_function->forward_calls, symbol),
-            release_symbol(symbol)
-        );
-    }
-
-    /* TODO: REMEMBER TO HANDLE BASE CASES */
-
-    if (suitable_set[selected] < DEFAULT_CALLS_THRESHOLD)
-    {
-        switch (suitable_set[selected])
-        {
-            case 0:
-                symbol->parameters_map[0] = next(symbol->parameters_map[0]);
-                return OK;
-
-            case 1:
-                symbol->parameters_map[0] = prev(symbol->parameters_map[0]);
-                return OK;
-
-            case 2:
-                symbol->parameters_map[0] = proj(symbol->parameters_map);
-                return OK;
-
-            case 3:
-                symbol->parameters_map[0] = zero();
-                return OK;
-
-            case 4:
-                symbol->parameters_map[0] = wr(symbol->parameters_map);
-                return OK;
-
-            default:
-                fprintf(stderr, "FILE: %s, LINE: %d\n", __FILE__, __LINE__);
-                return UNDEFINED_SYMBOL;        
-        }
-    }
-
-    /*
-    symbol->name = selected_function->name;
-    ERROR_RETHROW(execute_global_call(symbol));
-    */
+    // descend onto the call tree
+    ERROR_RETHROW(execute_descent_recursive(selected_function, symbol),
+        release_symbol(symbol)
+    );
 
     return 0;
 }
 
 static int execute_descent_recursive(symbol_t* selected_function, symbol_t* arguments)
 {
+    #ifdef _DEBUG
+    assert(selected_function != NULL);
+    assert(arguments != NULL);
+    assert(arguments->parameters_map != NULL);
+    #endif
+
     size_t i;
     symbol_t return_values_collector = {0};
+    
+
+    // DISTINGUISH BETWEEN BASECALL AND STRUCTURED ONES
     if (selected_function->forward_calls_len > 0)
     {
-        parameter_list_alloc(&return_values_collector);
-    }
+        // Allocate memory for the return values collector
+        ERROR_RETHROW(parameter_list_alloc(&return_values_collector));
+        
+        for (i=0; i<selected_function->forward_calls_len; ++i)
+        {
+            // allocate memory to forward arguments and get back the return value
+            symbol_t forward_arguments = {0};
+            ERROR_RETHROW(parameter_list_alloc(&forward_arguments),
+                release_symbol(&return_values_collector)
+            );
 
+            // copy in arguments AS THEY ARE
+            size_t j;
+            for (j=0; j<arguments->parameters_map_len; ++j)
+            {
+                // extendend memory as needed
+                while (forward_arguments.parameters_map_len >= forward_arguments.parameters_map_capacity)
+                {
+                    ERROR_RETHROW(parameter_list_extend(&forward_arguments),
+                        release_symbol(&return_values_collector)
+                    );
+                }
 
-    for (i=0; i<selected_function->forward_calls_len; ++i)
-    {
-        symbol_t next_function = {0};
-        symbol_t* forward_alias = &selected_function->forward_calls[i];
+                forward_arguments.parameters_map[j] = arguments->parameters_map[j];
+                ++forward_arguments.parameters_map_len;
+            }
 
-        ERROR_RETHROW(parameter_list_alloc(&next_function),
+            // Descend onto the tree passing the forwarded_arguments
+            ERROR_RETHROW(execute_descent_recursive(&selected_function->forward_calls[i], &forward_arguments),
+                release_symbol(&forward_arguments),
+                release_symbol(&return_values_collector)
+            );
+
+            // The return value is in forward_arguments[0], save it onto the collector before moving on
+            while (return_values_collector.parameters_map_len >= return_values_collector.parameters_map_capacity)
+            {
+                ERROR_RETHROW(parameter_list_extend(&return_values_collector),
+                    release_symbol(&forward_arguments)
+                );
+            }
+            return_values_collector.parameters_map[i] = forward_arguments.parameters_map[0];
+            ++return_values_collector.parameters_map_len;
+
+            // release the memory allocated for forwarding the arguments
+            release_symbol(&forward_arguments);
+        }
+
+        // CALL THE ACTUAL FUNCTION WITH THE RETURNED PARAMETERS
+        return_values_collector.name = selected_function->name;
+        ERROR_RETHROW(execute_global_call(&return_values_collector),
             release_symbol(&return_values_collector)
         );
 
-        // if the forward call doesn't have a parameter map, just copy in the arguments as they are
-        if (forward_alias->parameters_map_len == 0)
-        {
-            ERROR_RETHROW(symbol_list_alloc(&next_function),
-                release_symbol(&next_function),
-                release_symbol(&return_values_collector)
-            );
+        
+        arguments->parameters_map[0] = return_values_collector.parameters_map[0];
+        release_symbol(&return_values_collector);
 
-            size_t j;
-            for (j=0; j<forward_alias->forward_calls_len; ++j)
-            {
-                while (next_function.forward_calls_len >= next_function.forward_calls_capacity)
-                {
-                    ERROR_RETHROW(symbol_list_extend(&next_function),
-                        release_symbol(&return_values_collector)
-                    );
-                }
-
-                next_function.forward_calls[j] = forward_alias->forward_calls[j];
-                ++next_function.forward_calls_len;
-            }
-
-            // recursively descend the call tree
-            next_function.name = forward_alias->name;
-            ERROR_RETHROW(execute_descent_recursive(&next_function, arguments),
-                release_symbol(&next_function),
-                release_symbol(&return_values_collector)
-            );
-
-        }
-        else // bind the passed-in arguments following the parameter-map
-        {
-
-            size_t j;
-            size_t max = 0;
-            size_t last = 0;
-            for (j=0; j<forward_alias->parameters_map_len; ++j)
-            {
-                while (next_function.parameters_map_len >= next_function.parameters_map_capacity)
-                {
-                    ERROR_RETHROW(parameter_list_extend(&next_function),
-                        release_symbol(&next_function),
-                        release_symbol(&return_values_collector)
-                    );
-                }
-                
-                size_t ref;
-                switch (forward_alias->parameters_map[j].parameter_type)
-                {
-                    // call(param0, ->[10])
-                    // call(param0, ->['c'])
-                    case INT:
-                    case CHARACTER:
-                        next_function.parameters_map[j] = forward_alias->parameters_map[j];
-                        break;
-
-                    // call( ->[parameter] )
-                    case LOCAL_REFERENCE: 
-                        ref = forward_alias->parameters_map[j].param.symbol_reference;
-                        next_function.parameters_map[j] = arguments->parameters_map[ref];
-                        
-                        if (ref >= max)
-                        {
-                            max = ref;
-                            last = j;
-                        }
-
-                }
-
-                ++next_function.parameters_map_len;
-            }
-
-            // if the maximum reference is also the last parameter, copy-in all the others (variadic style)
-            if (last == j - 1)
-            {
-                ++max;
-                for (; max < arguments->parameters_map_len; ++max)
-                {
-                    while (next_function.parameters_map_len >= next_function.parameters_map_capacity)
-                    {
-                        ERROR_RETHROW(parameter_list_extend(&next_function),
-                            release_symbol(&next_function),
-                            release_symbol(&return_values_collector)
-                        );
-                    }
-
-                    next_function.parameters_map[j++] = arguments->parameters_map[max];
-                    ++next_function.parameters_map_len;
-                }
-                
-            }
-
-            next_function.name = forward_alias->name;
-            ERROR_RETHROW(execute_global_call(&next_function),
-                release_symbol(&next_function),
-                release_symbol(&return_values_collector)
-            );
-        }
-
-        while (return_values_collector.parameters_map_len >= return_values_collector.parameters_map_capacity)
-        {
-                ERROR_RETHROW(parameter_list_extend(&return_values_collector),
-                    release_symbol(&next_function)
-                );
-        }
-
-        return_values_collector.parameters_map[i] = next_function.parameters_map[0];
-        ++return_values_collector.parameters_map_len;
-
-        release_symbol(&next_function);
     }
+    else if(selected_function->parameters_map_len > 0) // ELSE IF THE SELECTED CALL IS A BASE CALL, BIND THE ARGUMENTS TO THE PARAMETERS
+    {
+        // allocate memory to forward arguments and get back the return value
+        symbol_t forward_arguments = {0};
+        ERROR_RETHROW(parameter_list_alloc(&forward_arguments),
+            release_symbol(&return_values_collector)
+        );
 
-    free(arguments->parameters_map);
+        // Scan the selected functions parameters to find references or literals and copy them into forward arguments
+        size_t j;
+        size_t last_max = 0;
+        size_t max = 0;
+        bool is_referencing = false;
 
-    arguments->parameters_map = return_values_collector.parameters_map;
-    arguments->parameters_map_len = return_values_collector.parameters_map_len;
-    arguments->parameters_map_capacity = return_values_collector.parameters_map_capacity;
-    arguments->name = selected_function->name;
+        for (j=0; j<selected_function->parameters_map_len; ++j)
+        {
+            // extendend memory as needed
+            while (forward_arguments.parameters_map_len >= forward_arguments.parameters_map_capacity)
+            {
+                ERROR_RETHROW(parameter_list_extend(&forward_arguments),
+                    release_symbol(&return_values_collector)
+                );
+            }
+            
+            size_t reference;
 
-    ERROR_RETHROW(execute_global_call(arguments),
-        release_symbol(arguments)
-    );
+            // distinguish between references and actual literals
+            switch (selected_function->parameters_map[j].parameter_type)
+            {
+            case INT:
+            case CHARACTER:
+                
+                forward_arguments.parameters_map[j] = selected_function->parameters_map[j];
+                ++forward_arguments.parameters_map_len;
+                break;
+
+            case LOCAL_REFERENCE:
+                
+                is_referencing = true;
+                reference = selected_function->parameters_map[j].param.symbol_reference;
+                forward_arguments.parameters_map[j] = arguments->parameters_map[reference];
+                ++forward_arguments.parameters_map_len;
+                
+                // if the reference number is greater than the previous one, update this variable with later use
+                if (reference >= max)
+                {
+                    last_max = j;
+                    max = reference;
+                }
+            }            
+        }
+        
+        // Check if the max reference is ALSO the last parameter, if so, copy in all the other (variadic style)
+        if (is_referencing && last_max == j - 1)
+        {
+            ++max;
+
+            for (; max < arguments->parameters_map_len; ++max)
+            {
+                // extendend memory as needed
+                while (forward_arguments.parameters_map_len >= forward_arguments.parameters_map_capacity)
+                {
+                    ERROR_RETHROW(parameter_list_extend(&forward_arguments),
+                        release_symbol(&return_values_collector)
+                    );
+                }
+
+                forward_arguments.parameters_map[j++] = arguments->parameters_map[max];
+                ++forward_arguments.parameters_map_len;
+            }
+        }
+
+        // CALL THE ACTUAL FUNCTION
+        forward_arguments.name = selected_function->name;
+        ERROR_RETHROW(execute_global_call(&forward_arguments),
+            release_symbol(&forward_arguments)
+        );
+
+        // return the returned value
+        arguments->parameters_map[0] = forward_arguments.parameters_map[0];
+
+        // release the memory allocated here
+        release_symbol(&forward_arguments);
+    }
+    else // else if the selected function is a default call
+    {
+        size_t calculated_index = (size_t) (selected_function - global_symbol_table); 
+
+        #ifdef _DEBUG
+        assert(calculated_index < DEFAULT_CALLS_THRESHOLD);
+        #endif
+
+        switch (calculated_index)
+        {
+        case 0:
+            arguments->parameters_map[0] = next(arguments->parameters_map[0]);
+            return OK;
+
+        case 1:
+            arguments->parameters_map[0] = prev(arguments->parameters_map[0]);
+            return OK;
+
+        case 2:
+            arguments->parameters_map[0] = proj(arguments->parameters_map);
+            return OK;
+
+        case 3:
+            arguments->parameters_map[0] = zero();
+            return OK;
+
+        case 4:
+            arguments->parameters_map[0] = wr(arguments->parameters_map);
+            return OK;
+
+        default:
+            fprintf(stderr, "FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            return UNDEFINED_SYMBOL;        
+        }
+    }
 
     return OK;
 }
@@ -1372,6 +1385,7 @@ static int get_signature(symbol_t *symbol)
         #endif
         return BAD_ALLOCATION;
     }
+
     signature_len = 0;
     signature_capacity = 64;
 
@@ -1453,8 +1467,6 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
     #endif
 
     size_t i;
-    size_t temp_selected = 0;
-    size_t temp_selected_similarity = 0;
     bool found = false;
 
     for (i=0; i<suitable_set_len; ++i)
@@ -1473,7 +1485,6 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
         bool accepts = true;
         size_t j = 0;
         size_t k = 0;
-        size_t similarity = 0;
 
         while (accepts && candidate[j] != '\0')
         {
@@ -1485,89 +1496,81 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
 
             switch (candidate[j])
             {
-                case 'D':
-                    if (signature[k++] == candidate[j++])
-                    {
-                        accepts = false;
-                        while ((signature[k] == candidate[j]) && (signature[k] != '\0'))
-                        {
-                            if (candidate[j] == 'D')
-                            {
-                                similarity += 4;
-                                accepts = true;
-                                break;
-                            }
 
+            case 'D':
+                accepts = false;
+                if (signature[k++] == candidate[j++])
+                {
+                    while ((signature[k] == candidate[j]) && (signature[k] != '\0'))
+                    {
+                        if (candidate[j] == 'D')
+                        {
                             ++j;
                             ++k;
-                        }
-                    
-                    }
-                    else
-                    {
-                        accepts = false;
-                    }
-
-                    break;
-
-                case 'C':
-                    if (signature[k++] == candidate[j++])
-                    {
-                        accepts = false;
-                        if ((signature[k] == candidate[j]) && signature[k] != '\0')
-                        {
                             accepts = true;
-                            similarity += 2;
+                            break;
                         }
 
                         ++j;
                         ++k;
                     }
-                    else
+                }
+                break;
+
+            case 'C':
+                accepts = false;
+
+                if (signature[k++] == candidate[j++])
+                {
+                    if ((signature[k] == candidate[j]) && signature[k] != '\0')
                     {
-                        accepts = false;
+                        accepts = true;
                     }
 
-                    break;
-                
-                case 'S':
-                    if (signature[k] == 'D')
-                    {
-                        do
-                        {
-                            ++k;
-                        }
-                        while (signature[k] != 'D' && signature[k] != '\0');
-
-                        k = (signature[k] != '\0') ? k+1 : k;
-                    }
-                    else if (signature[k] == 'C')
-                    {
-                        ++k;
-                        k = (signature[k] != '\0') ? k+1 : k;
-                    }
-                    else
-                    {
-                        ++k;
-                    }
-                    similarity += 1;
                     ++j;
+                    ++k;
+                }
 
-                    break;
+                break;
+                
+            case 'S':
+                if (signature[k] == 'D')
+                {
+                    do
+                    {
+                        ++k;
+                    }
+                    while (signature[k] != 'D' && signature[k] != '\0');
 
-                default:
-                    #ifdef _DEBUG
-                    fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
-                    #endif
-                    return INVALID_SIGNATURE;
+                    k = (signature[k] != '\0') ? k+1 : k;
+                }
+                else if (signature[k] == 'C')
+                {
+                    ++k;
+                    k = (signature[k] != '\0') ? k+1 : k;
+                }
+                else
+                {
+                    ++k;
+                }
+                ++j;
+
+                break;
+
+            default:
+                #ifdef _DEBUG
+                fprintf(stderr, "[!!] FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+                #endif
+                return INVALID_SIGNATURE;
             }
         }
 
-        if (accepts && similarity >= temp_selected_similarity)
+        if (accepts)
         {
             found = true;
-            temp_selected = i;
-            temp_selected_similarity = similarity;
+            *selected = i;
+
+            break;
         }
     }
 
@@ -1579,6 +1582,5 @@ static int select_from_set(size_t* selected, const size_t* suitable_set, size_t 
         return INVALID_SIGNATURE;
     }
 
-    *selected = temp_selected;
     return OK;
 }
