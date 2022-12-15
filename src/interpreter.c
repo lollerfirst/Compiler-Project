@@ -806,6 +806,7 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
 
     vartype_t tt = ast->tl[0].vardual.vartype;
     char* f;
+    char c;
 
     switch (tt)
     {
@@ -887,16 +888,34 @@ static int interpret_parameter(const ast_t *ast, symbol_t *symbol, char *local_n
         }
 
         i = 1;
-        while (tk[i] != '\"' && tk[i] != '\0')
+        while (tk[i] != '"' && tk[i] != '\0')
         {
             while (symbol->parameters_map_len >= symbol->parameters_map_capacity)
             {
                 ERROR_RETHROW(parameter_list_extend(symbol));
             }
 
+            c = tk[i];
+            if (c == '\\')
+            {
+                switch (tk[i+1])
+                {
+                case 'n':
+                    c = '\n';
+                    ++i;
+                    break;
+                
+                // insert other cases when necessary
+                default:
+                    break;
+                }
+            }
+
             symbol->parameters_map[symbol->parameters_map_len].parameter_type = CHARACTER;
-            symbol->parameters_map[symbol->parameters_map_len].param.character_literal = tk[i];
+            symbol->parameters_map[symbol->parameters_map_len].param.character_literal = c;
             ++symbol->parameters_map_len;
+
+            ++i;
         }
 
         break;
@@ -1055,10 +1074,43 @@ static int execute_global_call(symbol_t *symbol)
     );
     symbol_t* selected_function = &global_symbol_table[suitable_set[selected]];
 
-    // descend onto the call tree
-    ERROR_RETHROW(execute_descent_recursive(selected_function, symbol),
-        release_symbol(symbol)
-    );
+    // Distinguish between default call and defined call
+    if (suitable_set[selected] >= DEFAULT_CALLS_THRESHOLD)
+    {
+        // descend onto the call tree
+        ERROR_RETHROW(execute_descent_recursive(selected_function->forward_calls, symbol),
+            release_symbol(symbol)
+        );
+    }
+    else
+    {
+        switch (suitable_set[selected])
+        {
+        case 0:
+            symbol->parameters_map[0] = next(symbol->parameters_map[0]);
+            return OK;
+
+        case 1:
+            symbol->parameters_map[0] = prev(symbol->parameters_map[0]);
+            return OK;
+
+        case 2:
+            symbol->parameters_map[0] = proj(symbol->parameters_map);
+            return OK;
+
+        case 3:
+            symbol->parameters_map[0] = zero();
+            return OK;
+
+        case 4:
+            symbol->parameters_map[0] = wr(symbol->parameters_map);
+            return OK;
+
+        default:
+            fprintf(stderr, "FILE: %s, LINE: %d\n", __FILE__, __LINE__);
+            return UNDEFINED_SYMBOL;        
+        }
+    }
 
     return 0;
 }
@@ -1069,6 +1121,7 @@ static int execute_descent_recursive(symbol_t* selected_function, symbol_t* argu
     assert(selected_function != NULL);
     assert(arguments != NULL);
     assert(arguments->parameters_map != NULL);
+    assert(selected_function->parameters_map != NULL || selected_function->forward_calls != NULL);
     #endif
 
     size_t i;
@@ -1219,41 +1272,6 @@ static int execute_descent_recursive(symbol_t* selected_function, symbol_t* argu
 
         // release the memory allocated here
         release_symbol(&forward_arguments);
-    }
-    else // else if the selected function is a default call
-    {
-        size_t calculated_index = (size_t) (selected_function - global_symbol_table); 
-
-        #ifdef _DEBUG
-        assert(calculated_index < DEFAULT_CALLS_THRESHOLD);
-        #endif
-
-        switch (calculated_index)
-        {
-        case 0:
-            arguments->parameters_map[0] = next(arguments->parameters_map[0]);
-            return OK;
-
-        case 1:
-            arguments->parameters_map[0] = prev(arguments->parameters_map[0]);
-            return OK;
-
-        case 2:
-            arguments->parameters_map[0] = proj(arguments->parameters_map);
-            return OK;
-
-        case 3:
-            arguments->parameters_map[0] = zero();
-            return OK;
-
-        case 4:
-            arguments->parameters_map[0] = wr(arguments->parameters_map);
-            return OK;
-
-        default:
-            fprintf(stderr, "FILE: %s, LINE: %d\n", __FILE__, __LINE__);
-            return UNDEFINED_SYMBOL;        
-        }
     }
 
     return OK;
